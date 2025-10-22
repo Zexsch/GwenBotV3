@@ -40,11 +40,3 @@ class App(commands.Bot):
         await self.add_cog(LeaderboardCog(bot=self, database=self.database))
         await self.add_cog(DeepseekCog(bot=self, database=self.database, logger=self.logger))
         self.logger.info("Finished initialising cogs.")
-            
-        
-                
-        
-        
-                
-                
-        
