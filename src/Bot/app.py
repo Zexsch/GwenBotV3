@@ -19,6 +19,8 @@ class App(commands.Bot):
         self.logger = SingletonLogger().get_logger()
         self.database = DatabaseHandler()
         self.winrate_fetcher = WinrateFetcher()
+        
+        self.database.create_db()
     
     async def setup_hook(self) -> None:
         from Bot.Cogs.listener_cog import ListenerCog
