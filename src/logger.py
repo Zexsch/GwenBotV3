@@ -45,9 +45,14 @@ class SingletonLogger:
         
         if not self.logger.handlers:
             
+            log_folder = Path(__file__).resolve().parent / "Logs"
+            
+            if not log_folder.exists():
+                log_folder.mkdir(parents=True, exist_ok=True)
+            
             formatter = Formatter("%(levelname)s : %(asctime)s : %(message)s", datefmt="%y/%m/%d %H:%M:%S")
             
-            log_path = Path(__file__).resolve().parent / "Logs" / f"log_{datetime.now().strftime('%Y-%m-%d')}.log"
+            log_path = log_folder / f"log_{datetime.now().strftime('%Y-%m-%d')}.log"
             
             file_handler = TimedRotatingFileHandler(
                 filename=log_path,
@@ -62,7 +67,7 @@ class SingletonLogger:
             self.logger.addHandler(file_handler)
             
             if self.debug:
-                debug_log_path = Path(__file__).resolve().parent / "Logs" / f"log_{datetime.now().strftime('%Y-%m-%d')}_debug.log"
+                debug_log_path = log_folder / f"log_{datetime.now().strftime('%Y-%m-%d')}_debug.log"
                 
                 debug_file_handler = TimedRotatingFileHandler(
                     filename=debug_log_path,
