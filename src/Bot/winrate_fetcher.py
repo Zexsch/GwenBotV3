@@ -104,7 +104,7 @@ class WinrateFetcher:
             role_str = f"{champ.role}"
         
         if champ.patch:
-            patch_str = f"&patch={champ.patch}"
+            patch_str = f"&patch={champ.patch.replace('.', '_')}"
         
         if role_str:
             self.logger.debug(f"Created url https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}")
