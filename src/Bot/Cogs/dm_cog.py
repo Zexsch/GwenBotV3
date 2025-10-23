@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 
 from Bot.winrate_fetcher import WinrateFetcher
-
 from Config.help_message import HELPMESSAGE, WRHELPMESSAGE
 
 class DMCog(commands.Cog):

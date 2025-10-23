@@ -1,8 +1,6 @@
 import time
-
-from typing import Dict
-
 import requests
+from typing import Dict
 
 from logger import SingletonLogger
 

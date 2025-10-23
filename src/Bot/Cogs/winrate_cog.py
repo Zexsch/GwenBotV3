@@ -5,8 +5,6 @@ from discord.ext import commands
 from Bot.models import Champion
 from Bot.winrate_fetcher import WinrateFetcher
 
-from Config.config import OWNER_ID
-
 class WinrateCog(commands.Cog):
     def __init__(self, bot: commands.Bot, winrate_fetcher: WinrateFetcher, logger: Logger):
         self.bot = bot

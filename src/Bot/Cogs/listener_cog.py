@@ -2,7 +2,6 @@ from random import randint
 from logging import Logger
 
 import discord
-
 from discord.ext import commands
 
 from Database.database import DatabaseHandler
