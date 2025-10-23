@@ -26,10 +26,11 @@ class WinrateFetcher:
                                     'gold', 'silver', 'bronze', 'iron', 'diamond_2_plus', 'master_plus', 
                                     'diamond_plus', 'platinum_plus', '']
         
-        self.all_champions: list[str] = self._get_champion_list()
-        self.patch_version: str = self._get_current_patch()
         
+        self.patch_version: str = self._get_current_patch()
         self.patch_minor_version: str = self.patch_version.split('.')[1]
+        
+        self.all_champions: list[str] = self._get_champion_list()
         
         self.role_list: list[str] = ['top', 'jungle', 'mid', 'adc', 'support']
         
