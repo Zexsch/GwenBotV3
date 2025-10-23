@@ -35,6 +35,7 @@ class WinrateCog(commands.Cog):
         
         if int(champ.patch[-2:]) < int(minor_patch) - 5:
             await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.winrate_fetcher.patch_version[:-3]}.")
+            return
             
         if result.champ.elo:
             result.champ.beautify_elo(self.beautified_elo_list)
