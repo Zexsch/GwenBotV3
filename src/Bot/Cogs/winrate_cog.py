@@ -27,7 +27,7 @@ class WinrateCog(commands.Cog):
         result = self.winrate_fetcher.get_stats(champ, args)
         
         if not result.win_rate:
-            await ctx.send(f"Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! <@{OWNER_ID}>")
+            await ctx.send(f"Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! Are you sure that there's enough matches played?")
             self.logger.critical(f"GwenBot was unable to fetch the winrate for champion {champion_name} with arguments {args} in channel {ctx.channel.id}")
             return
         
@@ -42,7 +42,7 @@ class WinrateCog(commands.Cog):
         
         if result.champ.elo:
                 result.champ.beautify_elo(self.beautified_elo_list)
-                await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo} {result.final_string}.")
+                await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo}{result.final_string}.")
                 return
             
         await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate{result.final_string}.")
