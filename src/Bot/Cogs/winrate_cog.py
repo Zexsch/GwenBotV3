@@ -31,18 +31,36 @@ class WinrateCog(commands.Cog):
             self.logger.critical(f"GwenBot was unable to fetch the winrate for champion {champion_name} with arguments {args} in channel {ctx.channel.id}")
             return
         
-        if result.champ.role:
-            if result.champ.elo:
-                result.champ.beautify_elo(self.beautified_elo_list)
-                await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo} in {result.champ.role}{result.final_string}.")
-                return
+        minor_patch = self.winrate_fetcher.patch_minor_version
+        
+        if int(champ.patch[-2:]) < int(minor_patch) - 5:
+            await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.winrate_fetcher.patch_version[:-3]}.")
             
+        if result.champ.elo:
+            result.champ.beautify_elo(self.beautified_elo_list)
+            
+        if result.champ.role and result.champ.patch and result.champ.elo:
+            await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo} in {result.champ.role}{result.final_string} on patch {result.champ.patch}.")
+            return
+        
+        if result.champ.role and result.champ.patch:
+            await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.role}{result.final_string} on patch {result.champ.patch}.")
+            return
+        
+        if result.champ.role:
             await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.role}{result.final_string}.")
             return
         
+        if result.champ.patch and result.champ.elo:
+            await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo}{result.final_string} on patch {result.champ.patch}.")
+            return
+        
         if result.champ.elo:
-                result.champ.beautify_elo(self.beautified_elo_list)
-                await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo}{result.final_string}.")
-                return
+            await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in {result.champ.elo}{result.final_string}.")
+            return
+        
+        if result.champ.patch:
+            await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate in{result.final_string} on patch {result.champ.patch}.")
+            return
             
         await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate{result.final_string}.")

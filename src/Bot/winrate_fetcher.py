@@ -1,10 +1,8 @@
 import json
 
 from bs4 import BeautifulSoup
-from bs4.element import NavigableString
 
 from request import request
-from Config.config import LOL_VERSION
 from Bot.models import Champion, Result
 from logger import SingletonLogger
 
@@ -29,6 +27,9 @@ class WinrateFetcher:
                                     'diamond_plus', 'platinum_plus', '']
         
         self.all_champions: list[str] = self._get_champion_list()
+        self.patch_version: str = self._get_current_patch()
+        
+        self.patch_minor_version: str = self.patch_version.split('.')[1]
         
         self.role_list: list[str] = ['top', 'jungle', 'mid', 'adc', 'support']
         
@@ -39,13 +40,22 @@ class WinrateFetcher:
     def _get_champion_list(self) -> list[str]:
         """Gets list of champions."""
         self.logger.debug("Fetching champion.json")
-        url: str = f"https://ddragon.leagueoflegends.com/cdn/{LOL_VERSION}/data/en_US/champion.json"
+        url: str = f"https://ddragon.leagueoflegends.com/cdn/{self.patch_version}/data/en_US/champion.json"
         self.logger.debug("Finished fetching champion.json")
         
         champion_response = request(url)
         champion_json: dict[str, str] = json.loads(champion_response.text)
         return [i.lower() for i in champion_json['data']]
-         
+    
+    
+    def _get_current_patch(self) -> str:
+        self.logger.debug("Fetching current patch.")
+        url = 'https://ddragon.leagueoflegends.com/realms/na.json'
+        patch_response = request(url)
+        
+        patch: str = json.loads(patch_response.content)['v']
+        return patch
+        
     
     def _alternative_elo_check(self, elo: str) -> str:
         """Checks if elo in alternative elos
@@ -61,6 +71,16 @@ class WinrateFetcher:
                 return key
         
         return elo
+    
+    def _check_patch(self, patch: str) -> str:
+        # Standard patch format: ab.cd, example 15.21
+        if (len(patch) == 5
+            and patch[2] == '.'
+            and patch[:2].isdigit()
+            and patch[3:].isdigit()):
+            return patch
+        
+        return "" 
         
     
     def _get_url(self, champ: Champion) -> str:
@@ -71,6 +91,7 @@ class WinrateFetcher:
         elo_str = ""
         opponent_str = ""
         role_str = ""
+        patch_str = ""
         
         if champ.elo:
             elo_str = f"&rank={champ.elo}"
@@ -79,25 +100,25 @@ class WinrateFetcher:
             opponent_str = f"&opp={champ.opponent}"
             
         if champ.role:
-            role_str: str = f"{champ.role}"
+            role_str = f"{champ.role}"
+        
+        if champ.patch:
+            patch_str = f"&patch={champ.patch}"
         
         if role_str:
-            self.logger.debug(f"Created url https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}")
-            return f"https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}"
+            self.logger.debug(f"Created url https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}")
+            return f"https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
         
-        self.logger.debug(f"Created url https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}")
-        return f"https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}"
+        self.logger.debug(f"Created url https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}{patch_str}")
+        return f"https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
     
     
     def _get_winrate(self, soup: BeautifulSoup) -> str | None:
         for value in self.ugg_div_values:
-            elements = soup.find_all(
-                'div',
-                {'class': f'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold {value}-tier'}
-            )
-            for el in elements:
-                text = el.get_text(strip=True)
-                if '%' in text and any(ch.isdigit() for ch in text):
+            elements = soup.find_all('div', {'class': f'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold {value}-tier'})
+            for element in elements:
+                text = element.get_text(strip=True)
+                if '%' in text and any(char.isdigit() for char in text):
                     return text
         return None
     
@@ -219,6 +240,10 @@ class WinrateFetcher:
             
             if arg in self.role_list:
                 champ.role = arg
+                continue
+            
+            if self._check_patch(arg):
+                champ.patch = arg
                 continue
                 
             arg = self._alternative_elo_check(arg)

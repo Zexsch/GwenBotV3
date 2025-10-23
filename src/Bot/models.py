@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Champion:
     name: str
+    patch: str = field(default="")
     role: str | None = field(default="")
     elo: str | None = field(default="")
     opponent: str | None = field(default="")
