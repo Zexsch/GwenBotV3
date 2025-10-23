@@ -64,3 +64,8 @@ class WinrateCog(commands.Cog):
             return
             
         await ctx.send(f"{result.champ.name.capitalize()} has a {result.win_rate} winrate{result.final_string}.")
+        
+    
+    @commands.command(aliases=['Version', 'checkver', 'patch'])
+    async def version(self, ctx: commands.Context):
+        await ctx.send(f'Currently on league patch {self.winrate_fetcher.patch_version}.')

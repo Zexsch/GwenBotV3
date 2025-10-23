@@ -1,7 +1,6 @@
 from discord.ext import commands
 
 from Database.database import DatabaseHandler
-from Config.config import LOL_VERSION
 
 
 class CommandsCog(commands.Cog):
@@ -34,10 +33,6 @@ class CommandsCog(commands.Cog):
     @commands.command(aliases=['george','George','Sylas'])
     async def sylas(self, ctx: commands.Context):
         await ctx.send('Sylas pressed W. https://imgur.com/IHyk5hl')
-        
-    @commands.command(aliases=['Version', 'checkver', 'patch'])
-    async def version(self, ctx: commands.Context):
-        await ctx.send(f'Currently on league patch {LOL_VERSION}.')
     
     @commands.command(aliases=["Wis'adel", 'w', 'W', 'balans'])
     async def wisadel(self, ctx: commands.Context):
