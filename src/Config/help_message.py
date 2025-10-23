@@ -26,7 +26,8 @@ GwenBot is open source, you can find all code on <https://github.com/Zexsch/Gwen
 WRHELPMESSAGE: str = """
 +wr (winrate) | (champion)  -  Gives the winrate of the given champion.
 Optional parameters:
-elo, role, opposing champ
-Example command usage: +wr vayne top d2+ aatrox - Gives the winrate of Vayne in top lane in D2+ elo against Aatrox.
+elo, role, opposing champ, patch
+Example command usage: +wr vayne top d2+ 15.20 aatrox - Gives the winrate of Vayne in top lane in D2+ elo against Aatrox on patch 15.20.
+Only the latest 5 patches are available. Get the current patch with +patch
 Message @Zexsch#1884 if u.gg is not down and the commands do not work.
 """
