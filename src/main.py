@@ -2,7 +2,7 @@ import os
 
 from logger import SingletonLogger
 
-logger = SingletonLogger().get_logger()
+logger = SingletonLogger(debug=False).get_logger()
 
 from Bot.app import App
 
