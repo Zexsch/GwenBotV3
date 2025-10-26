@@ -26,6 +26,10 @@ class WinrateFetcher:
                                     'gold', 'silver', 'bronze', 'iron', 'diamond_2_plus', 'master_plus', 
                                     'diamond_plus', 'platinum_plus', '']
         
+        self._elo_lookup: dict[str, str] = {
+            alt: key for key, values in self.alternative_elos.items() for alt in values
+        }
+        
         
         self.patch_version: str = self._get_current_patch()
         self.patch_minor_version: str = self.patch_version.split('.')[1]
@@ -59,23 +63,11 @@ class WinrateFetcher:
         
     
     def _alternative_elo_check(self, elo: str) -> str:
-        """Checks if elo in alternative elos
-
-        Args:
-            elo (str): elo
-
-        Returns:
-            str: input elo if not found, else elo
-        """
-        for key, value in self.alternative_elos.items():
-            if elo in value:
-                return key
-        
-        return elo
+        return self._elo_lookup.get(elo, elo)
     
     def _check_patch(self, patch: str) -> str:
         # Standard patch format: ab.cd, example 15.21
-        if (len(patch) == 5
+        if ((len(patch) == 5 or len(patch) == 4) 
             and patch[2] == '.'
             and patch[:2].isdigit()
             and patch[3:].isdigit()):
