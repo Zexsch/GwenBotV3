@@ -21,6 +21,10 @@ class DeepseekCog(commands.Cog):
         if self.database.fetch_blacklist(ctx.message.author.id, ctx.guild.id): # type: ignore
             await ctx.send("You have been blacklisted from using this command.")
             return
+        
+        if any(phrase in original_message for phrase in self.banned_phrases):
+            await ctx.send("Oh no! You cannot try to make me ping someone!")
+            return
             
         await ctx.send("Gwen is thinking...")
         response = ""
@@ -48,14 +52,14 @@ class DeepseekCog(commands.Cog):
             stream=False
         ) # type: ignore
         
+        if any(phrase in response.choices[0].message.content for phrase in self.banned_phrases):
+            await ctx.send("Oh no! It seems like my message contained a banned phrase...")
+            return
+        
         self.database.add_context_ds(ctx.message.author.id, original_message, response.choices[0].message.content)
 
         if len(response.choices[0].message.content) > 2000:
             await ctx.send("Oh no! It seems like I can't send the message because it is too long. Blame discord...")
-            return
-        
-        if any(phrase in response.choices[0].message.content for phrase in self.banned_phrases):
-            await ctx.send("Oh no! It seems like my message contained a banned phrase...")
             return
 
         await ctx.send(response.choices[0].message.content)
