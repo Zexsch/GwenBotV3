@@ -63,7 +63,7 @@ class DeepseekCog(commands.Cog):
         await ctx.send(f"||<@{ctx.message.author.id}>||")
         response = ""
         
-        
+    @commands.is_owner()
     @commands.command(aliases=["deepseek", "seek"])
     async def gwenseek(self, ctx: commands.Context, *, message: str) -> None:
         # Check https://discordpy.readthedocs.io/en/latest/ext/commands/commands.html?highlight=Keyword-Only%20Arguments
