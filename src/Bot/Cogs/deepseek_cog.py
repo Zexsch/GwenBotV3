@@ -55,6 +55,7 @@ class DeepseekCog(commands.Cog):
             return
         
         if any(phrase in response.choices[0].message.content for phrase in self.banned_phrases):
+            print(response.choices[0].message.content)
             await ctx.send("Oh no! It seems like my message contained a banned phrase...")
             return
 
