@@ -14,7 +14,7 @@ class DeepseekCog(commands.Cog):
         self.__token = os.environ['DEEPSEEK_TOKEN']
         self.deepseek_client = AsyncOpenAI(api_key=self.__token, base_url="https://api.deepseek.com")
         
-        self.banned_phrases: list[str] = ["@everyone", "@here"]
+        self.banned_phrases: list[str] = ["@everyone", "@here", "<@", "<@&"]
         
     
     async def gwenseekfunc(self, ctx: commands.Context, model: str, original_message: str) -> None:
@@ -55,7 +55,6 @@ class DeepseekCog(commands.Cog):
             return
         
         if any(phrase in response.choices[0].message.content for phrase in self.banned_phrases):
-            print(response.choices[0].message.content)
             await ctx.send("Oh no! It seems like my message contained a banned phrase...")
             return
 
@@ -63,19 +62,16 @@ class DeepseekCog(commands.Cog):
         await ctx.send(f"||<@{ctx.message.author.id}>||")
         response = ""
         
-    @commands.is_owner()
     @commands.command(aliases=["deepseek", "seek"])
     async def gwenseek(self, ctx: commands.Context, *, message: str) -> None:
         # Check https://discordpy.readthedocs.io/en/latest/ext/commands/commands.html?highlight=Keyword-Only%20Arguments
         # To see how *, message works
         await self.gwenseekfunc(ctx, "reasoner", message)
     
-    @commands.is_owner()
     @commands.command(aliases=["deepseekbasic", "seekbasic", "gwenseekb"])
     async def gwenseekbasic(self, ctx: commands.Context, *, message: str) -> None:
         await self.gwenseekfunc(ctx, "chat", message)
     
-    @commands.is_owner()
     @commands.command(aliases=["ch", "clear"])
     async def clearhistory(self, ctx: commands.Context) -> None:
         self.database.clear_context_ds(ctx.message.author.id)
