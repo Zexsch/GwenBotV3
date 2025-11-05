@@ -55,13 +55,18 @@ class DeepseekCog(commands.Cog):
         if any(phrase in response.choices[0].message.content for phrase in self.banned_phrases):
             await ctx.send("Oh no! It seems like my message contained a banned phrase...")
             return
-        
-        self.database.add_context_ds(ctx.message.author.id, original_message, response.choices[0].message.content)
 
         if len(response.choices[0].message.content) > 2000:
             await ctx.send("Oh no! It seems like I can't send the message because it is too long. Blame discord...")
             return
+        
+        self.database.add_context_ds(ctx.message.author.id, original_message, response.choices[0].message.content)
 
+        if not response.choices[0].message.content:
+            self.logger.critical(f"Empty message was returned from Deepseek API call with arguments {model=} {full_messages=}")
+            await ctx.send("Oh no! It seems like Gwen ran into some issues!")
+            return
+        
         await ctx.send(response.choices[0].message.content)
         await ctx.send(f"||<@{ctx.message.author.id}>||")
         response = ""
