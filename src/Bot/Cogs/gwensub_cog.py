@@ -9,7 +9,7 @@ class GwensubCog(commands.Cog):
         self.database = database
         self.logger = logger
         
-    @commands.command(name='GwenAdd', aliases=['add', 'gwenadd'])
+    @commands.command(name='GwenAdd', aliases=['add'])
     async def gwen_add(self, ctx: commands.Context) -> None:
         """Command to add user to the subscribed database"""
         
