@@ -34,7 +34,7 @@ class CommandsCog(commands.Cog):
     async def sylas(self, ctx: commands.Context):
         await ctx.send('Sylas pressed W. https://imgur.com/IHyk5hl')
     
-    @commands.command(aliases=["Wis'adel", 'w', 'W', 'balans'])
+    @commands.command(aliases=["Wis'adel", 'w', 'balans'])
     async def wisadel(self, ctx: commands.Context):
         await ctx.send(r"Immediately summons 2 Shadows of Revenant within attack range (max 3, persists after the skill ends); ATK +180%, attack interval increases significantly, ATK increases to 220% when attacking, splash damage radius expands, and 1st Talent activation chance increases to 100%. Skill activation grants 6 ammo and the skill ends when all ammo are used (Can manually deactivate skill)")
 
