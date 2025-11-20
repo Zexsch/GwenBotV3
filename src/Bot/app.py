@@ -13,7 +13,7 @@ class App(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
-        self.bot = super().__init__(command_prefix=PREFIX, intents=intents, help_command=None, owner_id=OWNER_ID)
+        self.bot = super().__init__(command_prefix=PREFIX, intents=intents, help_command=None, owner_id=OWNER_ID, case_insensitive=True)
         
         self.logger = SingletonLogger().get_logger()
         self.database = DatabaseHandler()
