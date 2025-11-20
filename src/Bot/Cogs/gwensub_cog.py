@@ -34,7 +34,7 @@ class GwensubCog(commands.Cog):
         await ctx.send('You are already subscribed to GwenBot.')
         
     
-    @commands.command(name='remove', aliases=['gwenremove', 'Gwenremove', 'rem', 'removesub'])
+    @commands.command(name='remove', aliases=['gwenremove', 'rem', 'removesub'])
     async def gwen_remove(self, ctx: commands.Context) -> None:
         """Command to remove user from the subscribed database"""
         
