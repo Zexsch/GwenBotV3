@@ -26,7 +26,7 @@ class DMCog(commands.Cog):
         await user.send(', '.join(map(str, self.winrate_fetcher.role_list)))
     
     #  Change the strings in helpmsg.py to edit the help messages.
-    @commands.command(aliases=['Menu', 'Help'])
+    @commands.command(aliases=['Menu'])
     async def help(self, ctx: commands.Context):
         user: discord.Member | discord.User = ctx.message.author
         await user.send(HELPMESSAGE)
