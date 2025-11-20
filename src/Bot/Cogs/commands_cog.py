@@ -8,7 +8,7 @@ class CommandsCog(commands.Cog):
         self.bot = bot
         self.database = database
 
-    @commands.command(aliases=['Evasion', 'jax'])
+    @commands.command(aliases=[ 'jax'])
     async def evasion(self, ctx: commands.Context):
         await ctx.send(r'Active: Jax enters Evasion, a defensive stance, for up to 2 seconds, causing all basic attacks against him to miss. Jax also takes 25% reduced damage from all champion area of effect abilities. After 1 second, Jax can reactivate to end it immediately.')
     
@@ -18,19 +18,19 @@ class CommandsCog(commands.Cog):
             return
         await ctx.send('Gwen is immune.')
     
-    @commands.command(aliases=['Aatrox'])
+    @commands.command()
     async def aatrox(self, ctx: commands.Context):
         await ctx.send('Aatrox got ignited.')
     
-    @commands.command(aliases=['lh', 'Lh', 'LH'])
+    @commands.command(aliases=['lh'])
     async def listenhere(self, ctx: commands.Context):
         await ctx.send('listen here you little shit')
         
-    @commands.command(aliases=['Emo'])
+    @commands.command()
     async def emo(self, ctx: commands.Context):
         await ctx.send("Aatrox's biggest fan (owns an Aatrox tshirt)")
         
-    @commands.command(aliases=['george','George','Sylas'])
+    @commands.command(aliases=['george'])
     async def sylas(self, ctx: commands.Context):
         await ctx.send('Sylas pressed W. https://imgur.com/IHyk5hl')
     
