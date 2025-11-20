@@ -129,7 +129,7 @@ class GwensubCog(commands.Cog):
         await ctx.send('User removed from GwenBot subscription.')
         
         
-    @commands.command(name='blacklist', aliases=['bl'])
+    @commands.command(aliases=['bl'])
     @commands.has_permissions(kick_members=True)
     async def blacklist(self, ctx: commands.Context, user_id) -> None:
         """Command to add a user to the blacklist. Requires the user to have kick_members permissions."""
