@@ -31,7 +31,7 @@ class WinrateCog(commands.Cog):
         
         minor_patch = self.winrate_fetcher.patch_minor_version
         
-        if int(champ.patch[-2:]) < int(minor_patch) - 5:
+        if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
             await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.winrate_fetcher.patch_version[:-3]}.")
             return
             
