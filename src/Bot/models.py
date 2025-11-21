@@ -21,3 +21,8 @@ class Result:
     win_rate: str | None
     match_count: str | None
     final_string: str = field(default="")
+    
+    
+class WinrateNotFoundException(Exception):
+    def __init__(self, **kwargs) -> None:
+        super().__init__(f"Winrate not found with {kwargs=}")

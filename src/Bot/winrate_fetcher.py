@@ -3,7 +3,7 @@ import json
 from bs4 import BeautifulSoup
 
 from request import request
-from Bot.models import Champion, Result
+from Bot.models import Champion, Result, WinrateNotFoundException
 from logger import SingletonLogger
 
 
@@ -129,14 +129,14 @@ class WinrateFetcher:
         return f"https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
     
     
-    def _get_winrate(self, soup: BeautifulSoup) -> str | None:
+    def _get_winrate(self, soup: BeautifulSoup) -> str:
         for value in self.ugg_div_values:
             elements = soup.find_all('div', {'class': f'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold {value}-tier'})
             for element in elements:
                 text = element.get_text(strip=True)
                 if '%' in text and any(char.isdigit() for char in text):
                     return text
-        return None
+        raise WinrateNotFoundException()
     
     
     def _get_match_count(self, soup: BeautifulSoup, with_opponent: bool) -> str | None:
@@ -195,7 +195,7 @@ class WinrateFetcher:
         url = self._get_url(champ)
         web = request(url).content
         
-        soup = BeautifulSoup(web, "html.parser") # type: ignore
+        soup = BeautifulSoup(web, "html.parser") 
         
         win_rate = self._get_winrate(soup)
         match_count = self._get_match_count(soup, with_opponent=False)
@@ -211,7 +211,7 @@ class WinrateFetcher:
         if not ban_rate:
             self.logger.error(f"Unable to fetch ban_rate for {champ=} with {url=}")
         
-        final_string = f" with {match_count} matches played, a {pick_rate} pick rate and a {ban_rate} ban rate" # type: ignore
+        final_string = f" with {match_count} matches played, a {pick_rate} pick rate and a {ban_rate} ban rate"
         self.logger.debug(f"Final string for {champ=} : {final_string}")
         
         
@@ -229,7 +229,7 @@ class WinrateFetcher:
         url = self._get_url(champ)
         web = request(url).content
         
-        soup = BeautifulSoup(web, "html.parser") # type: ignore
+        soup = BeautifulSoup(web, "html.parser") 
         
         win_rate = self._get_winrate(soup)
         match_count = self._get_match_count(soup, with_opponent=True)
