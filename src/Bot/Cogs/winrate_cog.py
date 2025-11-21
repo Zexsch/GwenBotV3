@@ -18,6 +18,8 @@ class WinrateCog(commands.Cog):
                                                     'master_plus' : "M+",
                                                     }
         
+        self.current_patch = ".".join(self.winrate_fetcher.patch_version.split(".")[:-1])
+        
     @commands.command(aliases=['winrate'])
     async def wr(self, ctx: commands.Context, champion_name: str, *args: str) -> None:
         self.logger.debug(f"Calling winrate in channel {ctx.channel.id} for champion {champion_name} with arguments {args}")
@@ -37,14 +39,15 @@ class WinrateCog(commands.Cog):
         
         if champ.patch:
             minor_patch = self.winrate_fetcher.patch_minor_version
+            
                 
             try:
                 if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
-                    await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.winrate_fetcher.patch_version}.")
+                    await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.current_patch}.")
                     return
             except ValueError:
                 if champ.patch and (int(champ.patch[-1:]) < int(minor_patch) - 5):
-                    await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.winrate_fetcher.patch_version}.")
+                    await ctx.send(f"Gwen can only gets stats for the past 5 patches! The current patch is {self.current_patch}.")
                     return
             
         if result.champ.elo:
@@ -69,4 +72,4 @@ class WinrateCog(commands.Cog):
     
     @commands.command(aliases=['checkver', 'patch'])
     async def version(self, ctx: commands.Context):
-        await ctx.send(f'Currently on league patch {self.winrate_fetcher.patch_version}.')
+        await ctx.send(f'Currently on league patch {self.current_patch}.')
