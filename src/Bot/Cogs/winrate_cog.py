@@ -2,7 +2,8 @@ from logging import Logger
 
 from discord.ext import commands
 
-from Bot.models import Champion, WinrateNotFoundException
+from Bot.models import Champion
+from Bot.exceptions import WinrateNotFoundException, StatsNotFoundException, ChampionNotFoundException
 from Bot.winrate_fetcher import WinrateFetcher
 from request import FailedRequest
 
@@ -35,6 +36,13 @@ class WinrateCog(commands.Cog):
         except WinrateNotFoundException:
             await ctx.send(f"Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! Are you sure that there's enough matches played?")
             self.logger.critical(f"GwenBot was unable to fetch the winrate for champion {champion_name} with arguments {args} in channel {ctx.channel.id}")
+            return
+        except StatsNotFoundException:
+            await ctx.send(f"Oh no! Seems like Gwen ran into some issues whilst fetching the winrate!")
+            self.logger.critical(f"GwenBot was unable to fetch stats for champion {champion_name} with arguments {args} in channel {ctx.channel.id}")
+            return
+        except ChampionNotFoundException:
+            await ctx.send("Gwen was unable to find your specified champion... Please check +list for a list of all accepted champion names!")
             return
         
         if champ.patch:

@@ -3,7 +3,8 @@ import json
 from bs4 import BeautifulSoup
 
 from request import request
-from Bot.models import Champion, Result, WinrateNotFoundException
+from Bot.models import Champion, Result
+from Bot.exceptions import WinrateNotFoundException, StatsNotFoundException, ChampionNotFoundException
 from logger import SingletonLogger
 
 
@@ -211,10 +212,8 @@ class WinrateFetcher:
         if not ban_rate:
             self.logger.error(f"Unable to fetch ban_rate for {champ=} with {url=}")
         
-        final_string = f" with {match_count} matches played, a {pick_rate} pick rate and a {ban_rate} ban rate"
+        final_string = f"with {match_count} matches played, a {pick_rate} pick rate and a {ban_rate} ban rate"
         self.logger.debug(f"Final string for {champ=} : {final_string}")
-        
-        
         
         result = Result(champ=champ, 
                         win_rate=win_rate, 
@@ -236,18 +235,26 @@ class WinrateFetcher:
         
         if not match_count:
             self.logger.error(f"Unable to fetch match count for {champ=} with {url=}")
+            
+        if not champ.opponent:
+            raise StatsNotFoundException(champ=champ)
         
         result = Result(champ=champ,
                         with_opponent=False,
                         win_rate=win_rate,
                         match_count=match_count,
-                        final_string=f" against {champ.opponent.capitalize()} with {match_count} matches played" # type: ignore
+                        final_string=f"against {champ.opponent.capitalize()} with {match_count} matches played"
                         )
         
         return result
         
     
     def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
+        champ.name = self._alternate_champion_check(champ.name)
+        
+        if champ.name not in self.all_champions:
+            raise ChampionNotFoundException(name=champ.name)
+        
         for arg in args:
             arg = arg.lower()
             
