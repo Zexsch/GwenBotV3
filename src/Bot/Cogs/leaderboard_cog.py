@@ -17,7 +17,7 @@ class LeaderboardCog(commands.Cog):
 
     @commands.command(aliases=['question_user', 'amount_user', 'qm_user', 'qms_user', 'questionmarks_user', 'questionmark_user', '?_u', '?u'])
     async def questions_user(self, ctx: commands.Context, id):
-        await ctx.send(f"Command has been discontinued. Message <@{OWNER_ID}> if you are unhappy with this decision.")
+        await ctx.send(f"Command is currently being reworked. Please be patient as I work on making it not bad...")
         #
         #try:
         #    id = int(id)
@@ -38,7 +38,7 @@ class LeaderboardCog(commands.Cog):
 
     @commands.command(aliases=['lb'])
     async def leaderboard(self, ctx: commands.Context):
-        await ctx.send(f"Command has been discontinued. Message <@{OWNER_ID}> if you are unhappy with this decision.")
+        await ctx.send(f"Command is currently being reworked. Please be patient as I work on making it not bad...")
         #await ctx.send('Fetching the leaderboard. This may take a while.')
         
         #user_dict: dict[int, int] = {}

@@ -15,7 +15,6 @@ def request(url: str, headers: Dict[str, str] = {'User-Agent': 'Mozilla/5.0'}) -
 
     Returns:
         Response: request Response.
-        None: Failed request.
     """
     logger.debug(f"Requesting url {url} with headers {headers}")
     

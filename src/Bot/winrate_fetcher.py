@@ -22,12 +22,32 @@ class WinrateFetcher:
             'emerald_plus' : ['eme+', 'emerald+', 'emeplus', 'emeraldplus']
         }
         
+        self.alternative_champions: dict[str, list[str]] = {
+            'monkeyking': ['wukong'],
+            'drmundo': ['mundo'],
+            'kogmaw': ["kog'maw"],
+            'jarvaniv': ['jarvan'],
+            'khazix': ["kha'zix"],
+            'ksante': ["k'sante"],
+            'masteryi': ['yi'],
+            'aatrox': ['emo'],
+            'tahmkench': ['tahm'],
+            'twistedfate': ['tf'],
+            'xinzhao': ['xin'],
+            'aurelionsol': ['asol'],
+            'leesin': ['lee']
+        }
+        
         self.elo_list: list[str] = ['overall', 'challenger', 'master', 'grandmaster', 'diamond', 'platinum', 'emerald',  
                                     'gold', 'silver', 'bronze', 'iron', 'diamond_2_plus', 'master_plus', 
                                     'diamond_plus', 'platinum_plus', '']
         
         self._elo_lookup: dict[str, str] = {
             alt: key for key, values in self.alternative_elos.items() for alt in values
+        }
+        
+        self._champion_lookup: dict[str, str] = {
+            alt: key for key, values in self.alternative_champions.items() for alt in values
         }
         
         
@@ -64,6 +84,9 @@ class WinrateFetcher:
     
     def _alternative_elo_check(self, elo: str) -> str:
         return self._elo_lookup.get(elo, elo)
+    
+    def _alternate_champion_check(self, name: str) -> str:
+        return self._champion_lookup.get(name, name)
     
     def _check_patch(self, patch: str) -> str:
         # Standard patch format: ab.cd, example 15.21
@@ -227,6 +250,8 @@ class WinrateFetcher:
     def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
         for arg in args:
             arg = arg.lower()
+            
+            arg = self._alternate_champion_check(arg)
             if arg in self.all_champions:
                 champ.opponent = arg
                 continue
