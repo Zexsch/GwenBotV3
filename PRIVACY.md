@@ -35,7 +35,7 @@ For any privacy-related questions, you can contact me at: awildzexsch@gmail.com.
 Data is collected to:
 - Provide the core functionality of the bot
 - Store temporary chat history for DeepSeek interactions
-### No data is sold or given to third parties.
+### No data is sold to third parties.
 
 ---
 
@@ -62,7 +62,8 @@ Note: Some data, like bot blacklists, cannot be deleted to ensure proper operati
 ## 6. Data Sharing
 
 - The bot does **not sell or share personal data**.
-- AI chat history and user name may be sent to the AI API to provide responses.
+- DeepSeek chat history and user name may be sent to [DeepSeek API](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html) to provide responses.
+**This data is used solely to provide AI responses and is processed according to the AI provider's privacy policy.**
 
 ---
 
