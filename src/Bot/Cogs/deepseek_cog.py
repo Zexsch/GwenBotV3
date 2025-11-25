@@ -80,6 +80,7 @@ class DeepseekCog(commands.Cog):
             
             if not response.choices[0].message.content:
                 await ctx.send("Gwen gives up.")
+                return
                 
         if response.choices[0].finish_reason == 'content_filter':
             await ctx.send("Oh no! It seems like you tried to ask Gwen something that she does not like!")
