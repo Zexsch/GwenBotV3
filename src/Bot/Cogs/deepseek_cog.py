@@ -30,7 +30,7 @@ class DeepseekCog(commands.Cog):
         
     async def create_response(self, full_messages: list[Any], tokens: int = 1024) -> ChatCompletion:
         response = await self.deepseek_client.chat.completions.create(
-            model=f"deepseek-{self.model}",
+            model=self.model,
             messages = full_messages, 
             max_tokens=tokens,
             temperature=0.7,
