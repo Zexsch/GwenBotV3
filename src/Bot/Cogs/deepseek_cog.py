@@ -24,7 +24,7 @@ class DeepseekCog(commands.Cog):
         self.database = database
         self.__token = os.environ['DEEPSEEK_TOKEN']
         self.deepseek_client = AsyncOpenAI(api_key=self.__token, base_url="https://api.deepseek.com")
-        self.model = "deepseek-v4-flash"
+        self.model = "deepseek-v4-pro"
         
         self.banned_phrases: list[str] = ["@everyone", "@here", "<@", "<@&"]
         
