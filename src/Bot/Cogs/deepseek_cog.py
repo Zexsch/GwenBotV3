@@ -24,12 +24,13 @@ class DeepseekCog(commands.Cog):
         self.database = database
         self.__token = os.environ['DEEPSEEK_TOKEN']
         self.deepseek_client = AsyncOpenAI(api_key=self.__token, base_url="https://api.deepseek.com")
+        self.model = "deepseek-v4-flash"
         
         self.banned_phrases: list[str] = ["@everyone", "@here", "<@", "<@&"]
         
-    async def create_response(self, model: str, full_messages: list[Any], tokens: int = 1024) -> ChatCompletion:
+    async def create_response(self, full_messages: list[Any], tokens: int = 1024) -> ChatCompletion:
         response = await self.deepseek_client.chat.completions.create(
-            model=f"deepseek-{model}",
+            model=f"deepseek-{self.model}",
             messages = full_messages, 
             max_tokens=tokens,
             temperature=0.7,
@@ -37,7 +38,25 @@ class DeepseekCog(commands.Cog):
         )
         return response
     
-    async def gwenseekfunc(self, ctx: commands.Context, model: str, original_message: str) -> None:
+    async def create_response_reasoning(self, full_messages: list[Any], tokens: int = 1024) -> ChatCompletion:
+        response = await self.deepseek_client.chat.completions.create(
+            model=f"deepseek-{self.model}",
+            messages = full_messages, 
+            max_tokens=tokens,
+            temperature=0.7,
+            stream=False,
+            reasoning_effort="high",
+            extra_body={"thinking": {"type": "enabled"}}
+        )
+        return response  
+    
+    async def choose_mode(self, full_messages: list[Any], reasoning: bool, tokens: int = 1024) -> ChatCompletion:
+        if reasoning:
+            return await self.create_response_reasoning(full_messages=full_messages, tokens=tokens)
+        
+        return await self.create_response(full_messages=full_messages, tokens=tokens)
+    
+    async def gwenseekfunc(self, ctx: commands.Context, model: str, original_message: str, reasoning: bool) -> None:
         if self.database.fetch_blacklist(ctx.message.author.id, ctx.guild.id): # type: ignore
             await ctx.send("You have been blacklisted from using this command.")
             return
@@ -63,15 +82,15 @@ class DeepseekCog(commands.Cog):
             full_messages.append({"role": "assistant", "content":i[3]})
 
         full_messages.append({"role": "user", "content": original_message})
-        
-        response = await self.create_response(model, full_messages)
+
+        response = await self.choose_mode(full_messages=full_messages, reasoning=reasoning)
         
         content = response.choices[0].message.content
         
         if response.choices[0].finish_reason == 'length':
             for i in range(1, 3):
                 await ctx.send("Gwen's message seems to have been to long! Gwen will try again, please be patient!")
-                response = await self.create_response(model, full_messages, tokens=(1024*(2 ** i)))
+                response = await self.choose_mode(full_messages, reasoning=reasoning, tokens=(1024*(2 ** i)))
                 
                 content = response.choices[0].message.content
                 
@@ -114,11 +133,11 @@ class DeepseekCog(commands.Cog):
     async def gwenseek(self, ctx: commands.Context, *, message: str) -> None:
         # Check https://discordpy.readthedocs.io/en/latest/ext/commands/commands.html?highlight=Keyword-Only%20Arguments
         # To see how *, message works
-        await self.gwenseekfunc(ctx, "reasoner", message)
+        await self.gwenseekfunc(ctx, "reasoner", message, reasoning=True)
     
     @commands.command(aliases=["deepseekbasic", "seekbasic", "gwenseekb"])
     async def gwenseekbasic(self, ctx: commands.Context, *, message: str) -> None:
-        await self.gwenseekfunc(ctx, "chat", message)
+        await self.gwenseekfunc(ctx, "chat", message, reasoning=False)
     
     @commands.command(aliases=["ch", "clear"])
     async def clearhistory(self, ctx: commands.Context) -> None:
