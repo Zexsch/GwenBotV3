@@ -186,7 +186,7 @@ class WinrateFetcher:
             float | None: Ban rate if found else None
         """
         try:
-            ban_rate: str = soup.find_all('div', {'class':'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold'})[2].text
+            ban_rate: str = soup.find_all('div', {'class':'text-[14px] font-extrabold'})[2].text
         except IndexError:
             return None
         
