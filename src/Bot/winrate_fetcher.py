@@ -152,7 +152,7 @@ class WinrateFetcher:
         """
         if not with_opponent:
             try:
-                match_count: str = soup.find_all('div', {'class':'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold'})[3].text
+                match_count: str = soup.find_all('div', {'class':'text-[14px] font-extrabold'})[3].text
             except IndexError:
                 return None
         else:
@@ -170,7 +170,7 @@ class WinrateFetcher:
             float | None: Pick rate if found else None
         """
         try:
-            pick_rate: str = soup.find_all('div', {'class':'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold'})[1].text
+            pick_rate: str = soup.find_all('div', {'class':'text-[14px] font-extrabold'})[1].text
         except IndexError:
             return None
         
