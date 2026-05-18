@@ -132,7 +132,7 @@ class WinrateFetcher:
     
     def _get_winrate(self, soup: BeautifulSoup) -> str:
         for value in self.ugg_div_values:
-            elements = soup.find_all('div', {'class': f'text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold {value}-tier'})
+            elements = soup.find_all('div', {'class': f'text-[14px] font-extrabold {value}-tier'})
             for element in elements:
                 text = element.get_text(strip=True)
                 if '%' in text and any(char.isdigit() for char in text):
