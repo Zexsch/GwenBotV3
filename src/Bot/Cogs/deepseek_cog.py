@@ -112,7 +112,7 @@ class DeepseekCog(commands.Cog):
         if response.choices[0].finish_reason == "length":
             for i in range(1, 3):
                 await ctx.send(
-                    "Gwen's message seems to have been to long! Gwen will try again, please be patient!"
+                    "Gwen's message seems to have been too long! Gwen will try again, please be patient!"
                 )
                 response = await self.choose_mode(
                     full_messages, reasoning=reasoning, tokens=(1024 * (2**i))
