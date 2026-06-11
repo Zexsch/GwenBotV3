@@ -1,6 +1,7 @@
 import time
+from typing import Dict, Optional
+
 import requests
-from typing import Dict
 
 from logger import SingletonLogger
 
@@ -13,9 +14,7 @@ class FailedRequest(Exception):
         super().__init__(f"Request failed with {kwargs=}")
 
 
-def request(
-    url: str, headers: Dict[str, str] = {"User-Agent": "Mozilla/5.0"}
-) -> requests.Response:
+def request(url: str, headers: Optional[Dict[str, str]] = None) -> requests.Response:
     """Use for all GET requests.
 
     Args:
@@ -25,6 +24,23 @@ def request(
     Returns:
         Response: request Response.
     """
+    if headers is None:
+        headers = {
+            "User-Agent": ("Mozilla/5.0 (Win64; x64)"),
+            "Accept": (
+                "text/html,application/xhtml+xml,application/xml;q=0.9,"
+                "image/avif,image/webp,image/apng,*/*;q=0.8"
+            ),
+            "Accept-Language": "en-GB,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Referer": "https://u.gg/",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Upgrade-Insecure-Requests": "1",
+        }
+
     logger.debug(f"Requesting url {url} with headers {headers}")
 
     try:
