@@ -47,7 +47,7 @@ class WinrateFetcher:
             "monkeyking": ["wukong"],
             "drmundo": ["mundo"],
             "kogmaw": ["kog'maw"],
-            "jarvaniv": ["jarvan"],
+            "jarvaniv": ["jarvan", "j4"],
             "khazix": ["kha'zix"],
             "ksante": ["k'sante"],
             "masteryi": ["yi"],
@@ -57,6 +57,14 @@ class WinrateFetcher:
             "xinzhao": ["xin"],
             "aurelionsol": ["asol"],
             "leesin": ["lee"],
+        }
+
+        self.alternative_roles: dict[str, list[str]] = {
+            "support": ["sup", "supp", "s"],
+            "adc": ["bot", "bottom", "b"],
+            "mid": ["midlane", "m"],
+            "jungle": ["jgl", "j"],
+            "top": ["toplane", "t"]
         }
 
         self.elo_list: list[str] = [
@@ -86,6 +94,10 @@ class WinrateFetcher:
             alt: key
             for key, values in self.alternative_champions.items()
             for alt in values
+        }
+
+        self._role_lookup: dict[str, str] = {
+            alt: key for key, values in self.alternative_roles.items() for alt in values
         }
 
         self.patch_version: str = self._get_current_patch()
@@ -130,6 +142,9 @@ class WinrateFetcher:
 
     def _alternate_champion_check(self, name: str) -> str:
         return self._champion_lookup.get(name, name)
+    
+    def _alternative_role_check(self, lane: str) -> str:
+        return self._role_lookup.get(lane, lane)
 
     def _check_patch(self, patch: str) -> str:
         # Standard patch format: ab.cd, example 15.21
@@ -317,6 +332,7 @@ class WinrateFetcher:
                 champ.opponent = arg
                 continue
 
+            arg = self._alternative_role_check(arg)
             if arg in self.role_list:
                 champ.role = arg
                 continue
