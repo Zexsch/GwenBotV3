@@ -27,6 +27,8 @@ class ModerationCog(commands.Cog):
         user_context = context(ctx)
 
         self.server_handler.change_prefix(user_context, new_prefix)
+        
+        await ctx.send(f"Changed prefix to {new_prefix}.")
 
     @prefix.error
     async def _error(self, ctx: commands.Context, error) -> None:

@@ -35,7 +35,7 @@ class OwnerCog(commands.Cog):
             await ctx.send("User is already blacklisted.")
             return
 
-        self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id)
+        self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id, by_owner=True)
         self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
 
         self.logger.info(f"User {user_id} was added to the blacklist by owner.")
