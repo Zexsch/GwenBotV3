@@ -5,7 +5,6 @@ from gwenbotv3.database import connect
 from gwenbotv3.database import UserContext, User
 from gwenbotv3.database._models.exceptions import (
     AmountNotInt,
-    NoUserFound,
     LimitTooHigh,
 )
 from gwenbotv3.database.handlers.user_handler import UserHandler
@@ -78,11 +77,16 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
-            raise NoUserFound
+            self._set_latest_user(ctx)
+            user = ctx.user
+        else:
+            user = User(id=res[0], name=res[1], is_anonymised=res[2])
 
-        user = User(id=res[0], name=res[1], is_anonymised=res[2])
+        if not ctx.user:
+            self.user_handler.insert_user(ctx.ctx)
+            user = context(ctx.ctx)
 
-        return user
+        return user # type: ignore # should always give back a valid user now
 
     @connect
     def update(self, cur: Cursor, ctx: UserContext) -> None:
