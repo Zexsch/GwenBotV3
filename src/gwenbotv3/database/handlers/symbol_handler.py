@@ -45,7 +45,7 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
-            raise AmountNotInt
+            return 0
 
         res = res[0]
 

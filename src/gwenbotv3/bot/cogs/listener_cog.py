@@ -40,7 +40,7 @@ class ListenerCog(commands.Cog):
         creating_user = self.symbol_handler.fetch_creating_user(ctx)
 
         base_message = (
-            f"<@{creating_user} Somebody did a little fucky wuckie >.<!! "
+            f"<@{creating_user}> Somebody did a little fucky wuckie >.<!! "
             "A small oopsie woopsie uwu! Someone dared ruin the ? chain nya~!!! "
             f"<@{msg.author.id}> what have you done!! (⁄ ⁄•⁄ω⁄•⁄ ⁄) "
         )
