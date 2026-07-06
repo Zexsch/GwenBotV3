@@ -452,7 +452,11 @@ disable=raw-checker-failed,
         import-outside-toplevel,
         import-error,
         line-too-long,
-        logging-fstring-interpolation
+        logging-fstring-interpolation,
+        no-value-for-parameter,
+        redefined-builtin,
+        duplicate-code,
+        simplifiable-if-expression
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

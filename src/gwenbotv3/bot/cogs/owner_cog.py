@@ -2,13 +2,15 @@ from logging import Logger
 
 from discord.ext import commands
 
-from Database.database import DatabaseHandler
+from gwenbotv3.database import GwenSubHandler, SymbolHandler, context
+from gwenbotv3.utils import get_user
 
 
 class OwnerCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, database: DatabaseHandler, logger: Logger):
+    def __init__(self, bot: commands.Bot, logger: Logger):
         self.bot = bot
-        self.database = database
+        self.gwensub_handler = GwenSubHandler()
+        self.symbol_handler = SymbolHandler()
         self.logger = logger
 
     #  These 2 commands make it so that the owner of the bot can always add and remove users from the blacklist.
@@ -22,21 +24,18 @@ class OwnerCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
+        if not user_id:
+            await ctx.send("Invalid id...")
+            return
 
-        if self.database.fetch_blacklist(user_id, ctx.guild.id):
+        if self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
             await ctx.send("User is already blacklisted.")
             return
 
-        self.database.add_to_blacklist(user_id, ctx.guild.id)
-        self.database.remove_from_gwen_sub(user_id, ctx.guild.id)
+        self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id)
+        self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
 
         self.logger.info(f"User {user_id} was added to the blacklist by owner.")
         await ctx.send("User added to the Blacklist.")
@@ -51,20 +50,17 @@ class OwnerCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
+        if not user_id:
+            await ctx.send("Invalid id...")
+            return
 
-        if not self.database.fetch_blacklist(user_id, ctx.guild.id):
+        if not self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
             await ctx.send("User is not Blacklisted.")
             return
 
-        self.database.remove_from_blacklist(user_id, ctx.guild.id)
+        self.gwensub_handler.remove_blacklist_by_ids(user_id, ctx.guild.id)
         self.logger.info(f"User {user_id} was removed from the blacklist by owner.")
         await ctx.send("User removed from the Blacklist.")
 
@@ -77,20 +73,17 @@ class OwnerCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
+        if not user_id:
+            await ctx.send("Invalid id...")
+            return
 
-        if not self.database.fetch_gwen_sub(user_id, ctx.guild.id):
+        if not self.gwensub_handler.fetch_sub_by_ids(user_id, ctx.guild.id):
             await ctx.send("User is not subscribed to GwenBot.")
             return
 
-        self.database.remove_from_gwen_sub(user_id, ctx.guild.id)
+        self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
         self.logger.info(f"User {user_id} was removed from gwensubs by owner.")
         await ctx.send("User removed from GwenBot subscription.")
 
@@ -106,9 +99,12 @@ class OwnerCog(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def set_questions(self, ctx: commands.Context, amount: int) -> None:
+        user_context = context(ctx)
+
+        self.symbol_handler.set_amount(user_context, amount)
+
         await ctx.send(f"Setting amount to {amount}.")
         self.logger.info(f"Setting question mark count to {amount}.")
-        self.database.set_amount(amount)
 
     @set_questions.error
     @unfuckyou.error

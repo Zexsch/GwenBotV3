@@ -1,8 +1,8 @@
 import os
 from typing import Union, Any
+from logging import Logger
 
 from discord.ext import commands
-from logging import Logger
 from openai import AsyncOpenAI
 from openai.types.chat import (
     ChatCompletionUserMessageParam,
@@ -11,7 +11,7 @@ from openai.types.chat import (
     ChatCompletion,
 )
 
-from Database.database import DatabaseHandler
+from gwenbotv3.database import GwenseekHandler, GwenSubHandler, context
 
 Message = Union[
     ChatCompletionSystemMessageParam,
@@ -21,10 +21,11 @@ Message = Union[
 
 
 class DeepseekCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, database: DatabaseHandler, logger: Logger):
+    def __init__(self, bot: commands.Bot, logger: Logger):
         self.bot = bot
         self.logger = logger
-        self.database = database
+        self.gwenseek_handler = GwenseekHandler()
+        self.gwensub_handler = GwenSubHandler()
         self.__token = os.environ["DEEPSEEK_TOKEN"]
         self.deepseek_client = AsyncOpenAI(
             api_key=self.__token, base_url="https://api.deepseek.com"
@@ -72,7 +73,13 @@ class DeepseekCog(commands.Cog):
     async def gwenseekfunc(
         self, ctx: commands.Context, model: str, original_message: str, reasoning: bool
     ) -> None:
-        if self.database.fetch_blacklist(ctx.message.author.id, ctx.guild.id):  # type: ignore
+        if not ctx.guild:
+            await ctx.send("Command has to be used in a server!")
+            return
+
+        if self.gwensub_handler.fetch_blacklist_by_ids(
+            ctx.message.author.id, ctx.guild.id
+        ):
             await ctx.send("You have been blacklisted from using this command.")
             return
 
@@ -90,12 +97,14 @@ class DeepseekCog(commands.Cog):
             }
         ]
 
-        context_count: int = self.database.fetch_user_count_ds(ctx.message.author.id)[0]
+        user_context = context(ctx)
 
-        previous_context = self.database.fetch_context_ds(ctx.message.author.id)
+        context_count = self.gwenseek_handler.get_count(user_context)
+
+        previous_context = self.gwenseek_handler.fetch_context(user_context)
 
         if context_count > 5:
-            self.database.delete_oldest_context_ds(ctx.message.author.id)
+            self.gwenseek_handler.delete_oldest_context(user_context)
 
         for i in previous_context:
             full_messages.append({"role": "user", "content": i[2]})
@@ -152,7 +161,7 @@ class DeepseekCog(commands.Cog):
             )
             return
 
-        self.database.add_context_ds(ctx.message.author.id, original_message, content)
+        self.gwenseek_handler.add_context(user_context, original_message, content)
 
         if not response.choices[0].message.content:
             self.logger.critical(
@@ -177,5 +186,7 @@ class DeepseekCog(commands.Cog):
 
     @commands.command(aliases=["ch", "clear"])
     async def clearhistory(self, ctx: commands.Context) -> None:
-        self.database.clear_context_ds(ctx.message.author.id)
+        user_context = context(ctx)
+
+        self.gwenseek_handler.clear_context(user_context)
         await ctx.send("Cleared your Gwenseek history, snip snip!")

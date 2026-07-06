@@ -7,14 +7,14 @@ from datetime import datetime
 
 class SingletonLogger:
     def __init__(
-        self, name: str = "logger", level: int = INFO, debug: bool = True
+        self, name: str = "logger", level: int = INFO, debug: bool = False
     ) -> None:
         """Use for logging in every file.
 
         Args:
             name (str, optional): Name of the logger. Defaults to "logger".
             level (int, optional): Level of the default log. Defaults to INFO.
-            debug (bool, optional): Activates or deactivates debug log file. Defaults to True.
+            debug (bool, optional): Activates or deactivates debug log file. Defaults to False.
         """
 
         self.name = name
@@ -31,7 +31,8 @@ class SingletonLogger:
         """
         if not self.logger.handlers:
 
-            log_folder = Path(__file__).resolve().parent / "Logs"
+            # src/Logs
+            log_folder = Path(__file__).resolve().parent.parent.parent / "Logs"
 
             if not log_folder.exists():
                 log_folder.mkdir(parents=True, exist_ok=True)

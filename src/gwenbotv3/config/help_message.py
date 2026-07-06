@@ -1,6 +1,4 @@
 HELPMESSAGE: str = """
-All commands are case-sensitive.
-
 +help (menu) -  Displays this help menu in DMs. Structured: +command (aliases) | (arguments)  -  Explanation
 +wrhelp (winratehelp) | ()  -  Displays the winrate help menu in DMs.
 

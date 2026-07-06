@@ -1,12 +1,12 @@
 from discord.ext import commands
 
-from Database.database import DatabaseHandler
+from gwenbotv3.database import GwenSubHandler
 
 
 class CommandsCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, database: DatabaseHandler):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.database = database
+        self.gwensub_handler = GwenSubHandler()
 
     @commands.command(aliases=["jax"])
     async def evasion(self, ctx: commands.Context):
@@ -16,8 +16,9 @@ class CommandsCog(commands.Cog):
 
     @commands.command(aliases=["gwen", "immune"])
     async def g(self, ctx: commands.Context):
-        if not self.database.fetch_gwen_sub(ctx.author.id, ctx.guild.id):  # type: ignore
+        if not self.gwensub_handler.fetch_sub_by_ids(ctx.author.id, ctx.guild.id):  # type: ignore
             return
+
         await ctx.send("Gwen is immune.")
 
     @commands.command()

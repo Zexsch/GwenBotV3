@@ -2,14 +2,14 @@ import json
 
 from bs4 import BeautifulSoup
 
-from request import request
-from Bot.models import Champion, Result
-from Bot.exceptions import (
+from gwenbotv3.utils.request import request
+from gwenbotv3.bot.models import Champion, Result
+from gwenbotv3.bot.exceptions import (
     WinrateNotFoundException,
     StatsNotFoundException,
     ChampionNotFoundException,
 )
-from logger import SingletonLogger
+from gwenbotv3 import SingletonLogger
 
 
 class WinrateFetcher:
@@ -64,7 +64,7 @@ class WinrateFetcher:
             "adc": ["bot", "bottom", "b"],
             "mid": ["midlane", "m"],
             "jungle": ["jgl", "j"],
-            "top": ["toplane", "t"]
+            "top": ["toplane", "t"],
         }
 
         self.elo_list: list[str] = [
@@ -142,7 +142,7 @@ class WinrateFetcher:
 
     def _alternate_champion_check(self, name: str) -> str:
         return self._champion_lookup.get(name, name)
-    
+
     def _alternative_role_check(self, lane: str) -> str:
         return self._role_lookup.get(lane, lane)
 

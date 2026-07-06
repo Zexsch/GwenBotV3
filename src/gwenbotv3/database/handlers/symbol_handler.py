@@ -1,0 +1,176 @@
+from sqlite3 import Cursor
+
+from gwenbotv3 import SingletonLogger
+from gwenbotv3.database import connect
+from gwenbotv3.database import UserContext, User
+from gwenbotv3.database._models.exceptions import (
+    AmountNotInt,
+    NoUserFound,
+    LimitTooHigh,
+)
+from gwenbotv3.database import UserHandler
+
+
+class SymbolHandler:
+    def __init__(self):
+        self.logger = SingletonLogger().get_logger()
+        self.user_handler = UserHandler()
+
+    @connect
+    def fetch_amount(self, cur: Cursor, context: UserContext) -> int:
+        res = cur.execute(
+            "SELECT amount FROM QuestionCount WHERE server=?", (context.server.id,)
+        ).fetchone()
+
+        if not res:
+            raise AmountNotInt
+
+        res = res[0]
+
+        try:
+            res = int(res)
+        except ValueError as exc:
+            raise AmountNotInt from exc
+
+        return res
+
+    @connect
+    def fetch_user_amount(self, cur: Cursor, context: UserContext) -> int:
+        res = cur.execute(
+            "SELECT amount FROM QuestionUser WHERE user=? AND server=?",
+            (context.user.id, context.server.id),
+        ).fetchone()
+
+        if not res:
+            raise AmountNotInt
+
+        res = res[0]
+
+        try:
+            res = int(res)
+        except ValueError as exc:
+            raise AmountNotInt from exc
+
+        return res
+
+    @connect
+    def _set_latest_user(self, cur: Cursor, context: UserContext) -> None:
+        cur.execute(
+            "UPDATE QuestionCount SET latest_user=? WHERE server=?",
+            (context.user.id, context.server.id),
+        )
+
+    @connect
+    def fetch_latest_user(self, cur: Cursor, context: UserContext) -> User:
+        res = cur.execute(
+            "SELECT u.user_id, u.user_name, u.is_anonymised "
+            + "FROM QuestionCount qc "
+            + "JOIN Users u ON qc.latest_user = u.user_id "
+            + "WHERE qc.server = ?",
+            (context.server.id,),
+        ).fetchone()
+
+        if not res:
+            raise NoUserFound
+
+        user = User(id=res[0], name=res[1], is_anonymised=res[2])
+
+        return user
+
+    @connect
+    def update(self, cur: Cursor, context: UserContext) -> None:
+        amount = self.fetch_amount(context) + 1
+        user_amount = self.fetch_user_amount(context) + 1
+
+        cur.execute(
+            "UPDATE QuestionCount SET amount=?, latest_user=? WHERE server=?",
+            (amount, context.user.id, context.server.id),
+        )
+
+        cur.execute(
+            "UPDATE QuestionUser "
+            "SET amount=? "
+            "WHERE user=? AND questions_server=?",
+            (user_amount, context.user.id, context.server.id),
+        )
+
+    @connect
+    def initialise(
+        self, cur: Cursor, context: UserContext, symbol: str, channel_id: int
+    ) -> None:
+        cur.execute(
+            "INSERT INTO QuestionCount(amount, latest_user, server, channel_id, symbol, creating_user) "
+            "VALUES(?,?,?,?,?,?)",
+            (0, 0, context.server.id, channel_id, symbol, context.user.id),
+        )
+
+    @connect
+    def change_symbol(self, cur: Cursor, context: UserContext, symbol: str) -> None:
+        cur.execute(
+            "UPDATE QuestionCount " "SET symbol=? " + "WHERE server=?",
+            (symbol, context.server.id),
+        )
+
+    @connect
+    def fetch_lb(
+        self, cur: Cursor, context: UserContext, limit: int = 10
+    ) -> list[tuple[User, int]]:
+        if limit > 20:
+            raise LimitTooHigh
+
+        res = cur.execute(
+            "SELECT u.user_id, u.user_name, u.is_anonymised, qu.amount "
+            + "FROM QuestionUser qu "
+            + "JOIN Users u ON u.user_id = qu.user "
+            + "WHERE qu.questions_server=? "
+            + "ORDER BY qu.amount DESC, u.user_id ASC "
+            + "LIMIT ?",
+            (context.server.id, limit),
+        ).fetchall()
+
+        return [
+            (User(id=row[0], name=row[1], is_anonymised=bool(row[2])), row[3])
+            for row in res
+            if row is not None
+        ]
+
+    @connect
+    def fetch_channel(self, cur: Cursor, context: UserContext) -> int:
+        res = cur.execute(
+            "SELECT channel_id FROM QuestionCount WHERE server=?", (context.server.id,)
+        ).fetchone()
+
+        if not res:
+            return 0
+
+        return int(res[0])
+
+    @connect
+    def fetch_symbol(self, cur: Cursor, context: UserContext) -> str:
+        res = cur.execute(
+            "SELECT symbol FROM QuestionCount WHERE server=?", (context.server.id,)
+        ).fetchone()
+
+        if not res:
+            return ""
+
+        return res[0]
+
+    @connect
+    def fetch_creating_user(self, cur: Cursor, context: UserContext) -> int:
+        res = cur.execute(
+            "SELECT creating_user FROM QuestionCount WHERE server=?",
+            (context.server.id,),
+        ).fetchone()
+
+        if not res:
+            return 0
+
+        return res[0]
+
+    @connect
+    def set_amount(self, cur: Cursor, context: UserContext, amount: int) -> None:
+        cur.execute(
+            "UPDATE QuestionCount SET amount=? WHERE server=?",
+            (amount, context.server.id),
+        )

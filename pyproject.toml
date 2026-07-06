@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gwenbotv3"
+version = "3.1.0"
+description = "GwenBotV3"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+keywords = ["discord", "league of legends", "gwen", "bot"]
+authors = [{ name = "Zexsch "}]
+dependencies = [
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.2",
+    "openai>=2.6.0",
+    "discord.py>=2.6.4"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gwenbotv3"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+    "PRIVACY.md"
+]

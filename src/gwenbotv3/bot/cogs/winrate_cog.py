@@ -2,14 +2,14 @@ from logging import Logger
 
 from discord.ext import commands
 
-from Bot.models import Champion
-from Bot.exceptions import (
+from gwenbotv3.bot.models import Champion
+from gwenbotv3.bot.exceptions import (
     WinrateNotFoundException,
     StatsNotFoundException,
     ChampionNotFoundException,
 )
-from Bot.winrate_fetcher import WinrateFetcher
-from request import FailedRequest
+from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
+from gwenbotv3.utils.request import FailedRequest
 
 
 class WinrateCog(commands.Cog):
@@ -43,13 +43,13 @@ class WinrateCog(commands.Cog):
             result = self.winrate_fetcher.get_stats(champ, args)
         except FailedRequest as e:
             await ctx.send(
-                f"Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
+                "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
             )
             self.logger.critical(f"Request failed with exception {e}")
             return
         except WinrateNotFoundException:
             await ctx.send(
-                f"Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! Are you sure that there's enough matches played?"
+                "Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! Are you sure that there's enough matches played?"
             )
             self.logger.critical(
                 f"GwenBot was unable to fetch the winrate for champion {champion_name} with arguments {args} in channel {ctx.channel.id}"
@@ -57,7 +57,7 @@ class WinrateCog(commands.Cog):
             return
         except StatsNotFoundException:
             await ctx.send(
-                f"Oh no! Seems like Gwen ran into some issues whilst fetching the winrate!"
+                "Oh no! Seems like Gwen ran into some issues whilst fetching the winrate!"
             )
             self.logger.critical(
                 f"GwenBot was unable to fetch stats for champion {champion_name} with arguments {args} in channel {ctx.channel.id}"

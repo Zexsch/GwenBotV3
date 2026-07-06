@@ -1,13 +1,17 @@
-from discord.ext import commands
 from logging import Logger
 
-from Database.database import DatabaseHandler
+from discord.ext import commands
+
+from gwenbotv3.database import GwenSubHandler, ServerHandler
+from gwenbotv3.database import context
+from gwenbotv3.utils import get_user
 
 
 class GwensubCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, database: DatabaseHandler, logger: Logger):
+    def __init__(self, bot: commands.Bot, logger: Logger):
         self.bot = bot
-        self.database = database
+        self.gwensub_handler = GwenSubHandler()
+        self.server_handler = ServerHandler()
         self.logger = logger
 
     @commands.command(name="GwenAdd", aliases=["add"])
@@ -18,21 +22,26 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        if self.database.fetch_blacklist(ctx.author.id, ctx.guild.id):
+        user_context = context(ctx)
+
+        if self.gwensub_handler.fetch_blacklist(user_context):
             await ctx.send("You are blacklisted from using this function.")
             return
 
-        if self.database.fetch_quote(ctx.guild.id):
+        server = self.server_handler.fetch_server(ctx)
+
+        if server.quote:
             await ctx.send("The server has blocked this function.")
             return
 
-        if not self.database.fetch_gwen_sub(ctx.author.id, ctx.guild.id):
-            self.database.add_to_gwen_sub(ctx.author.id, ctx.guild.id)
-            await ctx.send("Successfully subscribed to GwenBot.")
-            self.logger.debug(f"Added user {ctx.author.id} to GwenSubs in guild {ctx.guild.id}")  # type: ignore
+        if self.gwensub_handler.fetch_sub(user_context):
+            await ctx.send("You are already subscribed to GwenBot.")
             return
 
-        await ctx.send("You are already subscribed to GwenBot.")
+        self.gwensub_handler.add_sub(user_context)
+
+        await ctx.send("Successfully subscribed to GwenBot.")
+        self.logger.debug(f"Added user {ctx.author.id} to GwenSubs in guild {ctx.guild.id}")  # type: ignore
 
     @commands.command(name="remove", aliases=["gwenremove", "rem", "removesub"])
     async def gwen_remove(self, ctx: commands.Context) -> None:
@@ -42,13 +51,22 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        if self.database.fetch_gwen_sub(ctx.author.id, ctx.guild.id):
-            self.database.remove_from_gwen_sub(ctx.author.id, ctx.guild.id)
-            await ctx.send("Successfully removed from the GwenBot Subscription.")
-            self.logger.debug(f"Removed user {ctx.author.id} from GwenSubs in guild {ctx.guild.id}")  # type: ignore
+        user_context = context(ctx)
+
+        if self.gwensub_handler.fetch_blacklist(user_context):
+            await ctx.send("You are blacklisted from using this function.")
             return
 
-        await ctx.send("You are not currently subscribed to GwenBot.", ephemeral=True)
+        if not self.gwensub_handler.fetch_sub(user_context):
+            await ctx.send(
+                "You are not currently subscribed to GwenBot.", ephemeral=True
+            )
+            return
+
+        self.gwensub_handler.remove_sub(user_context)
+
+        await ctx.send("Successfully removed from the GwenBot Subscription.")
+        self.logger.debug(f"Removed user {ctx.author.id} from GwenSubs in guild {ctx.guild.id}")  # type: ignore
 
     @commands.command(name="checkgs", aliases=["checksub"])
     async def checkgs(
@@ -60,25 +78,26 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
+        user_context = context(ctx)
+
         if user_id is None:
-            if self.database.fetch_gwen_sub(ctx.author.id, ctx.guild.id):
+            if self.gwensub_handler.fetch_sub(user_context):
                 await ctx.send("You are subscribed.")
                 return
+
             await ctx.send("You are not subscribed.")
             return
 
-        try:
-            user_id = int(user_id)  # Type: ignore
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
+        if not user_id:
+            await ctx.send("Invalid id...")
+            return
 
-        if self.database.fetch_gwen_sub(user_id, ctx.guild.id):
+        if self.gwensub_handler.fetch_sub_by_ids(user_id, ctx.guild.id):
             await ctx.send("User is subscribed.")
             return
+
         await ctx.send("User is not subscribed.")
 
     @commands.has_permissions(kick_members=True)
@@ -90,13 +109,17 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        if self.database.fetch_quote(ctx.guild.id):
-            self.database.remove_from_quote(ctx.guild.id)
+        user_context = context(ctx)
+
+        has_no_quote = self.server_handler.add_quote(user_context.server)
+
+        if not has_no_quote:
+            self.server_handler.remove_quote(user_context.server)
             await ctx.send("Gwen will now respond to chat.")
             self.logger.warning(f"Removed quote from guild {ctx.guild.id}")
+
             return
 
-        self.database.add_to_quote(ctx.guild.id)
         self.logger.warning(f"Enabled quote in guild {ctx.guild.id}")
         await ctx.send("Gwen will no longer respond to chat.")
 
@@ -110,22 +133,20 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        try:
-            id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        id = get_user(ctx, user_id)
 
-            id = ctx.message.mentions[0].id
+        if not id:
+            await ctx.send("Invalid id...")
+            return
 
-        if not self.database.fetch_gwen_sub(id, ctx.guild.id):
+        was_removed = self.gwensub_handler.remove_sub_by_ids(id, ctx.guild.id)
+
+        if not was_removed:
             await ctx.send("User is not subscribed to GwenBot.")
             return
 
-        self.database.remove_from_gwen_sub(id, ctx.guild.id)
         self.logger.debug(
-            f"Forcefully removed user {user_id} from GwenSub in guild {ctx.guild.id} by {ctx.author.id}"
+            f"Forcefully removed user {id} from GwenSub in guild {ctx.guild.id} by {ctx.author.id}"
         )
         await ctx.send("User removed from GwenBot subscription.")
 
@@ -138,25 +159,24 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
-
-        if not self.database.fetch_blacklist(user_id, ctx.guild.id):
-            self.database.add_to_blacklist(user_id, ctx.guild.id)
-            self.database.remove_from_gwen_sub(user_id, ctx.guild.id)
-            await ctx.send("User successfully added to the Blacklist.")
-            self.logger.debug(
-                f"Blacklisted user {user_id} from GwenSub in guild {ctx.guild.id} by {ctx.author.id}"
-            )
+        if not user_id:
+            await ctx.send("Invalid id...")
             return
 
-        await ctx.send("User is already in blacklist.")
+        if self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
+            await ctx.send("User is already in blacklist.")
+            return
+
+        self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
+        self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id)
+
+        await ctx.send("User successfully added to the Blacklist.")
+
+        self.logger.debug(
+            f"Blacklisted user {user_id} from GwenSub in guild {ctx.guild.id} by {ctx.author.id}"
+        )
 
     @commands.command(
         name="blremove", aliases=["blr", "blacklistremove", "unblacklist", "unbl"]
@@ -169,24 +189,23 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
-
-        if self.database.fetch_blacklist(user_id, ctx.guild.id):
-            self.database.remove_from_blacklist(user_id, ctx.guild.id)
-            await ctx.send("User successfully removed from the Blacklist.")
-            self.logger.debug(
-                f"Removed user {user_id} from blacklist in guild {ctx.guild.id} by {ctx.author.id}"
-            )
+        if not user_id:
+            await ctx.send("Invalid id...")
             return
 
-        await ctx.send("User is not Blacklisted.")
+        if not self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
+            await ctx.send("User is not Blacklisted.")
+            return
+
+        self.gwensub_handler.remove_blacklist_by_ids(user_id, ctx.guild.id)
+
+        await ctx.send("User successfully removed from the Blacklist.")
+
+        self.logger.debug(
+            f"Removed user {user_id} from blacklist in guild {ctx.guild.id} by {ctx.author.id}"
+        )
 
     @commands.command(name="checkbl", aliases=["check", "checkblacklist"])
     async def checkbl(self, ctx: commands.Context, user_id=None) -> None:
@@ -196,25 +215,24 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        if user_id == None:
-            if self.database.fetch_blacklist(ctx.author.id, ctx.guild.id):
+        if user_id is None:
+            user_context = context(ctx)
+            if self.gwensub_handler.fetch_blacklist(user_context):
                 await ctx.send("You are Blacklisted.")
                 return
             await ctx.send("You are not Blacklisted.")
             return
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            if len(ctx.message.mentions) == 0:
-                await ctx.send("Invalid id...", ephemeral=True)
-                return
+        user_id = get_user(ctx, user_id)
 
-            user_id = ctx.message.mentions[0].id
+        if not user_id:
+            await ctx.send("Invalid id...")
+            return
 
-        if self.database.fetch_blacklist(user_id, ctx.guild.id):
+        if self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
             await ctx.send("User is Blacklisted.")
             return
+
         await ctx.send("User is not Blacklisted.")
 
     #  To add any permissions command error:

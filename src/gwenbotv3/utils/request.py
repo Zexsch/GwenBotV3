@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 import requests
 
-from logger import SingletonLogger
+from gwenbotv3.utils import SingletonLogger
 
 logger = SingletonLogger().get_logger()
 
@@ -39,15 +39,15 @@ def request(url: str, headers: Optional[Dict[str, str]] = None) -> requests.Resp
 
     try:
         response = requests.get(url=url, headers=headers, timeout=10)
-    except requests.exceptions.Timeout:
-        raise FailedRequest(url=url, headers=headers, reason="Timeout")
+    except requests.exceptions.Timeout as exc:
+        raise FailedRequest(url=url, headers=headers, reason="Timeout") from exc
 
     while response.status_code == 429:
         time.sleep(int(response.headers.get("Retry-After", 1)))
         try:
             response = requests.get(url=url, headers=headers, timeout=10)
-        except requests.exceptions.Timeout:
-            raise FailedRequest(url=url, headers=headers, reason="Timeout")
+        except requests.exceptions.Timeout as exc:
+            raise FailedRequest(url=url, headers=headers, reason="Timeout") from exc
 
     if not response.ok:
         raise FailedRequest(

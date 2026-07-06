@@ -2,8 +2,8 @@ import discord
 
 from discord.ext import commands
 
-from Bot.winrate_fetcher import WinrateFetcher
-from Config.help_message import HELPMESSAGE, WRHELPMESSAGE
+from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
+from gwenbotv3.config import HELPMESSAGE, WRHELPMESSAGE
 
 
 class DMCog(commands.Cog):
