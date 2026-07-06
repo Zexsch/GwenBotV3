@@ -19,7 +19,6 @@ class ListenerCog(commands.Cog):
         self.logger = logger
 
     async def _symbol_check(self, ctx: UserContext, msg: discord.Message) -> None:
-        print("Do you execute?")
         channel = self.symbol_handler.fetch_channel(ctx)
 
         if not channel:
@@ -88,23 +87,18 @@ class ListenerCog(commands.Cog):
             return
 
     async def _gwen_check(self, ctx: UserContext, msg: discord.Message) -> None:
-        if not "gwen" in msg.content.lower() or not "gw3n" in msg.content.lower():
-            print(msg.content)
+        if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
             return
 
         if msg.author == self.bot.user:
             return
-        
-        print("not bot!")
-
+    
         if not self.gwensub_handler.fetch_sub(ctx):
-            print("not subbed for some reason!")
             return
 
         server = self.server_handler.fetch_server(msg)
 
         if server.quote:
-            print("Why would this be true?")
             return
 
         if "gw3n" in msg.content.lower():
@@ -121,14 +115,11 @@ class ListenerCog(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def on_message(self, msg: discord.Message) -> None:
-        print("Do you even get here?")
         if msg.guild is None:
             return
-        print("or here?")
 
         user_context = context(msg)
 
         await self._symbol_check(user_context, msg)
         await self._sendshit(msg)
-        print("or even better, here?")
         await self._gwen_check(user_context, msg)
