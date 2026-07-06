@@ -105,9 +105,6 @@ class ListenerCog(commands.Cog):
         if msg.content[0] == server_prefix:
             return
 
-        if msg.author == self.bot.user:
-            return
-
         if not self.user_handler.fetch_user_by_id(msg.author.id):
             return
 
