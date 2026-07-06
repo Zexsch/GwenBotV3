@@ -17,7 +17,6 @@ For any privacy-related questions, you can contact me on discord @zexsch
 ### User Data
 - Username
 - User ID
-- Servers where commands are used
 
 ### Server Data
 - Server ID
