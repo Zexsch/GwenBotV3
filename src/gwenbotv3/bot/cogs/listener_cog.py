@@ -97,6 +97,14 @@ class ListenerCog(commands.Cog):
         if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
             return
 
+        if not msg.content:
+            return
+
+        server_prefix = self.server_handler.fetch_prefix(ctx)
+
+        if msg.content[0] == server_prefix:
+            return
+
         if msg.author == self.bot.user:
             return
 

@@ -115,3 +115,14 @@ class ServerHandler:
         cur.execute(
             "UPDATE Servers SET prefix=? WHERE server_id=?", (new_prefix, ctx.server.id)
         )
+
+    @connect
+    def fetch_prefix(self, cur: Cursor, ctx: UserContext) -> str:
+        res = cur.execute(
+            "SELECT prefix FROM Servers WHERE server_id=?", (ctx.server.id,)
+        ).fetchone()
+
+        if not res:
+            return PREFIX
+
+        return res[0]
