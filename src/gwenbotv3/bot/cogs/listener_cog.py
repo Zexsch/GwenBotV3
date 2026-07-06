@@ -89,6 +89,7 @@ class ListenerCog(commands.Cog):
 
     async def _gwen_check(self, ctx: UserContext, msg: discord.Message) -> None:
         if not "gwen" in msg.content.lower() or not "gw3n" in msg.content.lower():
+            print(msg.content)
             return
 
         if msg.author == self.bot.user:
