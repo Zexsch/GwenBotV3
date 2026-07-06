@@ -5,8 +5,8 @@ from gwenbotv3.database._models.exceptions import AmountNotInt
 from gwenbotv3.database import (
     SymbolHandler,
     UserContext,
-    context,
 )
+from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.user_handler import UserHandler
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database._models.exceptions import LimitTooHigh

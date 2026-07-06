@@ -4,8 +4,9 @@ from logging import Logger
 import discord
 from discord.ext import commands
 
-from gwenbotv3.database import context, UserContext
+from gwenbotv3.database import UserContext
 from gwenbotv3.database import SymbolHandler, GwenSubHandler
+from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database.handlers.user_handler import UserHandler
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID

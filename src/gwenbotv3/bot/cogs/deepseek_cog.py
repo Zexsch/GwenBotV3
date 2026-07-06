@@ -11,7 +11,8 @@ from openai.types.chat import (
     ChatCompletion,
 )
 
-from gwenbotv3.database import GwenseekHandler, GwenSubHandler, context
+from gwenbotv3.database import GwenseekHandler, GwenSubHandler
+from gwenbotv3.database.get_context import context
 
 Message = Union[
     ChatCompletionSystemMessageParam,
