@@ -19,6 +19,7 @@ class ListenerCog(commands.Cog):
         self.logger = logger
 
     async def _symbol_check(self, ctx: UserContext, msg: discord.Message) -> None:
+        print("Do you execute?")
         channel = self.symbol_handler.fetch_channel(ctx)
 
         if not channel:
