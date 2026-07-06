@@ -14,10 +14,10 @@ CREATE TABLE IF NOT EXISTS Servers(
 CREATE TABLE IF NOT EXISTS Gwenseek(
     g_id INTEGER PRIMARY KEY,
     user INTEGER,
-    server INTEGER
+    server INTEGER,
     user_message TEXT,
     reasoning_content TEXT,
-    FOREIGN KEY (user) REFERENCES Users(user_id)
+    FOREIGN KEY (user) REFERENCES Users(user_id),
     FOREIGN KEY (server) REFERENCES Servers(server_id)
 );
 
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS QuestionCount(
     creating_user INTEGER,
     FOREIGN KEY (latest_user) REFERENCES Users(user_id),
     FOREIGN KEY (creating_user) REFERENCES Users(user_id),
-    FOREIGN KEY (server) REFERENCES Servers(server_id),
+    FOREIGN KEY (server) REFERENCES Servers(server_id)
 );
 
 CREATE TABLE IF NOT EXISTS QuestionUser(
@@ -59,6 +59,6 @@ CREATE TABLE IF NOT EXISTS Blacklist(
     server INTEGER,
     by_owner BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user) REFERENCES Users(user_id),
-    FOREIGN KEY (server) REFERENCES Servers(server_id)
+    FOREIGN KEY (server) REFERENCES Servers(server_id),
     UNIQUE (user, server, by_owner)
 );
