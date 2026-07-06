@@ -4,11 +4,11 @@ from discord.ext import commands
 from gwenbotv3.database._models.exceptions import AmountNotInt
 from gwenbotv3.database import (
     SymbolHandler,
-    UserHandler,
-    ServerHandler,
     UserContext,
     context,
 )
+from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database._models.exceptions import LimitTooHigh
 from gwenbotv3.utils import get_user
 

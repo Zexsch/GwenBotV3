@@ -2,7 +2,8 @@ from logging import Logger
 
 from discord.ext import commands
 
-from gwenbotv3.database import GwenSubHandler, ServerHandler
+from gwenbotv3.database import GwenSubHandler
+from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database import context
 from gwenbotv3.utils import get_user
 

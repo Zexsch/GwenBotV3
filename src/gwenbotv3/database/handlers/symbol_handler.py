@@ -8,7 +8,7 @@ from gwenbotv3.database._models.exceptions import (
     NoUserFound,
     LimitTooHigh,
 )
-from gwenbotv3.database import UserHandler
+from gwenbotv3.database.handlers.user_handler import UserHandler
 
 
 class SymbolHandler:

@@ -1,7 +1,8 @@
 from discord.ext.commands import Context
 from discord import Message
 
-from gwenbotv3.database.handlers import UserHandler, ServerHandler
+from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database import UserContext
 
 
