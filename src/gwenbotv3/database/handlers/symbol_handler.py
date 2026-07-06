@@ -40,7 +40,7 @@ class SymbolHandler:
             return 0
 
         res = cur.execute(
-            "SELECT amount FROM QuestionUser WHERE user=? AND server=?",
+            "SELECT amount FROM QuestionUser WHERE user=? AND questions_server=?",
             (ctx.user.id, ctx.server.id),
         ).fetchone()
 
@@ -86,7 +86,7 @@ class SymbolHandler:
             self.user_handler.insert_user(ctx.ctx)
             user = context(ctx.ctx)
 
-        return user # type: ignore # should always give back a valid user now
+        return user  # type: ignore # should always give back a valid user now
 
     @connect
     def update(self, cur: Cursor, ctx: UserContext) -> None:

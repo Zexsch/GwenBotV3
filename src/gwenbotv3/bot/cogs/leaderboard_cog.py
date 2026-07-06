@@ -183,7 +183,6 @@ class LeaderboardCog(commands.Cog):
             original = getattr(error, "original", error)
             print(f"Unhandled error: {type(original).__name__}: {original}")
             import traceback
+
             traceback.print_exception(type(original), original, original.__traceback__)
-            await ctx.send(
-                "Gwen ran into some issues whilst performing this command!"
-            )
+            await ctx.send("Gwen ran into some issues whilst performing this command!")

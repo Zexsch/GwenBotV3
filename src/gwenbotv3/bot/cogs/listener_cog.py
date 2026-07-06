@@ -136,6 +136,9 @@ class ListenerCog(commands.Cog):
         if msg.guild is None:
             return
 
+        if msg.author == self.bot.user:
+            return
+
         user_context = context(msg)
 
         await self._symbol_check(user_context, msg)
