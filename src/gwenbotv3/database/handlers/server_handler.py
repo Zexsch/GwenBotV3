@@ -51,7 +51,7 @@ class ServerHandler:
         server = self._create_server(ctx)
 
         res = cur.execute(
-            "SELECT * FROM Servers WHERE server_id=(?)", (server.id,)
+            "SELECT * FROM Servers WHERE server_id=?", (server.id,)
         ).fetchone()
 
         if not res:
@@ -63,14 +63,14 @@ class ServerHandler:
 
         if res[1] != server.owner_id:
             cur.execute(
-                "UPDATE Servers SET owner_id=(?) WHERE server_id=(?)",
-                (server.owner_id,),
+                "UPDATE Servers SET owner_id=? WHERE server_id=?",
+                (server.owner_id, server.id)
             )
 
         if res[2] != server.member_count:
             cur.execute(
-                "UPDATE Servers SET member_count=(?) WHERE server_id=(?)",
-                (server.member_count,),
+                "UPDATE Servers SET member_count=? WHERE server_id=?",
+                (server.member_count, server.id)
             )
 
         return server
@@ -98,7 +98,7 @@ class ServerHandler:
     @connect
     def fetch_server_by_id(self, cur: Cursor, server_id: int) -> Optional[Server]:
         res = cur.execute(
-            "SELECT * FROM Servers WHERE server_id=(?)", (server_id,)
+            "SELECT * FROM Servers WHERE server_id=?", (server_id,)
         ).fetchone()
 
         if not res:

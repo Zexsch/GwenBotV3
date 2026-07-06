@@ -19,7 +19,7 @@ class UserHandler:
 
     @connect
     def _check_user(self, cur: Cursor, user: User) -> bool:
-        res = cur.execute("SELECT * FROM Users WHERE user_id=", (user.id,)).fetchone()
+        res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user.id,)).fetchone()
 
         return True if res else False
 
@@ -62,7 +62,7 @@ class UserHandler:
     def fetch_user(self, cur: Cursor, ctx: Context | Message) -> User:
         user = self._create_user(ctx)
 
-        res = cur.execute("SELECT * FROM Users WHERE user_id=", (user.id,)).fetchone()
+        res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user.id,)).fetchone()
 
         if not res:
             self.insert_user(ctx)
@@ -80,7 +80,7 @@ class UserHandler:
     def anonymise_user(self, cur: Cursor, ctx: Context) -> None:
         user = self._create_user(ctx)
 
-        res = cur.execute("SELECT * FROM Users WHERE user_id=", (user.id,)).fetchone()
+        res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user.id,)).fetchone()
 
         if res[2]:
             return
@@ -92,7 +92,7 @@ class UserHandler:
 
     @connect
     def fetch_user_by_id(self, cur: Cursor, user_id: int) -> Optional[User]:
-        res = cur.execute("SELECT * FROM Users WHERE user_id=", (user_id,)).fetchone()
+        res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user_id,)).fetchone()
 
         if not res:
             return

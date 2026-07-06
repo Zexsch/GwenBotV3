@@ -107,7 +107,7 @@ class SymbolHandler:
     @connect
     def change_symbol(self, cur: Cursor, context: UserContext, symbol: str) -> None:
         cur.execute(
-            "UPDATE QuestionCount " "SET symbol=? " + "WHERE server=?",
+            "UPDATE QuestionCount SET symbol=? WHERE server=?",
             (symbol, context.server.id),
         )
 
