@@ -122,7 +122,7 @@ class SymbolHandler:
         cur.execute(
             "INSERT INTO QuestionCount(amount, latest_user, server, channel_id, symbol, creating_user) "
             "VALUES(?,?,?,?,?,?)",
-            (0, 0, ctx.server.id, channel_id, symbol, ctx.user.id),
+            (0, None, ctx.server.id, channel_id, symbol, ctx.user.id),
         )
 
     @connect
