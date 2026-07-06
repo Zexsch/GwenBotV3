@@ -6,6 +6,7 @@ from .leaderboard_cog import LeaderboardCog
 from .listener_cog import ListenerCog
 from .winrate_cog import WinrateCog
 from .owner_cog import OwnerCog
+from .moderation_cog import ModerationCog
 
 __all__ = [
     "CommandsCog",
@@ -16,4 +17,5 @@ __all__ = [
     "ListenerCog",
     "WinrateCog",
     "OwnerCog",
+    "ModerationCog",
 ]
