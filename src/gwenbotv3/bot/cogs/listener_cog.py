@@ -92,13 +92,17 @@ class ListenerCog(commands.Cog):
 
         if msg.author == self.bot.user:
             return
+        
+        print("not bot!")
 
         if not self.gwensub_handler.fetch_sub(ctx):
+            print("not subbed for some reason!")
             return
 
         server = self.server_handler.fetch_server(msg)
 
         if server.quote:
+            print("Why would this be true?")
             return
 
         if "gw3n" in msg.content.lower():
