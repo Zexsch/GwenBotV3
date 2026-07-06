@@ -119,12 +119,14 @@ class ListenerCog(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def on_message(self, msg: discord.Message) -> None:
-
+        print("Do you even get here?")
         if msg.guild is None:
             return
+        print("or here?")
 
         user_context = context(msg)
 
         await self._symbol_check(user_context, msg)
         await self._sendshit(msg)
+        print("or even better, here?")
         await self._gwen_check(user_context, msg)
