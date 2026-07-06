@@ -88,4 +88,4 @@ Reasonable measures are taken to protect user data from unauthorized access, los
 
 For questions or concerns about privacy, please contact:  
 Zexsch  
-Email: awildzexsch@gmail.com
+Discord: @zexsch
