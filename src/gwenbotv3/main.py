@@ -1,5 +1,10 @@
 import os
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+#pylint: disable=wrong-import-position
 from gwenbotv3 import SingletonLogger
 from gwenbotv3 import App
 
