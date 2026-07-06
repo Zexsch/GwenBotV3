@@ -7,6 +7,7 @@ from discord.ext import commands
 from gwenbotv3.database import context, UserContext
 from gwenbotv3.database import SymbolHandler, GwenSubHandler
 from gwenbotv3.database.handlers.server_handler import ServerHandler
+from gwenbotv3.database.handlers.user_handler import UserHandler
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
 
 
@@ -16,6 +17,7 @@ class ListenerCog(commands.Cog):
         self.symbol_handler = SymbolHandler()
         self.gwensub_handler = GwenSubHandler()
         self.server_handler = ServerHandler()
+        self.user_handler = UserHandler()
         self.logger = logger
 
     async def _symbol_check(self, ctx: UserContext, msg: discord.Message) -> None:
@@ -30,7 +32,7 @@ class ListenerCog(commands.Cog):
         symbol = self.symbol_handler.fetch_symbol(ctx)
         latest_user = self.symbol_handler.fetch_latest_user(ctx)
 
-        if ctx.message == symbol and latest_user != ctx.user.id:
+        if ctx.message == symbol and latest_user != msg.author.id:
             self.symbol_handler.update(ctx)
             return
 
@@ -47,7 +49,7 @@ class ListenerCog(commands.Cog):
 
         if not "@" in msg.content:
             self.logger.warning(
-                f"User {ctx.user.id} - Username {ctx.user.name} sent a non-question mark in the question mark channel."
+                f"User {msg.author.id} - Username {msg.author.id} sent a non-question mark in the question mark channel."
             )
 
             await default_channel.send(base_message + f'They dared send "{msg.content}" in our holy channel nya!')  # type: ignore
@@ -61,7 +63,7 @@ class ListenerCog(commands.Cog):
             await default_channel.send(base_message + 'They dared use an "@" in our holy channel nya!')  # type: ignore
             return
 
-        if ctx.user.id == latest_user:
+        if msg.author.id == latest_user:
             await default_channel.send(base_message + "They dared send two messages in a row in our holy channel nya!")  # type: ignore
             return
 
@@ -69,22 +71,26 @@ class ListenerCog(commands.Cog):
         """Make the bot send any message. Only usable by bot owner.
         sendshit (message)$(channel id)[optional]
         Trigger on-message, not a command."""
-        if msg.author.id == OWNER_ID and "sendshit" in msg.content.lower():
-            res: str = msg.content
-            res = res.replace("sendshit", "")
-            channel = self.bot.get_channel(
-                DEFAULT_CHANNEL
-            )  # Default channel to send to. Change in Config.config.
-
-            if "$" in msg.content:
-                split = res.split("$", 1)
-                channel = self.bot.get_channel(int(split[1]))
-                res = split[0]
-                res = res.replace("$", "")
-
-            self.logger.debug(f"Sent message '{res}' in channel {channel.id} by owner")  # type: ignore
-            await channel.send(res)  # type: ignore
+        if not msg.author.id == OWNER_ID:
             return
+
+        if not "sendshit" in msg.content.lower():
+            return
+
+        res: str = msg.content
+        res = res.replace("sendshit", "")
+        channel = self.bot.get_channel(
+            DEFAULT_CHANNEL
+        )  # Default channel to send to. Change in Config.config.
+
+        if "$" in msg.content:
+            split = res.split("$", 1)
+            channel = self.bot.get_channel(int(split[1]))
+            res = split[0]
+            res = res.replace("$", "")
+
+        self.logger.debug(f"Sent message '{res}' in channel {channel.id} by owner")  # type: ignore
+        await channel.send(res)  # type: ignore
 
     async def _gwen_check(self, ctx: UserContext, msg: discord.Message) -> None:
         if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
@@ -92,7 +98,10 @@ class ListenerCog(commands.Cog):
 
         if msg.author == self.bot.user:
             return
-    
+
+        if not self.user_handler.fetch_user_by_id(msg.author.id):
+            return
+
         if not self.gwensub_handler.fetch_sub(ctx):
             return
 

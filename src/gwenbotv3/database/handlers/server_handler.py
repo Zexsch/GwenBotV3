@@ -7,6 +7,8 @@ from discord.ext.commands import Context
 from gwenbotv3 import SingletonLogger
 from gwenbotv3.database import connect
 from gwenbotv3.database import Server
+from gwenbotv3.config import PREFIX
+from gwenbotv3.database._models.models import UserContext
 from gwenbotv3.database._models.exceptions import (
     NotInAGuildException,
     UserOrCtxNotGiven,
@@ -41,8 +43,8 @@ class ServerHandler:
             raise EmptyDataclass(server, self.insert_server)
 
         cur.execute(
-            "INSERT INTO Servers(server_id, owner_id, member_count, quote) VALUES(?,?,?,?)",
-            (server.id, server.owner_id, server.member_count, server.quote),
+            "INSERT INTO Servers(server_id, owner_id, member_count, quote, prefix) VALUES(?,?,?,?,?)",
+            (server.id, server.owner_id, server.member_count, server.quote, PREFIX),
         )
 
     @connect
@@ -64,13 +66,13 @@ class ServerHandler:
         if res[1] != server.owner_id:
             cur.execute(
                 "UPDATE Servers SET owner_id=? WHERE server_id=?",
-                (server.owner_id, server.id)
+                (server.owner_id, server.id),
             )
 
         if res[2] != server.member_count:
             cur.execute(
                 "UPDATE Servers SET member_count=? WHERE server_id=?",
-                (server.member_count, server.id)
+                (server.member_count, server.id),
             )
 
         return server
@@ -107,3 +109,9 @@ class ServerHandler:
         server = Server(id=res[0], owner_id=res[1], member_count=res[2], quote=res[3])
 
         return server
+
+    @connect
+    def change_prefix(self, cur: Cursor, ctx: UserContext, new_prefix: str) -> None:
+        cur.execute(
+            "UPDATE Servers SET prefix=? WHERE server_id=?", (new_prefix, ctx.server.id)
+        )

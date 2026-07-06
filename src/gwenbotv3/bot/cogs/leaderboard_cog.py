@@ -64,12 +64,12 @@ class LeaderboardCog(commands.Cog):
                 )
 
             counting_user_context = UserContext(
-                user=user, server=user_context.server, message=""
+                user=user, server=user_context.server, message="", ctx=ctx
             )
 
             self.symbol_handler.update(counting_user_context)
 
-        await ctx.send(f"Gwen has finished counting! <@{user_context.user.id}>")
+        await ctx.send(f"Gwen has finished counting! <@{ctx.author.id}>")
 
     @commands.command(
         aliases=[
@@ -131,11 +131,14 @@ class LeaderboardCog(commands.Cog):
             await ctx.send("This is odd... Gwen doesn't know this server at all??")
             return
 
-        user_context = UserContext(user=user, server=server, message="")
+        user_context = UserContext(user=user, server=server, message="", ctx=ctx)
 
         amount = self.symbol_handler.fetch_user_amount(user_context)
         symbol = self.symbol_handler.fetch_symbol(user_context)
         channel = self.symbol_handler.fetch_channel(user_context)
+
+        if not user_context.user:
+            return  # Should never fire but linter's complaining
 
         await ctx.send(
             f"The current amount of {symbol} sent by {user_context.user.id} in <#{channel}> is {amount}."

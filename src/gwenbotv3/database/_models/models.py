@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from discord.ext.commands import Context
+from discord import Message
+
 
 @dataclass
 class User:
@@ -19,6 +22,7 @@ class Server:
 
 @dataclass
 class UserContext:
-    user: User
+    user: Optional[User]
     server: Server
     message: Optional[str]
+    ctx: Context | Message

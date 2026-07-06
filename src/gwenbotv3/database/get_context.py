@@ -7,7 +7,7 @@ from gwenbotv3.database import UserContext
 
 
 def context(ctx: Context | Message) -> UserContext:
-    user = UserHandler().fetch_user(ctx)
+    user = UserHandler().fetch_user_by_id(ctx.author.id)
     server = ServerHandler().fetch_server(ctx)
 
     message = ""
@@ -18,6 +18,6 @@ def context(ctx: Context | Message) -> UserContext:
     if isinstance(ctx, Context):
         message = ctx.message.content
 
-    user_context = UserContext(user=user, server=server, message=message)
+    user_context = UserContext(user=user, server=server, message=message, ctx=ctx)
 
     return user_context

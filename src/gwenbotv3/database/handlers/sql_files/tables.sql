@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS Servers(
     server_id INTEGER PRIMARY KEY,
     owner_id INTEGER,
     member_count INTEGER,
-    quote BOOLEAN
+    quote BOOLEAN,
+    prefix TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Gwenseek(
