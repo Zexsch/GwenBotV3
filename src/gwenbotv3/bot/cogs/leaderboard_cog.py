@@ -180,6 +180,10 @@ class LeaderboardCog(commands.Cog):
                 "Gwen is missing some information here! Be sure to check the help command!"
             )
         else:
+            original = getattr(error, "original", error)
+            print(f"Unhandled error: {type(original).__name__}: {original}")
+            import traceback
+            traceback.print_exception(type(original), original, original.__traceback__)
             await ctx.send(
                 "Gwen ran into some issues whilst performing this command!"
             )
