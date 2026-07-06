@@ -179,3 +179,7 @@ class LeaderboardCog(commands.Cog):
             await ctx.send(
                 "Gwen is missing some information here! Be sure to check the help command!"
             )
+        else:
+            await ctx.send(
+                "Gwen ran into some issues whilst performing this command!"
+            )
