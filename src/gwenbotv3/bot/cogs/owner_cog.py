@@ -61,7 +61,7 @@ class OwnerCog(commands.Cog):
             await ctx.send("User is not Blacklisted.")
             return
 
-        self.gwensub_handler.remove_blacklist_by_ids(user_id, ctx.guild.id)
+        self.gwensub_handler.remove_blacklist_by_ids(user_id, ctx.guild.id, by_owner=True)
         self.logger.info(f"User {user_id} was removed from the blacklist by owner.")
         await ctx.send("User removed from the Blacklist.")
 

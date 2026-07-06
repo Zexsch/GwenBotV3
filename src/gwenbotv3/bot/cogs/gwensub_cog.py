@@ -200,7 +200,13 @@ class GwensubCog(commands.Cog):
             await ctx.send("User is not Blacklisted.")
             return
 
-        self.gwensub_handler.remove_blacklist_by_ids(user_id, ctx.guild.id)
+        was_removed = self.gwensub_handler.remove_blacklist_by_ids(
+            user_id, ctx.guild.id
+        )
+
+        if not was_removed:
+            await ctx.send("User was blacklisted by the owner and cannot be removed.")
+            return
 
         await ctx.send("User successfully removed from the Blacklist.")
 

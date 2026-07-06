@@ -138,10 +138,11 @@ class GwenSubHandler:
 
     @connect
     def remove_blacklist_by_ids(
-        self, cur: Cursor, user_id: int, server_id: int
+        self, cur: Cursor, user_id: int, server_id: int, by_owner: bool = False
     ) -> bool:
         cur.execute(
-            "DELETE FROM Blacklist WHERE user=? AND server=?", (user_id, server_id)
+            "DELETE FROM Blacklist WHERE user=? AND server=? AND by_owner=?",
+            (user_id, server_id, by_owner),
         )
 
         if cur.rowcount < 1:
