@@ -1,4 +1,3 @@
-import sqlite3
 from sqlite3 import Cursor
 from pathlib import Path
 
@@ -15,17 +14,12 @@ class DatabaseHandler:
     def initialise(self, cur: Cursor) -> None:
         """Try to create the Database tables each time the bot runs."""
         self.logger.debug("Attempting to create Database tables.")
-        print(sqlite3.sqlite_version)
 
         init_file = self.sql_files / "tables.sql"
         trigger_file = self.sql_files / "triggers.sql"
         pseudonymise_file = self.sql_files / "pseudonymise.sql"
-        change_file = self.sql_files / "change.sql"
 
         with open(str(init_file), "r", encoding="utf-8") as f:
-            cur.executescript(f.read())
-
-        with open(str(change_file), "r", encoding="utf-8") as f:
             cur.executescript(f.read())
 
         with open(str(trigger_file), "r", encoding="utf-8") as f:
