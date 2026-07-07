@@ -21,7 +21,7 @@ class PrivacyCog(commands.Cog):
         user_context = context(ctx)
 
         self.user_handler.anonymise_user(ctx)
-        self.gwensub_handler.fetch_sub(user_context)
+        self.gwensub_handler.remove_sub(user_context)
         self.gwenseek_handler.clear_all_context(user_context)
 
         return_message = (
