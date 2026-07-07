@@ -2,8 +2,7 @@ from logging import Logger
 
 from discord.ext import commands
 
-from gwenbotv3.database import GwenSubHandler, SymbolHandler
-from gwenbotv3.database.get_context import context
+from gwenbotv3.database import GwenSubHandler, SymbolHandler, DatabaseHandler
 from gwenbotv3.utils import get_user
 
 
@@ -12,6 +11,7 @@ class OwnerCog(commands.Cog):
         self.bot = bot
         self.gwensub_handler = GwenSubHandler()
         self.symbol_handler = SymbolHandler()
+        self.database_handler = DatabaseHandler()
         self.logger = logger
 
     #  These 2 commands make it so that the owner of the bot can always add and remove users from the blacklist.
@@ -61,7 +61,9 @@ class OwnerCog(commands.Cog):
             await ctx.send("User is not Blacklisted.")
             return
 
-        self.gwensub_handler.remove_blacklist_by_ids(user_id, ctx.guild.id, by_owner=True)
+        self.gwensub_handler.remove_blacklist_by_ids(
+            user_id, ctx.guild.id, by_owner=True
+        )
         self.logger.info(f"User {user_id} was removed from the blacklist by owner.")
         await ctx.send("User removed from the Blacklist.")
 
@@ -99,15 +101,11 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def set_questions(self, ctx: commands.Context, amount: int) -> None:
-        user_context = context(ctx)
+    async def modify(self, ctx: commands.Context) -> None:
+        self.database_handler.modify_db()
+        await ctx.send("Ran modify script.")
 
-        self.symbol_handler.set_amount(user_context, amount)
-
-        await ctx.send(f"Setting amount to {amount}.")
-        self.logger.info(f"Setting question mark count to {amount}.")
-
-    @set_questions.error
+    @modify.error
     @unfuckyou.error
     @fuckyou.error
     @fuckyouremove.error

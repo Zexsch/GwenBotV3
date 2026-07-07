@@ -1,7 +1,10 @@
+BEGIN TRANSACTION;
+
 CREATE TABLE IF NOT EXISTS Users(
     user_id INTEGER PRIMARY KEY,
     user_name TEXT,
-    is_anonymised BOOLEAN DEFAULT FALSE
+    is_anonymised BOOLEAN DEFAULT FALSE,
+    modified_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
 
 CREATE TABLE IF NOT EXISTS Servers(
@@ -18,6 +21,7 @@ CREATE TABLE IF NOT EXISTS Gwenseek(
     server INTEGER,
     user_message TEXT,
     reasoning_content TEXT,
+    created_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     FOREIGN KEY (user) REFERENCES Users(user_id),
     FOREIGN KEY (server) REFERENCES Servers(server_id)
 );
@@ -63,3 +67,5 @@ CREATE TABLE IF NOT EXISTS Blacklist(
     FOREIGN KEY (server) REFERENCES Servers(server_id),
     UNIQUE (user, server, by_owner)
 );
+
+COMMIT;
