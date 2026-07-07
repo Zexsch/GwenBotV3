@@ -23,13 +23,13 @@ class DatabaseHandler:
         with open(str(init_file), "r", encoding="utf-8") as f:
             cur.executescript(f.read())
 
+        with open(str(change_file), "r", encoding="utf-8") as f:
+            cur.executescript(f.read())
+
         with open(str(trigger_file), "r", encoding="utf-8") as f:
             cur.executescript(f.read())
 
         with open(str(pseudonymise_file), "r", encoding="utf-8") as f:
-            cur.executescript(f.read())
-
-        with open(str(change_file), "r", encoding="utf-8") as f:
             cur.executescript(f.read())
 
     @connect
