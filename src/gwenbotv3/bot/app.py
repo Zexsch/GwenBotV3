@@ -38,6 +38,8 @@ class App(commands.Bot):
         from gwenbotv3.bot.cogs import LeaderboardCog
         from gwenbotv3.bot.cogs import DeepseekCog
         from gwenbotv3.bot.cogs import ModerationCog
+        from gwenbotv3.bot.cogs import PrivacyCog
+        from gwenbotv3.bot.cogs import HelpCog
 
         self.logger.info("Initialising cogs.")
         await self.add_cog(ListenerCog(bot=self, logger=self.logger))
@@ -53,4 +55,6 @@ class App(commands.Bot):
         await self.add_cog(LeaderboardCog(bot=self))
         await self.add_cog(DeepseekCog(bot=self, logger=self.logger))
         await self.add_cog(ModerationCog(bot=self, logger=self.logger))
+        await self.add_cog(PrivacyCog(bot=self, logger=self.logger))
+        await self.add_cog(HelpCog(bot=self, logger=self.logger))
         self.logger.info("Finished initialising cogs.")

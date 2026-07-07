@@ -17,6 +17,7 @@ For any privacy-related questions, you can contact me on discord @zexsch
 ### User Data
 - Username
 - User ID
+- When the user last interacted with GwenBot
 
 ### Server Data
 - Server ID
@@ -24,7 +25,7 @@ For any privacy-related questions, you can contact me on discord @zexsch
 - Member count
 
 ### AI Chat History
-- Last 5 conversations between user and DeepSeek integration (gwenseek command)
+- Last 5 conversations between user and DeepSeek integration (gwenseek command) per-server
 - Usernames associated with conversations
 
 ---
@@ -48,22 +49,24 @@ Data is collected based on:
 
 ## 5. Data Retention
 
-- Data is retained until the user deletes it using the bot’s commands.
-- Users can remove all stored data or just DeepSeek chat history at any time.
+- Data is retained until the user has not interacted with GwenBot for over 180 days.
+- Users can remove all stored DeepSeek chat history at any time.
+- Users may pseudonymise their data at any time.
 ### The following commands may be used to delete data:
-- clearhistory - Deletes all DeepSeek chat history
+- clearhistory - Deletes all DeepSeek chat history in the current server
+- clearhistoryall - Deletes all Deepseek chat history
 - pseudonymise - Pseudonymises all user data stored **except for data necessary to maintain bot functionality**, such as command blacklists set by server moderators. The user's unique Discord ID will continue to be stored.
 
-Note: Some data, like bot blacklists, cannot be deleted to ensure proper operation of the bot and moderation features.
+Note: Some data, like bot blacklists, which rely on user IDs, cannot be deleted to ensure proper operation of the bot and moderation features.
 
 ---
 
 ## 6. Data Sharing
 
-- The bot does **not sell or share personal data**.
-- DeepSeek chat history and user name may be sent to [DeepSeek API](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html) to provide responses.
-**This data is used solely to provide AI responses and is processed according to the AI provider's privacy policy.**
-**As DeepSeek is a chinese company, be aware that any data sent to this API by european users leaves the EEA.**
+- GwenBot does **not sell or share personal data**.
+- DeepSeek chat history and user name may be sent to [DeepSeek API](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html) to provide responses.<br>
+**This data is used solely to provide AI responses and is processed according to the AI provider's privacy policy.**<br>
+**As DeepSeek is a chinese company, be aware that any data sent to this API by european users may leave the EEA.**
 
 ---
 

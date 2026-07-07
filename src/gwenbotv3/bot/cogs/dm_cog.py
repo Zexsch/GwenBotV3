@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 
 from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
-from gwenbotv3.config import HELPMESSAGE, WRHELPMESSAGE
 
 
 class DMCog(commands.Cog):
@@ -25,14 +24,3 @@ class DMCog(commands.Cog):
     async def role_list(self, ctx: commands.Context):
         user: discord.Member | discord.User = ctx.message.author
         await user.send(", ".join(map(str, self.winrate_fetcher.role_list)))
-
-    #  Change the strings in helpmsg.py to edit the help messages.
-    @commands.command(aliases=["Menu"])
-    async def help(self, ctx: commands.Context):
-        user: discord.Member | discord.User = ctx.message.author
-        await user.send(HELPMESSAGE)
-
-    @commands.command(aliases=["wrhelp"])
-    async def winratehelp(self, ctx: commands.Context):
-        user: discord.Member | discord.User = ctx.message.author
-        await user.send(WRHELPMESSAGE)

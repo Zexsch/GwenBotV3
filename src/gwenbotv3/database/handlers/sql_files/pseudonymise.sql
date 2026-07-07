@@ -13,8 +13,8 @@ WHERE user IN (
 );
 
 UPDATE Users
-SET user_name = 'Deleted User'
+SET user_name = 'Unknown User'
 WHERE modified_at < strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-180 days')
-  AND user_name != 'Deleted User';
+  AND user_name != 'Unknown User';
 
 COMMIT;
