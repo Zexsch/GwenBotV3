@@ -131,7 +131,7 @@ class HelpCog(commands.Cog):
     @commands.command(aliases=["Menu"])
     async def help(self, ctx: commands.Context):
         user: discord.Member | discord.User = ctx.message.author
-        embed = self.get_help_embed()
+        embed = await self.get_help_embed()
 
         if not isinstance(embed, discord.Embed):
             await ctx.send("Gwen ran into some major issues!")
@@ -142,7 +142,7 @@ class HelpCog(commands.Cog):
     @commands.command(aliases=["wrhelp"])
     async def winratehelp(self, ctx: commands.Context):
         user: discord.Member | discord.User = ctx.message.author
-        embed = self.get_wrhelp_embed()
+        embed = await self.get_wrhelp_embed()
 
         if not isinstance(embed, discord.Embed):
             await ctx.send("Gwen ran into some major issues!")
@@ -153,7 +153,7 @@ class HelpCog(commands.Cog):
     @commands.command(aliases=["policy"])
     async def privacy(self, ctx: commands.Context):
         user: discord.Member | discord.User = ctx.message.author
-        embed = self.get_privacy_embed()
+        embed = await self.get_privacy_embed()
 
         if not isinstance(embed, discord.Embed):
             await ctx.send("Gwen ran into some major issues!")
