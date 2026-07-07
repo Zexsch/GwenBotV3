@@ -18,6 +18,9 @@ class PrivacyCog(commands.Cog):
 
     @commands.command(aliases=["anonymize", "pseudonymise", "pseudonymize"])
     async def anonymise(self, ctx: commands.Context) -> None:
+        if not ctx.guild:
+            await ctx.send("Command must be used in a server!")
+        
         user_context = context(ctx)
 
         self.user_handler.anonymise_user(ctx)
@@ -27,7 +30,7 @@ class PrivacyCog(commands.Cog):
         return_message = (
             "Gwen has done the following:\n"
             + "> Deleted your username from her database!\n"
-            + "> Made sure that your username does not end up in the database"
+            + "> Made sure that your username does not end up in the database "
             + "again until you unanonymise through +unanonymise!\n"
             + "> Cleared all your active GwenBot subscriptions!\n"
             + "> Cleared all your Gwenseek history!\n\n"
@@ -50,6 +53,9 @@ class PrivacyCog(commands.Cog):
         ]
     )
     async def unanonymise(self, ctx: commands.Context) -> None:
+        if not ctx.guild:
+            await ctx.send("Command must be used in a server!")
+
         try:
             self.user_handler.deanonymise_user(ctx)
         except UserNotAnonymised:
