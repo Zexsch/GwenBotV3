@@ -18,6 +18,7 @@ class DatabaseHandler:
         init_file = self.sql_files / "tables.sql"
         trigger_file = self.sql_files / "triggers.sql"
         pseudonymise_file = self.sql_files / "pseudonymise.sql"
+        change_file = self.sql_files / "change.sql"
 
         with open(str(init_file), "r", encoding="utf-8") as f:
             cur.executescript(f.read())
@@ -26,6 +27,9 @@ class DatabaseHandler:
             cur.executescript(f.read())
 
         with open(str(pseudonymise_file), "r", encoding="utf-8") as f:
+            cur.executescript(f.read())
+
+        with open(str(change_file), "r", encoding="utf-8") as f:
             cur.executescript(f.read())
 
     @connect
