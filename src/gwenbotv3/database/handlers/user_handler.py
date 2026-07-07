@@ -7,7 +7,11 @@ from discord.ext.commands import Context
 from gwenbotv3 import SingletonLogger
 from gwenbotv3.database import connect
 from gwenbotv3.database import User
-from gwenbotv3.database._models.exceptions import UserOrCtxNotGiven, EmptyDataclass
+from gwenbotv3.database._models.exceptions import (
+    UserOrCtxNotGiven,
+    EmptyDataclass,
+    UserNotAnonymised,
+)
 
 
 class UserHandler:
@@ -87,7 +91,25 @@ class UserHandler:
 
         cur.execute(
             "UPDATE Users SET is_anonymised=TRUE, user_name=? WHERE user_id=?",
-            ("Deleted User", user.id),
+            ("Unknown User", user.id),
+        )
+
+    @connect
+    def deanonymise_user(self, cur: Cursor, ctx: Context) -> None:
+
+        res = cur.execute(
+            "SELECT is_anonymised FROM Users WHERE user_id=?", (ctx.author.id,)
+        ).fetchone()
+
+        if not res:
+            self.insert_user(ctx)
+            raise UserNotAnonymised
+
+        if not res[0]:
+            raise UserNotAnonymised
+
+        cur.execute(
+            "UPDATE Users SET is_anonymised=FALSE WHERE user_id=?", (ctx.author.id,)
         )
 
     @connect
@@ -95,7 +117,7 @@ class UserHandler:
         res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user_id,)).fetchone()
 
         if not res:
-            return
+            return None
 
         user = User(id=res[0], name=res[1], is_anonymised=res[2])
 

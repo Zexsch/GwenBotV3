@@ -104,7 +104,7 @@ class ServerHandler:
         ).fetchone()
 
         if not res:
-            return
+            return None
 
         server = Server(id=res[0], owner_id=res[1], member_count=res[2], quote=res[3])
 

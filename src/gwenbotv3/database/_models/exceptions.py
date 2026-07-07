@@ -45,3 +45,13 @@ class NoUserFound(Exception):
 class LimitTooHigh(Exception):
     def __init__(self):
         super().__init__("Limit is too high.")
+
+
+class UserNotInDb(Exception):
+    def __init__(self):
+        super().__init__("The given user is not in the database.")
+
+
+class UserNotAnonymised(Exception):
+    def __init__(self):
+        super().__init__("User is not anonymised.")

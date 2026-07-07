@@ -199,3 +199,10 @@ class DeepseekCog(commands.Cog):
 
         self.gwenseek_handler.clear_context(user_context)
         await ctx.send("Cleared your Gwenseek history, snip snip!")
+
+    @commands.command(aliases=["cha", "chall"])
+    async def clearhistoryall(self, ctx: commands.Context) -> None:
+        user_context = context(ctx)
+
+        self.gwenseek_handler.clear_all_context(user_context)
+        await ctx.send("Cleared all your Gwenseek history, snip snip!")

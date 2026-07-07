@@ -205,7 +205,9 @@ class GwensubCog(commands.Cog):
         )
 
         if not was_removed:
-            await ctx.send("User was blacklisted by the bot's owner and cannot be removed.")
+            await ctx.send(
+                "User was blacklisted by the bot's owner and cannot be removed."
+            )
             return
 
         await ctx.send("User successfully removed from the Blacklist.")
