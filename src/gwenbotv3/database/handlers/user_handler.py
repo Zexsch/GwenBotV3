@@ -1,10 +1,10 @@
+import logging
 from sqlite3 import Cursor
 from typing import Optional
 
 from discord import Message
 from discord.ext.commands import Context
 
-from gwenbotv3 import SingletonLogger
 from gwenbotv3.database import connect
 from gwenbotv3.database import User
 from gwenbotv3.database._models.exceptions import (
@@ -16,7 +16,7 @@ from gwenbotv3.database._models.exceptions import (
 
 class UserHandler:
     def __init__(self):
-        self.logger = SingletonLogger().get_logger()
+        self.logger = logging.getLogger(__name__)
 
     def _create_user(self, ctx: Context | Message):
         return User(ctx.author.id, ctx.author.name, False)
@@ -50,6 +50,8 @@ class UserHandler:
             "INSERT INTO Users(user_id, user_name) VALUES(?,?)", (user.id, user.name)
         )
 
+        self.logger.info("Added user: %s", user)
+
         return user
 
     @connect
@@ -59,6 +61,8 @@ class UserHandler:
         cur.execute(
             "INSERT INTO Users(user_id, user_name) VALUES(?,?)", (user.id, user.name)
         )
+
+        self.logger.info("Added user by ID: %s", user)
 
         return user
 
@@ -72,7 +76,18 @@ class UserHandler:
             self.insert_user(ctx)
             return user
 
+        if len(res) < 3:
+            self.logger.critical(
+                "Successfully fetched a user, yet not all information was fetched properly. On user: %s",
+                user,
+            )
+            self.insert_user(ctx)
+            return user
+
         if res[1] != user.name and not res[2]:
+            self.logger.info(
+                "Updated user name of id %s - From %s to %s", user.id, res[1], user.name
+            )
             cur.execute(
                 "UPDATE Users SET user_name=(?) WHERE user_id=?",
                 (ctx.author.name, user.id),
@@ -87,30 +102,38 @@ class UserHandler:
         res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user.id,)).fetchone()
 
         if res[2]:
+            self.logger.debug(
+                "Tried to anonymise user which is already anonymised: %s", user.id
+            )
             return
 
         cur.execute(
             "UPDATE Users SET is_anonymised=TRUE, user_name=? WHERE user_id=?",
             ("Unknown User", user.id),
         )
+        self.logger.info("Anonymised user: %s", user.id)
 
     @connect
     def deanonymise_user(self, cur: Cursor, ctx: Context) -> None:
+        user = self._create_user(ctx)
 
         res = cur.execute(
-            "SELECT is_anonymised FROM Users WHERE user_id=?", (ctx.author.id,)
+            "SELECT is_anonymised FROM Users WHERE user_id=?", (user.id,)
         ).fetchone()
 
         if not res:
             self.insert_user(ctx)
+            self.logger.debug("Tried to deanonymise user which did not exist: %s", user)
             raise UserNotAnonymised
 
         if not res[0]:
+            self.logger.debug(
+                "Tried to deanonymise user which not anonymised: %s", user
+            )
             raise UserNotAnonymised
 
-        cur.execute(
-            "UPDATE Users SET is_anonymised=FALSE WHERE user_id=?", (ctx.author.id,)
-        )
+        self.logger.info("Deanonymised user: %s", user)
+        cur.execute("UPDATE Users SET is_anonymised=FALSE WHERE user_id=?", (user.id,))
 
     @connect
     def fetch_user_by_id(self, cur: Cursor, user_id: int) -> Optional[User]:

@@ -1,6 +1,6 @@
 import os
+import logging
 from typing import Union, Any
-from logging import Logger
 
 from discord.ext import commands
 from openai import AsyncOpenAI
@@ -22,9 +22,9 @@ Message = Union[
 
 
 class DeepseekCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, logger: Logger):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.logger = logger
+        self.logger = logging.getLogger(__name__)
         self.gwenseek_handler = GwenseekHandler()
         self.gwensub_handler = GwenSubHandler()
         self.__token = os.environ["DEEPSEEK_TOKEN"]
@@ -85,6 +85,12 @@ class DeepseekCog(commands.Cog):
             return
 
         if any(phrase in original_message for phrase in self.banned_phrases):
+            self.logger.warning(
+                "User %s tried to make gwenseek ping. original_message=%s",
+                ctx.message.author.id,
+                original_message,
+            )
+
             await ctx.send("Oh no! You cannot try to make me ping someone!")
             return
 
@@ -106,6 +112,12 @@ class DeepseekCog(commands.Cog):
         ]
 
         user_context = context(ctx)
+
+        if not user_context.user:
+            self.logger.error(
+                "User field is none in Gwenseek func for user=%s", user_context
+            )
+            return
 
         context_count = self.gwenseek_handler.get_count(user_context)
 
@@ -129,11 +141,15 @@ class DeepseekCog(commands.Cog):
 
         if response.choices[0].finish_reason == "length":
             for i in range(1, 3):
+                tokens = 1024 * (2**i)
+                self.logger.info(
+                    "Gwenseek hit the length limit, loop=%i, tokens=%i", i, tokens
+                )
                 await ctx.send(
                     "Gwen's message seems to have been too long! Gwen will try again, please be patient!"
                 )
                 response = await self.choose_mode(
-                    full_messages, reasoning=reasoning, tokens=(1024 * (2**i))
+                    full_messages, reasoning=reasoning, tokens=tokens
                 )
 
                 content = response.choices[0].message.content
@@ -142,6 +158,9 @@ class DeepseekCog(commands.Cog):
                     break
 
             if not response.choices[0].message.content:
+                self.logger.warning(
+                    "Gwenseek gives up trying to get deepseek responses."
+                )
                 await ctx.send("Gwen gives up.")
                 return
 
@@ -149,11 +168,19 @@ class DeepseekCog(commands.Cog):
             await ctx.send(
                 "Oh no! It seems like you tried to ask Gwen something that she does not like!"
             )
+            self.logger.warning(
+                "User %s hit the content filter with original_message='%s'",
+                user_context.user.id,
+                original_message,
+            )
             return
 
         if not content:
             self.logger.critical(
-                f"Empty message was returned from Deepseek API call with arguments {model=} {full_messages=}, finish reason={response.choices[0].finish_reason}"
+                "Empty message was returned from Deepseek API call with arguments: model=%s, full_messages=%s, finish_reason=%s",
+                model,
+                full_messages,
+                response.choices[0].finish_reason,
             )
             await ctx.send("Oh no! It seems like Gwen ran into some issues!")
             return
@@ -165,6 +192,11 @@ class DeepseekCog(commands.Cog):
             return
 
         if len(content) > 2000:
+            self.logger.warning(
+                "User %s tried to make gwenseek ping. original_message=%s",
+                ctx.message.author.id,
+                original_message,
+            )
             await ctx.send(
                 "Oh no! It seems like I can't send the message because it is too long. Blame discord..."
             )
@@ -174,7 +206,10 @@ class DeepseekCog(commands.Cog):
 
         if not response.choices[0].message.content:
             self.logger.critical(
-                f"Empty message was returned from Deepseek API call with arguments {model=} {full_messages=}"
+                "Empty message was returned from Deepseek API call with arguments: model=%s, full_messages=%s, finish_reason=%s",
+                model,
+                full_messages,
+                response.choices[0].finish_reason,
             )
             await ctx.send("Oh no! It seems like Gwen ran into some issues!")
             return

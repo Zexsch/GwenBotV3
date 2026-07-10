@@ -1,4 +1,4 @@
-from logging import Logger
+import logging
 
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -8,10 +8,10 @@ from gwenbotv3.database.get_context import context
 
 
 class ModerationCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, logger: Logger):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.server_handler = ServerHandler()
-        self.logger = logger
+        self.logger = logging.getLogger(__name__)
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
@@ -35,4 +35,16 @@ class ModerationCog(commands.Cog):
         """Run if a user does not have the permissions necessary to run a command."""
 
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("You do not have the permissions to use this command.")
+            await ctx.send("Unfortunately, you do not have the permissions to do this!")
+        else:
+            import sys
+
+            original = getattr(error, "original", error)
+            self.logger.error(
+                "Unhandled error: %s: %s",
+                type(original).__name__,
+                original,
+                exc_info=sys.exc_info(),
+            )
+
+            await ctx.send("Gwen ran into some issues whilst performing this command!")

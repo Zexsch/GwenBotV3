@@ -1,4 +1,4 @@
-from logging import Logger
+import logging
 
 from discord.ext import commands
 
@@ -13,12 +13,10 @@ from gwenbotv3.utils.request import FailedRequest
 
 
 class WinrateCog(commands.Cog):
-    def __init__(
-        self, bot: commands.Bot, winrate_fetcher: WinrateFetcher, logger: Logger
-    ):
+    def __init__(self, bot: commands.Bot, winrate_fetcher: WinrateFetcher):
         self.bot = bot
         self.winrate_fetcher = winrate_fetcher
-        self.logger = logger
+        self.logger = logging.getLogger(__name__)
 
         self.beautified_elo_list: dict[str, str] = {
             "platinum_plus": "Plat+",
@@ -34,7 +32,7 @@ class WinrateCog(commands.Cog):
     @commands.command(aliases=["winrate"])
     async def wr(self, ctx: commands.Context, champion_name: str, *args: str) -> None:
         self.logger.debug(
-            f"Calling winrate in channel {ctx.channel.id} for champion {champion_name} with arguments {args}"
+            "Calling winrate for champ=%s with args=%s", champion_name, args
         )
 
         champ = Champion(name=champion_name)
@@ -45,14 +43,22 @@ class WinrateCog(commands.Cog):
             await ctx.send(
                 "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
             )
-            self.logger.critical(f"Request failed with exception {e}")
+            self.logger.critical(
+                "Unable to request u.gg with champ=%s, args=%s, exc=%s",
+                champion_name,
+                args,
+                e,
+            )
             return
         except WinrateNotFoundException:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! Are you sure that there's enough matches played?"
             )
             self.logger.critical(
-                f"GwenBot was unable to fetch the winrate for champion {champion_name} with arguments {args} in channel {ctx.channel.id}"
+                "Unable to fetch winrate for champ=%s, args=%s, channel=%s",
+                champion_name,
+                args,
+                ctx.channel.id,
             )
             return
         except StatsNotFoundException:
@@ -60,7 +66,10 @@ class WinrateCog(commands.Cog):
                 "Oh no! Seems like Gwen ran into some issues whilst fetching the winrate!"
             )
             self.logger.critical(
-                f"GwenBot was unable to fetch stats for champion {champion_name} with arguments {args} in channel {ctx.channel.id}"
+                "Unable to fetch stats for champ=%s, args=%s, channel=%s",
+                champion_name,
+                args,
+                ctx.channel.id,
             )
             return
         except ChampionNotFoundException:

@@ -1,3 +1,4 @@
+import logging
 import json
 
 from bs4 import BeautifulSoup
@@ -9,7 +10,6 @@ from gwenbotv3.bot.exceptions import (
     StatsNotFoundException,
     ChampionNotFoundException,
 )
-from gwenbotv3 import SingletonLogger
 
 
 class WinrateFetcher:
@@ -17,7 +17,7 @@ class WinrateFetcher:
 
     def __init__(self) -> None:
 
-        self.logger = SingletonLogger().get_logger()
+        self.logger = logging.getLogger(__name__)
 
         self.alternative_elos: dict[str, list[str]] = {
             "platinum_plus": ["platplus", "plat+", "platinumplus"],
@@ -101,6 +101,7 @@ class WinrateFetcher:
         }
 
         self.patch_version: str = self._get_current_patch()
+        self.patch_major_version = self.patch_version.split(".")[0]
         self.patch_minor_version: str = self.patch_version.split(".")[1]
 
         self.all_champions: list[str] = self._get_champion_list()
@@ -123,18 +124,17 @@ class WinrateFetcher:
         url: str = (
             f"https://ddragon.leagueoflegends.com/cdn/{self.patch_version}/data/en_US/champion.json"
         )
-        self.logger.debug("Finished fetching champion.json")
 
         champion_response = request(url)
         champion_json: dict[str, str] = json.loads(champion_response.text)
         return [i.lower() for i in champion_json["data"]]
 
     def _get_current_patch(self) -> str:
-        self.logger.debug("Fetching current patch.")
         url = "https://ddragon.leagueoflegends.com/realms/na.json"
         patch_response = request(url)
 
         patch: str = json.loads(patch_response.content)["v"]
+        self.logger.info("Fetched current patch: %s", patch)
         return patch
 
     def _alternative_elo_check(self, elo: str) -> str:
@@ -182,12 +182,21 @@ class WinrateFetcher:
 
         if role_str:
             self.logger.debug(
-                f"Created url https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
+                "Created url https://u.gg/lol/champions/%s/build/%s?%s%s%s",
+                champ.name,
+                role_str,
+                elo_str,
+                opponent_str,
+                patch_str,
             )
             return f"https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
 
         self.logger.debug(
-            f"Created url https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
+            "Created url https://u.gg/lol/champions/%s/build?%s%s%s",
+            champ.name,
+            elo_str,
+            opponent_str,
+            patch_str,
         )
         return f"https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
 
@@ -222,7 +231,10 @@ class WinrateFetcher:
         else:
             match_count: str = soup.find("div", {"class": "text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold"}).text  # type: ignore
 
-        return match_count if match_count is not None else None
+        if match_count is None:
+            return None
+
+        return match_count
 
     def _get_pick_rate(self, soup: BeautifulSoup) -> str | None:
         """Returns pick rate of a champ
@@ -256,6 +268,7 @@ class WinrateFetcher:
                 "div", {"class": "text-[14px] font-extrabold"}
             )[2].text
         except IndexError:
+
             return None
 
         return ban_rate
@@ -272,16 +285,24 @@ class WinrateFetcher:
         ban_rate = self._get_ban_rate(soup)
 
         if not match_count:
-            self.logger.error(f"Unable to fetch match count for {champ=} with {url=}")
+            self.logger.error(
+                "Unable to fetch match count for champ=%s with url=%s", champ, url
+            )
+            match_count = "Unknown"
 
         if not pick_rate:
-            self.logger.error(f"Unable to fetch pick rate for {champ=} with {url=}")
+            self.logger.error(
+                "Unable to fetch pick rate for champ=%s with url=%s", champ, url
+            )
+            pick_rate = "Unknown"
 
         if not ban_rate:
-            self.logger.error(f"Unable to fetch ban_rate for {champ=} with {url=}")
+            self.logger.error(
+                "Unable to fetch ban rate for champ=%s with url=%s", champ, url
+            )
+            ban_rate = "Unknown"
 
         final_string = f"with {match_count} matches played, a {pick_rate} pick rate and a {ban_rate} ban rate"
-        self.logger.debug(f"Final string for {champ=} : {final_string}")
 
         result = Result(
             champ=champ,
@@ -303,7 +324,10 @@ class WinrateFetcher:
         match_count = self._get_match_count(soup, with_opponent=True)
 
         if not match_count:
-            self.logger.error(f"Unable to fetch match count for {champ=} with {url=}")
+            self.logger.error(
+                "Unable to fetch match count for champ=%s with url=%s", champ, url
+            )
+            match_count = "Unknown"
 
         if not champ.opponent:
             raise StatsNotFoundException(champ=champ)

@@ -1,4 +1,4 @@
-from logging import Logger
+import logging
 
 from discord.ext import commands
 
@@ -7,12 +7,12 @@ from gwenbotv3.utils import get_user
 
 
 class OwnerCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, logger: Logger):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.gwensub_handler = GwenSubHandler()
         self.symbol_handler = SymbolHandler()
         self.database_handler = DatabaseHandler()
-        self.logger = logger
+        self.logger = logging.getLogger(__name__)
 
     #  These 2 commands make it so that the owner of the bot can always add and remove users from the blacklist.
     @commands.command()
@@ -38,7 +38,11 @@ class OwnerCog(commands.Cog):
         self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id, by_owner=True)
         self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
 
-        self.logger.info(f"User {user_id} was added to the blacklist by owner.")
+        self.logger.info(
+            "Added to blacklist by owner: user=%s, server=%s",
+            ctx.author.id,
+            ctx.guild.id,
+        )
         await ctx.send("User added to the Blacklist.")
 
     @commands.command()
@@ -64,7 +68,11 @@ class OwnerCog(commands.Cog):
         self.gwensub_handler.remove_blacklist_by_ids(
             user_id, ctx.guild.id, by_owner=True
         )
-        self.logger.info(f"User {user_id} was removed from the blacklist by owner.")
+        self.logger.info(
+            "Removed from blacklist by owner: user=%s, server=%s",
+            ctx.author.id,
+            ctx.guild.id,
+        )
         await ctx.send("User removed from the Blacklist.")
 
     @commands.command()
@@ -87,7 +95,11 @@ class OwnerCog(commands.Cog):
             return
 
         self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
-        self.logger.info(f"User {user_id} was removed from gwensubs by owner.")
+        self.logger.info(
+            "Removed from subs by owner: user=%s, server=%s",
+            ctx.author.id,
+            ctx.guild.id,
+        )
         await ctx.send("User removed from GwenBot subscription.")
 
     @commands.command()
@@ -112,4 +124,21 @@ class OwnerCog(commands.Cog):
     @shutdown.error
     async def _not_owner(self, ctx: commands.Context, error: Exception) -> None:
         if isinstance(error, commands.CheckFailure):
+            self.logger.info(
+                "Some idiot tried running my command. user=%s, username=%s",
+                ctx.author.id,
+                ctx.author.name,
+            )
             await ctx.send("Who do you think you are...")
+        else:
+            import sys
+
+            original = getattr(error, "original", error)
+            self.logger.error(
+                "Unhandled error: %s: %s",
+                type(original).__name__,
+                original,
+                exc_info=sys.exc_info(),
+            )
+
+            await ctx.send("Gwen ran into some issues whilst performing this command!")

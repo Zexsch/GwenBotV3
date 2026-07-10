@@ -1,5 +1,5 @@
+import logging
 from random import randint
-from logging import Logger
 
 import discord
 from discord.ext import commands
@@ -13,13 +13,13 @@ from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
 
 
 class ListenerCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, logger: Logger):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.symbol_handler = SymbolHandler()
         self.gwensub_handler = GwenSubHandler()
         self.server_handler = ServerHandler()
         self.user_handler = UserHandler()
-        self.logger = logger
+        self.logger = logging.getLogger(__name__)
 
     async def _symbol_check(self, ctx: UserContext, msg: discord.Message) -> None:
         channel = self.symbol_handler.fetch_channel(ctx)
@@ -49,8 +49,10 @@ class ListenerCog(commands.Cog):
         default_channel = self.bot.get_channel(default_channel_id)
 
         if not "@" in msg.content:
-            self.logger.warning(
-                f"User {msg.author.id} - Username {msg.author.id} sent a non-question mark in the question mark channel."
+            self.logger.debug(
+                "User %s sent a non-question mark in counter for server=%s",
+                ctx.user,
+                ctx.server.id,
             )
 
             await default_channel.send(base_message + f'They dared send "{msg.content}" in our holy channel nya!')  # type: ignore
@@ -58,13 +60,20 @@ class ListenerCog(commands.Cog):
 
         if "@" in msg.content:
             self.logger.warning(
-                f"User {msg.author.id} sent a mention in the question mark channel."
+                "User %s sent a mention in counter for server=%s",
+                ctx.user,
+                ctx.server.id,
             )
 
             await default_channel.send(base_message + 'They dared use an "@" in our holy channel nya!')  # type: ignore
             return
 
         if msg.author.id == latest_user:
+            self.logger.debug(
+                "User %s sent two messages in a row in server=%s",
+                ctx.user,
+                ctx.server.id,
+            )
             await default_channel.send(base_message + "They dared send two messages in a row in our holy channel nya!")  # type: ignore
             return
 
@@ -82,7 +91,7 @@ class ListenerCog(commands.Cog):
         res = res.replace("sendshit", "")
         channel = self.bot.get_channel(
             DEFAULT_CHANNEL
-        )  # Default channel to send to. Change in Config.config.
+        )  # Default channel to send to. Change in env.
 
         if "$" in msg.content:
             split = res.split("$", 1)
@@ -90,8 +99,19 @@ class ListenerCog(commands.Cog):
             res = split[0]
             res = res.replace("$", "")
 
-        self.logger.debug(f"Sent message '{res}' in channel {channel.id} by owner")  # type: ignore
-        await channel.send(res)  # type: ignore
+        if not channel:
+            self.logger.warning("Unable to get channel for id=%s", channel)
+            await msg.channel.send("Gwen was unable to get the channel!")
+            return
+
+        if not isinstance(channel, discord.TextChannel):
+            self.logger.warning("Channel found was not a GuildChannel, id=%s", channel)
+            await msg.channel.send("Gwen can only send messages in normal channels!")
+            return
+
+        self.logger.debug("Sent message %s in channel %s by owner.", res, channel.id)
+
+        await channel.send(res)
 
     async def _gwen_check(self, ctx: UserContext, msg: discord.Message) -> None:
         if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):

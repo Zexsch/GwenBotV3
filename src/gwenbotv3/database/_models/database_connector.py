@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 from pathlib import Path
 from functools import wraps
@@ -12,6 +13,7 @@ class _DatabaseConnector:
             db_folder.mkdir()
 
         self.database_path: str = str(db_folder / "GwenUsers.db")
+        self.logger = logging.getLogger(__name__)
 
     def __enter__(self):
         # pylint: disable=attribute-defined-outside-init
@@ -25,6 +27,12 @@ class _DatabaseConnector:
         if exc_type is None:
             self.connection.commit()
         else:
+            self.logger.error(
+                "Error in Database connection, rolling back: exc_type=%s, exc_value=%s, traceback=%s",
+                exc_type,
+                exc_value,
+                traceback,
+            )
             self.connection.rollback()
 
         self.connection.close()

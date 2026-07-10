@@ -1,16 +1,15 @@
 import time
+import logging
+import sys
 from typing import Dict, Optional
 
 import requests
 
-from gwenbotv3.utils import SingletonLogger
-
-logger = SingletonLogger().get_logger()
-
 
 class FailedRequest(Exception):
     def __init__(self, **kwargs) -> None:
-        logger.error(f"Request failed with {kwargs=}")
+        self.logger = logging.getLogger(__name__)
+        self.logger.exception("Request failed with %s", kwargs, exc_info=sys.exc_info())
         super().__init__(f"Request failed with {kwargs=}")
 
 
@@ -34,8 +33,8 @@ def request(url: str, headers: Optional[Dict[str, str]] = None) -> requests.Resp
             "Sec-Fetch-Site": "none",
             "Upgrade-Insecure-Requests": "1",
         }
-
-    logger.debug(f"Requesting url {url} with headers {headers}")
+    logger = logging.getLogger(__name__)
+    logger.debug("Requesting url %s with headers %s", url, headers)
 
     try:
         response = requests.get(url=url, headers=headers, timeout=10)

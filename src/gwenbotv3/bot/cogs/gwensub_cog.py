@@ -1,4 +1,4 @@
-from logging import Logger
+import logging
 
 from discord.ext import commands
 
@@ -9,11 +9,11 @@ from gwenbotv3.utils import get_user
 
 
 class GwensubCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, logger: Logger):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.gwensub_handler = GwenSubHandler()
         self.server_handler = ServerHandler()
-        self.logger = logger
+        self.logger = logging.getLogger()
 
     @commands.command(name="GwenAdd", aliases=["add"])
     async def gwen_add(self, ctx: commands.Context) -> None:
@@ -42,7 +42,6 @@ class GwensubCog(commands.Cog):
         self.gwensub_handler.add_sub(user_context)
 
         await ctx.send("Successfully subscribed to GwenBot.")
-        self.logger.debug(f"Added user {ctx.author.id} to GwenSubs in guild {ctx.guild.id}")  # type: ignore
 
     @commands.command(name="remove", aliases=["gwenremove", "rem", "removesub"])
     async def gwen_remove(self, ctx: commands.Context) -> None:
@@ -67,7 +66,6 @@ class GwensubCog(commands.Cog):
         self.gwensub_handler.remove_sub(user_context)
 
         await ctx.send("Successfully removed from the GwenBot Subscription.")
-        self.logger.debug(f"Removed user {ctx.author.id} from GwenSubs in guild {ctx.guild.id}")  # type: ignore
 
     @commands.command(name="checkgs", aliases=["checksub"])
     async def checkgs(
@@ -117,11 +115,9 @@ class GwensubCog(commands.Cog):
         if not has_no_quote:
             self.server_handler.remove_quote(user_context.server)
             await ctx.send("Gwen will now respond to chat.")
-            self.logger.warning(f"Removed quote from guild {ctx.guild.id}")
 
             return
 
-        self.logger.warning(f"Enabled quote in guild {ctx.guild.id}")
         await ctx.send("Gwen will no longer respond to chat.")
 
     @commands.command(name="modremove")
@@ -146,9 +142,6 @@ class GwensubCog(commands.Cog):
             await ctx.send("User is not subscribed to GwenBot.")
             return
 
-        self.logger.debug(
-            f"Forcefully removed user {id} from GwenSub in guild {ctx.guild.id} by {ctx.author.id}"
-        )
         await ctx.send("User removed from GwenBot subscription.")
 
     @commands.command(aliases=["bl"])
@@ -174,10 +167,6 @@ class GwensubCog(commands.Cog):
         self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id)
 
         await ctx.send("User successfully added to the Blacklist.")
-
-        self.logger.debug(
-            f"Blacklisted user {user_id} from GwenSub in guild {ctx.guild.id} by {ctx.author.id}"
-        )
 
     @commands.command(
         name="blremove", aliases=["blr", "blacklistremove", "unblacklist", "unbl"]
@@ -211,10 +200,6 @@ class GwensubCog(commands.Cog):
             return
 
         await ctx.send("User successfully removed from the Blacklist.")
-
-        self.logger.debug(
-            f"Removed user {user_id} from blacklist in guild {ctx.guild.id} by {ctx.author.id}"
-        )
 
     @commands.command(name="checkbl", aliases=["check", "checkblacklist"])
     async def checkbl(self, ctx: commands.Context, user_id=None) -> None:
@@ -257,4 +242,18 @@ class GwensubCog(commands.Cog):
         """Run if a user does not have the permissions necessary to run a command."""
 
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("You do not have the permissions to use this command.")
+            await ctx.send(
+                "Oh no! You do not have the permissions to use this command~"
+            )
+        else:
+            import sys
+
+            original = getattr(error, "original", error)
+            self.logger.error(
+                "Unhandled error: %s: %s",
+                type(original).__name__,
+                original,
+                exc_info=sys.exc_info(),
+            )
+
+            await ctx.send("Gwen ran into some issues whilst performing this command!")

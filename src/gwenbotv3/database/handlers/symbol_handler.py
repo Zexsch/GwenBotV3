@@ -1,6 +1,6 @@
+import logging
 from sqlite3 import Cursor
 
-from gwenbotv3 import SingletonLogger
 from gwenbotv3.database import connect
 from gwenbotv3.database import UserContext, User
 from gwenbotv3.database._models.exceptions import (
@@ -13,7 +13,7 @@ from gwenbotv3.database.get_context import context
 
 class SymbolHandler:
     def __init__(self):
-        self.logger = SingletonLogger().get_logger()
+        self.logger = logging.getLogger(__name__)
         self.user_handler = UserHandler()
 
     @connect
@@ -32,6 +32,7 @@ class SymbolHandler:
         except ValueError as exc:
             raise AmountNotInt from exc
 
+        self.logger.debug("Fetched amount: %i", res)
         return res
 
     @connect
@@ -45,6 +46,7 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
+            self.logger.debug("Fetched amount from user not in the database.")
             return 0
 
         res = res[0]
@@ -54,16 +56,25 @@ class SymbolHandler:
         except ValueError as exc:
             raise AmountNotInt from exc
 
+        self.logger.debug("Fetched amount for user %s: %i", ctx.user.id, res)
+
         return res
 
     @connect
     def _set_latest_user(self, cur: Cursor, ctx: UserContext) -> None:
         if not ctx.user:
+            self.logger.critical(
+                "Tried to set the latest user from a context with no user."
+            )
             return
 
         cur.execute(
             "UPDATE QuestionCount SET latest_user=? WHERE server=?",
             (ctx.user.id, ctx.server.id),
+        )
+
+        self.logger.debug(
+            "Set latest user in server %s to %s", ctx.server.id, ctx.user.id
         )
 
     @connect
@@ -76,17 +87,28 @@ class SymbolHandler:
             (ctx.server.id,),
         ).fetchone()
 
+        if not ctx.user:
+            self.user_handler.insert_user(ctx.ctx)
+            ctx.user = context(ctx.ctx).user
+
         if not res:
             self._set_latest_user(ctx)
-            user = ctx.user
-        else:
-            user = User(id=res[0], name=res[1], is_anonymised=res[2])
+
+        if len(res) < 3:
+            self.logger.critical(
+                "Successfully fetched a user, yet not all information was fetched properly. On user: %s",
+                ctx.ctx.author.id,  # Had to do this because pylance is shit
+            )
+
+        user = User(id=res[0], name=res[1], is_anonymised=res[2])
 
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
-            user = context(ctx.ctx)
+            user = context(ctx.ctx).user
 
-        return user  # type: ignore # should always give back a valid user now
+        self.logger.debug("Fetched user: %s", user)
+
+        return user  # type: ignore # To stop pylance from being shit.
 
     @connect
     def update(self, cur: Cursor, ctx: UserContext) -> None:
@@ -97,7 +119,7 @@ class SymbolHandler:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)
 
-        if not ctx.user:
+        if not ctx.user:  # To stop pylance from being genuinely fucking stupid.
             return
 
         cur.execute(
@@ -105,11 +127,25 @@ class SymbolHandler:
             (amount, ctx.user.id, ctx.server.id),
         )
 
+        self.logger.debug(
+            "Set on QuestionCount server=%s, amount=%s, latest_user=%s",
+            ctx.server.id,
+            amount,
+            ctx.user.id,
+        )
+
         cur.execute(
             "UPDATE QuestionUser "
             "SET amount=? "
             "WHERE user=? AND questions_server=?",
             (user_amount, ctx.user.id, ctx.server.id),
+        )
+
+        self.logger.debug(
+            "Set on QuestionUser question_server=%s, amount=%s, user=%s",
+            ctx.server.id,
+            amount,
+            ctx.user.id,
         )
 
     @connect
@@ -129,6 +165,14 @@ class SymbolHandler:
             (0, None, ctx.server.id, channel_id, symbol, ctx.user.id),
         )
 
+        self.logger.info(
+            "Initialised Symbol counter for server=%s, channel_id=%s, symbol=%s, creating_user=%s",
+            ctx.server.id,
+            channel_id,
+            symbol,
+            ctx.user.id,
+        )
+
     @connect
     def change_symbol(self, cur: Cursor, ctx: UserContext, symbol: str) -> None:
         cur.execute(
@@ -136,12 +180,16 @@ class SymbolHandler:
             (symbol, ctx.server.id),
         )
 
+        self.logger.info(
+            "Updated symbol for server=%s, new symbol=%s", ctx.server.id, symbol
+        )
+
     @connect
     def fetch_lb(
         self, cur: Cursor, ctx: UserContext, limit: int = 10
     ) -> list[tuple[User, int]]:
         if limit > 20:
-            raise LimitTooHigh
+            raise LimitTooHigh(limit)
 
         res = cur.execute(
             "SELECT u.user_id, u.user_name, u.is_anonymised, qu.amount "
@@ -153,11 +201,17 @@ class SymbolHandler:
             (ctx.server.id, limit),
         ).fetchall()
 
-        return [
+        user_list = [
             (User(id=row[0], name=row[1], is_anonymised=bool(row[2])), row[3])
             for row in res
             if row is not None
         ]
+
+        self.logger.debug(
+            "Fetched Leaderboard for server=%s, limit=%i", ctx.server.id, limit
+        )
+
+        return user_list
 
     @connect
     def fetch_channel(self, cur: Cursor, ctx: UserContext) -> int:
@@ -166,8 +220,13 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
+            self.logger.warning(
+                "Tried to fetch channel from a server without a channel set up. server=%s",
+                ctx.server.id,
+            )
             return 0
 
+        self.logger.debug("Fetched channel %s for server %s", res[0], ctx.server.id)
         return int(res[0])
 
     @connect
@@ -177,7 +236,13 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
+            self.logger.warning(
+                "Tried to fetch symbol from a server without a counter set up. server=%s",
+                ctx.server.id,
+            )
             return ""
+
+        self.logger.debug("Fetched symbol=%s for server=%s", res[0], ctx.server.id)
 
         return res[0]
 
@@ -189,7 +254,15 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
+            self.logger.warning(
+                "Tried to fetch creating_user from a server without a counter set up. server=%s",
+                ctx.server.id,
+            )
             return 0
+
+        self.logger.debug(
+            "Fetched creating_user=%s for server=%s", res[0], ctx.server.id
+        )
 
         return res[0]
 
@@ -199,3 +272,4 @@ class SymbolHandler:
             "UPDATE QuestionCount SET amount=? WHERE server=?",
             (amount, ctx.server.id),
         )
+        self.logger.debug("Set amount=%s on server=%s", amount, ctx.server.id)

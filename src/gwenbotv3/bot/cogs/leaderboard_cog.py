@@ -1,16 +1,18 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from gwenbotv3.database._models.exceptions import AmountNotInt
-from gwenbotv3.database import (
-    SymbolHandler,
-    UserContext,
-)
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.user_handler import UserHandler
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database._models.exceptions import LimitTooHigh
 from gwenbotv3.utils import get_user
+from gwenbotv3.database import (
+    SymbolHandler,
+    UserContext,
+)
 
 
 class LeaderboardCog(commands.Cog):
@@ -19,6 +21,7 @@ class LeaderboardCog(commands.Cog):
         self.symbol_handler = SymbolHandler()
         self.user_handler = UserHandler()
         self.server_handler = ServerHandler()
+        self.logger = logging.getLogger(__name__)
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
@@ -41,6 +44,8 @@ class LeaderboardCog(commands.Cog):
             return
 
         await ctx.send("Gwen is recounting. This might take a while.")
+
+        self.logger.info("Started recounting for server=%s", ctx.guild.id)
 
         user_context = context(ctx)
 
@@ -69,6 +74,7 @@ class LeaderboardCog(commands.Cog):
 
             self.symbol_handler.update(counting_user_context)
 
+        self.logger.info("Finished recounting for server=%s", ctx.guild.id)
         await ctx.send(f"Gwen has finished counting! <@{ctx.author.id}>")
 
     @commands.command(
@@ -85,12 +91,16 @@ class LeaderboardCog(commands.Cog):
     async def questions(self, ctx: commands.Context):
         if not ctx.guild:
             await ctx.send("Command must be used in a server!")
+            return
 
         user_context = context(ctx)
 
         try:
             amount = self.symbol_handler.fetch_amount(user_context)
         except AmountNotInt:
+            self.logger.error(
+                "Amount fetched in server=%s was not an integer", ctx.guild.id
+            )
             await ctx.send("Oh no! It seems like gwen ran into some issues!")
             return
 
@@ -162,7 +172,7 @@ class LeaderboardCog(commands.Cog):
             await ctx.send("This server doesn't have any symbol counters set up!")
             return
 
-        base_message = "--- Leaderboard ---\n\n"
+        base_message = "## --- Leaderboard ---\n\n"
 
         for res in lb:
             base_message += f"{res[0].name} - {res[1]}\n"
@@ -180,9 +190,14 @@ class LeaderboardCog(commands.Cog):
                 "Gwen is missing some information here! Be sure to check the help command!"
             )
         else:
-            original = getattr(error, "original", error)
-            print(f"Unhandled error: {type(original).__name__}: {original}")
-            import traceback
+            import sys
 
-            traceback.print_exception(type(original), original, original.__traceback__)
+            original = getattr(error, "original", error)
+            self.logger.error(
+                "Unhandled error: %s: %s",
+                type(original).__name__,
+                original,
+                exc_info=sys.exc_info(),
+            )
+
             await ctx.send("Gwen ran into some issues whilst performing this command!")

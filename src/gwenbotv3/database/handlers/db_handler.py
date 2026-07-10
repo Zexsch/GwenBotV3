@@ -1,19 +1,19 @@
+import logging
 from sqlite3 import Cursor
 from pathlib import Path
 
-from gwenbotv3 import SingletonLogger
 from gwenbotv3.database import connect
 
 
 class DatabaseHandler:
     def __init__(self):
-        self.logger = SingletonLogger().get_logger()
+        self.logger = logging.getLogger(__name__)
         self.sql_files = Path(__file__).resolve().parent / "sql_files"
 
     @connect
     def initialise(self, cur: Cursor) -> None:
         """Try to create the Database tables each time the bot runs."""
-        self.logger.debug("Attempting to create Database tables.")
+        self.logger.info("Attempting to create Database tables.")
 
         init_file = self.sql_files / "tables.sql"
         trigger_file = self.sql_files / "triggers.sql"
@@ -30,7 +30,7 @@ class DatabaseHandler:
 
     @connect
     def modify_db(self, cur: Cursor) -> None:
-        self.logger.debug("Running modify sql script")
+        self.logger.warning("Running modify sql script")
 
         change_file = self.sql_files / "change.sql"
 

@@ -1,6 +1,6 @@
+import logging
 from sqlite3 import Cursor
 
-from gwenbotv3 import SingletonLogger
 from gwenbotv3.database import connect
 from gwenbotv3.database import UserContext
 from gwenbotv3.database.get_context import context
@@ -9,7 +9,7 @@ from gwenbotv3.database.handlers.user_handler import UserHandler
 
 class GwenSubHandler:
     def __init__(self):
-        self.logger = SingletonLogger().get_logger()
+        self.logger = logging.getLogger(__name__)
         self.user_handler = UserHandler()
 
     @connect
@@ -31,12 +31,19 @@ class GwenSubHandler:
             ctx = context(ctx.ctx)
 
         if not ctx.user:
+            self.logger.warning(
+                "Tried to fetch sub for a UserContext with no user. ctx=%s", ctx
+            )
             return
 
         cur.execute(
             "INSERT INTO Subs(user, server) VALUES(?,?) "
             "ON CONFLICT(user, server) DO NOTHING",
             (ctx.user.id, ctx.server.id),
+        )
+
+        self.logger.info(
+            "Added user=%s to subs on server=%s", ctx.user.id, ctx.server.id
         )
 
     @connect
@@ -52,6 +59,9 @@ class GwenSubHandler:
         if cur.rowcount < 1:
             return False
 
+        self.logger.info(
+            "Removed sub for user=%s on server=%s", ctx.user.id, ctx.server.id
+        )
         return True
 
     @connect
@@ -81,6 +91,13 @@ class GwenSubHandler:
             (ctx.user.id, ctx.server.id, by_owner),
         )
 
+        self.logger.info(
+            "Added user=%s to blacklist in server=%s and by_owner=%s",
+            ctx.user.id,
+            ctx.server.id,
+            by_owner,
+        )
+
     @connect
     def remove_blacklist(self, cur: Cursor, ctx: UserContext, by_owner: bool = False):
         if not ctx.user:
@@ -93,6 +110,13 @@ class GwenSubHandler:
 
         if cur.rowcount < 1:
             return False
+
+        self.logger.info(
+            "Removed user=%s from blacklist in server=%s and by_owner=%s",
+            ctx.user.id,
+            ctx.server.id,
+            by_owner,
+        )
 
         return True
 
@@ -111,6 +135,10 @@ class GwenSubHandler:
         if cur.rowcount < 1:
             return False
 
+        self.logger.info(
+            "Removed sub from user=%s, server=%s by id", user_id, server_id
+        )
+
         return True
 
     @connect
@@ -118,6 +146,10 @@ class GwenSubHandler:
         res = cur.execute(
             "SELECT * FROM Blacklist WHERE user=? AND server=?", (user_id, server_id)
         ).fetchone()
+
+        self.logger.debug(
+            "Fetched blacklist by id: user=%s, server=%s", user_id, server_id
+        )
 
         return True if res else False
 
@@ -134,6 +166,13 @@ class GwenSubHandler:
         if cur.rowcount < 1:
             return False
 
+        self.logger.info(
+            "Added user=%s to blacklist by id in server=%s and by_owner=%s",
+            user_id,
+            server_id,
+            by_owner,
+        )
+
         return True
 
     @connect
@@ -147,5 +186,12 @@ class GwenSubHandler:
 
         if cur.rowcount < 1:
             return False
+
+        self.logger.info(
+            "Removed user=%s from blacklist by id in server=%s and by_owner=%s",
+            user_id,
+            server_id,
+            by_owner,
+        )
 
         return True
