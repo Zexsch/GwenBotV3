@@ -33,7 +33,7 @@ class ListenerCog(commands.Cog):
         symbol = self.symbol_handler.fetch_symbol(ctx)
         latest_user = self.symbol_handler.fetch_latest_user(ctx)
 
-        if ctx.message == symbol and latest_user != msg.author.id:
+        if ctx.message == symbol and latest_user.id != msg.author.id:
             self.symbol_handler.update(ctx)
             return
 
@@ -68,7 +68,7 @@ class ListenerCog(commands.Cog):
             await default_channel.send(base_message + 'They dared use an "@" in our holy channel nya!')  # type: ignore
             return
 
-        if msg.author.id == latest_user:
+        if msg.author.id == latest_user.id:
             self.logger.debug(
                 "User %s sent two messages in a row in server=%s",
                 ctx.user,

@@ -222,7 +222,7 @@ class SymbolHandler:
         if not res:
             return 0
 
-        self.logger.debug("Fetched channel %s for server %s", res[0], ctx.server.id)
+        # self.logger.debug("Fetched channel %s for server %s", res[0], ctx.server.id)
         return int(res[0])
 
     @connect
