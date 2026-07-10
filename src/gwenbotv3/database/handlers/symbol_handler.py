@@ -93,12 +93,12 @@ class SymbolHandler:
 
         if not res:
             self._set_latest_user(ctx)
-
-        if len(res) < 3:
-            self.logger.critical(
-                "Successfully fetched a user, yet not all information was fetched properly. On user: %s",
-                ctx.ctx.author.id,  # Had to do this because pylance is shit
-            )
+        else:
+            if len(res) < 3:
+                self.logger.critical(
+                    "Successfully fetched a user, yet not all information was fetched properly. On user: %s",
+                    ctx.ctx.author.id,  # Had to do this because pylance is shit
+                )
 
         user = User(id=res[0], name=res[1], is_anonymised=res[2])
 
