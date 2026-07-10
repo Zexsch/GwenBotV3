@@ -220,10 +220,6 @@ class SymbolHandler:
         ).fetchone()
 
         if not res:
-            self.logger.warning(
-                "Tried to fetch channel from a server without a channel set up. server=%s",
-                ctx.server.id,
-            )
             return 0
 
         self.logger.debug("Fetched channel %s for server %s", res[0], ctx.server.id)

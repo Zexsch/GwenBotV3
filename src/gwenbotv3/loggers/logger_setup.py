@@ -49,9 +49,9 @@ def setup_logging(log_dir: Path, logger_name: str | None = None) -> logging.Logg
     )
 
     info_console_handler = logging.StreamHandler()
-    info_console_handler.setLevel(logging.INFO)
+    info_console_handler.setLevel(logging.WARNING)
     info_console_handler.setFormatter(formatter)
-    info_console_handler.addFilter(_LevelEqualsFilter(logging.INFO))
+    info_console_handler.addFilter(_LevelEqualsFilter(logging.WARNING))
 
     warning_console_handler = logging.StreamHandler()
     warning_console_handler.setLevel(logging.WARNING)
