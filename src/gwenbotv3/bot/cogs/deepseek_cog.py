@@ -11,7 +11,8 @@ from openai.types.chat import (
     ChatCompletion,
 )
 
-from gwenbotv3.database import GwenseekHandler, GwenSubHandler
+from gwenbotv3.database import GwenseekHandler, GwenSubHandler, User
+from gwenbotv3.database.handlers.user_handler import UserHandler
 from gwenbotv3.database.get_context import context
 
 Message = Union[
@@ -27,6 +28,7 @@ class DeepseekCog(commands.Cog):
         self.logger = logging.getLogger(__name__)
         self.gwenseek_handler = GwenseekHandler()
         self.gwensub_handler = GwenSubHandler()
+        self.user_handler = UserHandler()
         self.__token = os.environ["DEEPSEEK_TOKEN"]
         self.deepseek_client = AsyncOpenAI(
             api_key=self.__token, base_url="https://api.deepseek.com"
@@ -114,10 +116,14 @@ class DeepseekCog(commands.Cog):
         user_context = context(ctx)
 
         if not user_context.user:
-            self.logger.error(
+            self.logger.debug(
                 "User field is none in Gwenseek func for user=%s", user_context
             )
-            return
+            self.user_handler.insert_user(ctx)
+
+            user = User(id=ctx.author.id, name=ctx.author.name, is_anonymised=False)
+
+            user_context.user = user
 
         context_count = self.gwenseek_handler.get_count(user_context)
 
