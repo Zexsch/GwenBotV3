@@ -35,6 +35,7 @@ For any privacy-related questions, you can contact me on discord @zexsch
 Data is collected to:
 - Provide the core functionality of the bot
 - Store temporary chat history for DeepSeek interactions
+- The Server Owner ID and Member Counts are collected to contact the server owner in case of misuse
 ### No data is sold to third parties, nor analysed for marketing or other purposes not tied to the bot's functionality.
 
 ---

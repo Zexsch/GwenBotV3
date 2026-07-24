@@ -1,8 +1,7 @@
 import logging
 from sqlite3 import Cursor
 
-from gwenbotv3.database import connect
-from gwenbotv3.database import UserContext
+from gwenbotv3.database import UserContext, connect
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.user_handler import UserHandler
 
@@ -61,6 +60,25 @@ class GwenSubHandler:
 
         self.logger.info(
             "Removed sub for user=%s on server=%s", ctx.user.id, ctx.server.id
+        )
+        return True
+
+    @connect
+    def remove_all_sub(self, cur: Cursor, ctx: UserContext) -> bool:
+        if not ctx.user:
+            return False
+
+        cur.execute(
+            "DELETE FROM Subs WHERE user=?",
+            (ctx.user.id,),
+        )
+
+        if cur.rowcount < 1:
+            return False
+
+        self.logger.info(
+            "Removed all subs for user=%s",
+            ctx.user.id,
         )
         return True
 

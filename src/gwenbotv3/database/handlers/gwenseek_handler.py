@@ -2,8 +2,7 @@ import logging
 from sqlite3 import Cursor
 from typing import Any
 
-from gwenbotv3.database import connect
-from gwenbotv3.database import UserContext
+from gwenbotv3.database import UserContext, connect
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.user_handler import UserHandler
 

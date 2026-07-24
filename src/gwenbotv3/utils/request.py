@@ -1,24 +1,31 @@
-import time
+"""Houses a custom request function for requests.
+
+Use the request function for any and all requests instead of using requests.get directly.
+"""
+
 import logging
 import sys
-from typing import Dict, Optional
+import time
 
 import requests
 
 
 class FailedRequest(Exception):
+    """Raise if a request has failed for any reason not handled by the request function."""
+
     def __init__(self, **kwargs) -> None:
         self.logger = logging.getLogger(__name__)
         self.logger.exception("Request failed with %s", kwargs, exc_info=sys.exc_info())
         super().__init__(f"Request failed with {kwargs=}")
 
 
-def request(url: str, headers: Optional[Dict[str, str]] = None) -> requests.Response:
+def request(url: str, headers: dict[str, str] | None = None) -> requests.Response:
     """Use for all GET requests.
 
     Args:
         url (str): url
-        header (Dict[str, str], optional): Headers, if applicable. Defaults to {'User-Agent': 'Mozilla/5.0'}.
+        header (Dict[str, str], optional): Headers, if applicable.
+            Defaults to {'User-Agent': 'Mozilla/5.0'}.
 
     Returns:
         Response: request Response.

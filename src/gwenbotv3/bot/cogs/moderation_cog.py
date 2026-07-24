@@ -3,8 +3,8 @@ import logging
 from discord.ext import commands
 from discord.ext.commands import Context
 
-from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database.get_context import context
+from gwenbotv3.database.handlers.server_handler import ServerHandler
 
 
 class ModerationCog(commands.Cog):

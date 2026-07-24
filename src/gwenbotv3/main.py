@@ -1,17 +1,24 @@
+"""Main entry point.
+
+Either run this file directly or use the gwenbot-init command.
+"""
+
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# pylint: disable=wrong-import-position
+# pylint: disable=import-outside-toplevel, wrong-import-position
 from gwenbotv3.loggers import init_logging
 
 log_dir = Path("/home/container/Logs")
 
 init_logging(log_dir)
 
+# ruff: noqa: E402
+# Import here because logging needs to be set up first
 from gwenbotv3 import App
 
 

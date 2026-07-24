@@ -1,6 +1,6 @@
 import logging
-from sqlite3 import Cursor
 from pathlib import Path
+from sqlite3 import Cursor
 
 from gwenbotv3.database import connect
 
@@ -19,13 +19,13 @@ class DatabaseHandler:
         trigger_file = self.sql_files / "triggers.sql"
         pseudonymise_file = self.sql_files / "pseudonymise.sql"
 
-        with open(str(init_file), "r", encoding="utf-8") as f:
+        with open(str(init_file), encoding="utf-8") as f:
             cur.executescript(f.read())
 
-        with open(str(trigger_file), "r", encoding="utf-8") as f:
+        with open(str(trigger_file), encoding="utf-8") as f:
             cur.executescript(f.read())
 
-        with open(str(pseudonymise_file), "r", encoding="utf-8") as f:
+        with open(str(pseudonymise_file), encoding="utf-8") as f:
             cur.executescript(f.read())
 
     @connect
@@ -34,5 +34,5 @@ class DatabaseHandler:
 
         change_file = self.sql_files / "change.sql"
 
-        with open(str(change_file), "r", encoding="utf-8") as f:
+        with open(str(change_file), encoding="utf-8") as f:
             cur.executescript(f.read())

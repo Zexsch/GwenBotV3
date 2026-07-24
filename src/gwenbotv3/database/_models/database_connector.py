@@ -1,12 +1,14 @@
 import logging
 import sqlite3
-from pathlib import Path
+from collections.abc import Callable
 from functools import wraps
-from typing import Callable, TypeVar, ParamSpec, Concatenate
+from pathlib import Path
+from typing import Concatenate, ParamSpec, TypeVar
+from types import TracebackType
 
 
 class _DatabaseConnector:
-    def __init__(self):
+    def __init__(self) -> None:
         db_folder = Path(__file__).resolve().parent.parent / "db"
 
         if not db_folder.exists():
@@ -23,16 +25,16 @@ class _DatabaseConnector:
 
         return self.cursor
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        _exc_value: BaseException | None,
+        _traceback: TracebackType | None,
+    ):
         if exc_type is None:
             self.connection.commit()
         else:
-            self.logger.error(
-                "Error in Database connection, rolling back: exc_type=%s, exc_value=%s, traceback=%s",
-                exc_type,
-                exc_value,
-                traceback,
-            )
+            self.logger.exception("Error in Database connection, rolling back.")
             self.connection.rollback()
 
         self.connection.close()

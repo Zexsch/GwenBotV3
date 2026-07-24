@@ -1,31 +1,99 @@
-[build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
-
 [project]
 name = "gwenbotv3"
 version = "3.1.0"
 description = "GwenBotV3"
 readme = "README.md"
-requires-python = ">=3.11"
-license = { file = "LICENSE" }
+requires-python = ">=3.13"
+license = "MIT"
 keywords = ["discord", "league of legends", "gwen", "bot"]
-authors = [{ name = "Zexsch "}]
+authors = [{ name = "Zexsch"}]
 dependencies = [
-    "requests>=2.31.0",
-    "beautifulsoup4>=4.12.2",
-    "openai>=2.6.0",
-    "discord.py>=2.6.4"
+    "beautifulsoup4>=4.15.0",
+    "discord-py>=2.7.1",
+    "openai>=2.48.0",
+    "requests>=2.34.2",
 ]
+
+[project.urls]
+Repository = "https://github.com/Zexsch/GwenBotV3"
+Issues = "https://github.com/Zexsch/GwenBotV3/issues"
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+gwenbot-init = "gwenbotv3.main:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/gwenbotv3"]
 
-[tool.hatch.build.targets.sdist]
-include = [
-    "src/",
-    "README.md",
-    "LICENSE",
-    "pyproject.toml",
-    "PRIVACY.md"
+[dependency-groups]
+dev = [
+    "bandit>=1.9.4",
+    "hatch>=1.17.1",
+    "mypy>=2.3.0",
+    "pip-audit>=2.10.1",
+    "pre-commit>=4.6.1",
+    "pylint>=4.0.6",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "radon>=6.0.1",
+    "ruff>=0.16.0",
+    "vulture>=2.16",
 ]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+
+[[tool.mypy.overrides]]
+module = ["bs4.*"] # bs4 kinda shit with typing so
+disallow_untyped_calls = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-ra --cov=gwenbotv3 --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["gwenbotv3"]
+omit = ["*/main.py"]
+
+[tool.coverage.report]
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "RUF", "C4", "ASYNC"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["gwenbotv3"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+
+[tool.vulture]
+paths = ["src/gwenbotv3"]
+min_confidence = 80
+
+[tool.uv]
+package = true
+
+[tool.uv.workspace]
+members = ["."]

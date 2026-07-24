@@ -1,10 +1,11 @@
 import logging
+
 from discord.ext import commands
 
-from gwenbotv3.database.handlers.user_handler import UserHandler
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database import GwenSubHandler, GwenseekHandler
+from gwenbotv3.database import GwenseekHandler, GwenSubHandler
 from gwenbotv3.database._models.exceptions import UserNotAnonymised
+from gwenbotv3.database.get_context import context
+from gwenbotv3.database.handlers.user_handler import UserHandler
 
 
 class PrivacyCog(commands.Cog):
@@ -19,11 +20,12 @@ class PrivacyCog(commands.Cog):
     async def anonymise(self, ctx: commands.Context) -> None:
         if not ctx.guild:
             await ctx.send("Command must be used in a server!")
+            return
 
         user_context = context(ctx)
 
         self.user_handler.anonymise_user(ctx)
-        self.gwensub_handler.remove_sub(user_context)
+        self.gwensub_handler.remove_all_sub(user_context)
         self.gwenseek_handler.clear_all_context(user_context)
 
         return_message = (
@@ -58,6 +60,7 @@ class PrivacyCog(commands.Cog):
     async def unanonymise(self, ctx: commands.Context) -> None:
         if not ctx.guild:
             await ctx.send("Command must be used in a server!")
+            return
 
         try:
             self.user_handler.deanonymise_user(ctx)

@@ -1,3 +1,5 @@
+"""Sets up logging handlers and settings."""
+
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
@@ -13,6 +15,15 @@ class _LevelEqualsFilter(logging.Filter):
 
 
 def setup_logging(log_dir: Path, logger_name: str | None = None) -> logging.Logger:
+    """Sets up logging handlers and settings.
+
+    Args:
+        log_dir (Path): Main log directory.
+        logger_name (str | None, optional): Name of the root logger. Defaults to None.
+
+    Returns:
+        logging.Logger: root logger.
+    """
     log_dir.mkdir(parents=True, exist_ok=True)
 
     formatter = logging.Formatter(

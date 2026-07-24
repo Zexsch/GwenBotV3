@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Optional
 
-from discord.ext.commands import Context
 from discord import Message
+from discord.ext.commands import Context
 
 
 @dataclass
@@ -14,15 +13,15 @@ class User:
 
 @dataclass
 class Server:
-    id: Optional[int]
-    owner_id: Optional[int]
-    member_count: Optional[int]
+    id: int | None
+    owner_id: int | None
+    member_count: int | None
     quote: bool
 
 
 @dataclass
 class UserContext:
-    user: Optional[User]
+    user: User | None
     server: Server
-    message: Optional[str]
+    message: str | None
     ctx: Context | Message

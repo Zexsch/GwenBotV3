@@ -1,14 +1,14 @@
-import sys
 import logging
+import sys
 
 import discord
 from discord.ext import commands
 
+from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
 from gwenbotv3.config import (
     OWNER_ID,
     PREFIX,
 )
-from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
 
 
 class App(commands.Bot):
@@ -31,17 +31,19 @@ class App(commands.Bot):
         self.winrate_fetcher = WinrateFetcher()
 
     async def setup_hook(self) -> None:
-        from gwenbotv3.bot.cogs import ListenerCog
-        from gwenbotv3.bot.cogs import GwensubCog
-        from gwenbotv3.bot.cogs import OwnerCog
-        from gwenbotv3.bot.cogs import WinrateCog
-        from gwenbotv3.bot.cogs import DMCog
-        from gwenbotv3.bot.cogs import CommandsCog
-        from gwenbotv3.bot.cogs import LeaderboardCog
-        from gwenbotv3.bot.cogs import DeepseekCog
-        from gwenbotv3.bot.cogs import ModerationCog
-        from gwenbotv3.bot.cogs import PrivacyCog
-        from gwenbotv3.bot.cogs import HelpCog
+        from gwenbotv3.bot.cogs import (
+            CommandsCog,
+            DeepseekCog,
+            DMCog,
+            GwensubCog,
+            HelpCog,
+            LeaderboardCog,
+            ListenerCog,
+            ModerationCog,
+            OwnerCog,
+            PrivacyCog,
+            WinrateCog,
+        )
 
         self.logger.info("Initialising cogs.")
         await self.add_cog(ListenerCog(bot=self))
@@ -57,9 +59,7 @@ class App(commands.Bot):
         await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
 
-    async def on_error(
-        self, event_method, *args, **kwargs
-    ):  # pylint: disable=arguments-differ
+    async def on_error(self, event_method, *args, **kwargs):  # pylint: disable=arguments-differ
         self.logger.error(
             "Unhandled exception in event '%s' (args=%s, kwargs=%s)",
             event_method,
@@ -100,7 +100,8 @@ class App(commands.Bot):
 
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.reply(
-                f"Oh no! Seems like gwen doesn't have the following neccesary permissions: {', '.join(error.missing_permissions)}"
+                "Oh no! Seems like gwen doesn't have the following neccesary permissions: "
+                + f"{', '.join(error.missing_permissions)}"
             )
             return
 

@@ -1,15 +1,15 @@
-import logging
 import json
+import logging
 
 from bs4 import BeautifulSoup
 
-from gwenbotv3.utils.request import request
-from gwenbotv3.bot.models import Champion, Result
 from gwenbotv3.bot.exceptions import (
-    WinrateNotFoundException,
-    StatsNotFoundException,
     ChampionNotFoundException,
+    StatsNotFoundException,
+    WinrateNotFoundException,
 )
+from gwenbotv3.bot.models import Champion, Result
+from gwenbotv3.utils.request import request
 
 
 class WinrateFetcher:
@@ -121,9 +121,7 @@ class WinrateFetcher:
     def _get_champion_list(self) -> list[str]:
         """Gets list of champions."""
         self.logger.debug("Fetching champion.json")
-        url: str = (
-            f"https://ddragon.leagueoflegends.com/cdn/{self.patch_version}/data/en_US/champion.json"
-        )
+        url: str = f"https://ddragon.leagueoflegends.com/cdn/{self.patch_version}/data/en_US/champion.json"
 
         champion_response = request(url)
         champion_json: dict[str, str] = json.loads(champion_response.text)
@@ -229,7 +227,12 @@ class WinrateFetcher:
             except IndexError:
                 return None
         else:
-            match_count: str = soup.find("div", {"class": "text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold"}).text  # type: ignore
+            match_count: str = soup.find(
+                "div",
+                {
+                    "class": "text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold"
+                },
+            ).text  # type: ignore
 
         if match_count is None:
             return None
@@ -268,7 +271,6 @@ class WinrateFetcher:
                 "div", {"class": "text-[14px] font-extrabold"}
             )[2].text
         except IndexError:
-
             return None
 
         return ban_rate

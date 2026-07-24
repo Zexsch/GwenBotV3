@@ -1,19 +1,19 @@
-import os
 import logging
-from typing import Union, Any
+import os
+from typing import Any, Union
 
 from discord.ext import commands
 from openai import AsyncOpenAI
 from openai.types.chat import (
-    ChatCompletionUserMessageParam,
-    ChatCompletionSystemMessageParam,
-    ChatCompletionAssistantMessageParam,
     ChatCompletion,
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionSystemMessageParam,
+    ChatCompletionUserMessageParam,
 )
 
 from gwenbotv3.database import GwenseekHandler, GwenSubHandler, User
-from gwenbotv3.database.handlers.user_handler import UserHandler
 from gwenbotv3.database.get_context import context
+from gwenbotv3.database.handlers.user_handler import UserHandler
 
 Message = Union[
     ChatCompletionSystemMessageParam,
@@ -97,7 +97,7 @@ class DeepseekCog(commands.Cog):
             return
 
         await ctx.send("Gwen is thinking...")
-        response = ""
+        response = None
 
         full_messages: list[Message] = [
             {
@@ -152,7 +152,8 @@ class DeepseekCog(commands.Cog):
                     "Gwenseek hit the length limit, loop=%i, tokens=%i", i, tokens
                 )
                 await ctx.send(
-                    "Gwen's message seems to have been too long! Gwen will try again, please be patient!"
+                    "Gwen's message seems to have been too long! "
+                    + "Gwen will try again, please be patient!"
                 )
                 response = await self.choose_mode(
                     full_messages, reasoning=reasoning, tokens=tokens
@@ -222,7 +223,6 @@ class DeepseekCog(commands.Cog):
 
         await ctx.send(response.choices[0].message.content)
         await ctx.send(f"||<@{ctx.message.author.id}>||")
-        response = ""
 
     @commands.command(aliases=["deepseek", "seek"])
     async def gwenseek(self, ctx: commands.Context, *, message: str) -> None:

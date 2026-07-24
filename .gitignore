@@ -216,5 +216,7 @@ __marimo__/
 
 # VSCode
 .vscode
-.pylintrc
 .db
+
+# Custom
+pylint_output

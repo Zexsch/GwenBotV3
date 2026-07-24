@@ -1,5 +1,6 @@
 import logging
-from typing import Callable
+from collections.abc import Callable
+
 from gwenbotv3.database._models import User
 
 

@@ -1,1 +1,3 @@
-from .get_user_module import get_user
+"""General utilities that don't fit in other modules"""
+
+from .get_mention_module import get_mention

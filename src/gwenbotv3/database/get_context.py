@@ -1,12 +1,22 @@
-from discord.ext.commands import Context
-from discord import Message
+"""Houses the context function."""
 
-from gwenbotv3.database.handlers.user_handler import UserHandler
-from gwenbotv3.database.handlers.server_handler import ServerHandler
+from discord import Message
+from discord.ext.commands import Context
+
 from gwenbotv3.database import UserContext
+from gwenbotv3.database.handlers.server_handler import ServerHandler
+from gwenbotv3.database.handlers.user_handler import UserHandler
 
 
 def context(ctx: Context | Message) -> UserContext:
+    """Takes in either a Context or Message object and returns a UserContext.
+
+    Args:
+        ctx (Context | Message): discord.commands.Context or discord.Message object
+
+    Returns:
+        UserContext: See database._models.models
+    """
     user = UserHandler().fetch_user_by_id(ctx.author.id)
     server = ServerHandler().fetch_server(ctx)
 

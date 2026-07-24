@@ -1,19 +1,17 @@
 import logging
 from sqlite3 import Cursor
-from typing import Optional
 
 from discord import Message
 from discord.ext.commands import Context
 
-from gwenbotv3.database import connect
-from gwenbotv3.database import Server
 from gwenbotv3.config import PREFIX
-from gwenbotv3.database._models.models import UserContext
+from gwenbotv3.database import Server, connect
 from gwenbotv3.database._models.exceptions import (
+    EmptyDataclass,
     NotInAGuildException,
     UserOrCtxNotGiven,
-    EmptyDataclass,
 )
+from gwenbotv3.database._models.models import UserContext
 
 
 class ServerHandler:
@@ -30,8 +28,8 @@ class ServerHandler:
     def insert_server(
         self,
         cur: Cursor,
-        ctx: Optional[Context | Message] = None,
-        server: Optional[Server] = None,
+        ctx: Context | Message | None = None,
+        server: Server | None = None,
     ) -> None:
         if server is None and ctx is None:
             raise UserOrCtxNotGiven(self.insert_server)
@@ -134,7 +132,7 @@ class ServerHandler:
         return True
 
     @connect
-    def fetch_server_by_id(self, cur: Cursor, server_id: int) -> Optional[Server]:
+    def fetch_server_by_id(self, cur: Cursor, server_id: int) -> Server | None:
         res = cur.execute(
             "SELECT * FROM Servers WHERE server_id=?", (server_id,)
         ).fetchone()

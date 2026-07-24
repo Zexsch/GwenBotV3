@@ -1,5 +1,4 @@
 import discord
-
 from discord.ext import commands
 
 from gwenbotv3.bot.winrate_fetcher import WinrateFetcher

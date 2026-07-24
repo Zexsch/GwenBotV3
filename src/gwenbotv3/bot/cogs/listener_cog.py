@@ -4,12 +4,11 @@ from random import randint
 import discord
 from discord.ext import commands
 
-from gwenbotv3.database import UserContext
-from gwenbotv3.database import SymbolHandler, GwenSubHandler
+from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
+from gwenbotv3.database import GwenSubHandler, SymbolHandler, UserContext
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database.handlers.user_handler import UserHandler
-from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
 
 
 class ListenerCog(commands.Cog):
@@ -48,14 +47,17 @@ class ListenerCog(commands.Cog):
         default_channel_id = self.symbol_handler.fetch_channel(ctx)
         default_channel = self.bot.get_channel(default_channel_id)
 
-        if not "@" in msg.content:
+        if "@" not in msg.content:
             self.logger.debug(
                 "User %s sent a non-question mark in counter for server=%s",
                 ctx.user,
                 ctx.server.id,
             )
 
-            await default_channel.send(base_message + f'They dared send "{msg.content}" in our holy channel nya!')  # type: ignore
+            await default_channel.send(
+                base_message
+                + f'They dared send "{msg.content}" in our holy channel nya!'
+            )  # type: ignore
             return
 
         if "@" in msg.content:
@@ -65,7 +67,9 @@ class ListenerCog(commands.Cog):
                 ctx.server.id,
             )
 
-            await default_channel.send(base_message + 'They dared use an "@" in our holy channel nya!')  # type: ignore
+            await default_channel.send(
+                base_message + 'They dared use an "@" in our holy channel nya!'
+            )  # type: ignore
             return
 
         if msg.author.id == latest_user.id:
@@ -74,7 +78,10 @@ class ListenerCog(commands.Cog):
                 ctx.user,
                 ctx.server.id,
             )
-            await default_channel.send(base_message + "They dared send two messages in a row in our holy channel nya!")  # type: ignore
+            await default_channel.send(
+                base_message
+                + "They dared send two messages in a row in our holy channel nya!"
+            )  # type: ignore
             return
 
     async def _sendshit(self, msg: discord.Message) -> None:
@@ -84,7 +91,7 @@ class ListenerCog(commands.Cog):
         if not msg.author.id == OWNER_ID:
             return
 
-        if not "sendshit" in msg.content.lower():
+        if "sendshit" not in msg.content.lower():
             return
 
         res: str = msg.content
