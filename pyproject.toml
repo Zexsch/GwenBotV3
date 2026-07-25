@@ -1,6 +1,6 @@
 [project]
 name = "gwenbotv3"
-version = "3.2.0"
+version = "3.3.0"
 description = "GwenBotV3"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -9,12 +9,11 @@ keywords = ["discord", "league of legends", "gwen", "bot"]
 authors = [{ name = "Zexsch"}]
 dependencies = [
     "aiomysql>=0.3.2",
-    "alembic>=1.18.5",
     "beautifulsoup4>=4.15.0",
     "discord-py>=2.7.1",
     "openai>=2.48.0",
     "requests>=2.34.2",
-    "sqlalchemy>=2.0.51",
+    "sqlalchemy[asyncio]>=2.0.51",
 ]
 
 [project.urls]
@@ -33,6 +32,7 @@ packages = ["src/gwenbotv3"]
 
 [dependency-groups]
 dev = [
+    "alembic>=1.18.5",
     "bandit>=1.9.4",
     "dotenv>=0.9.9",
     "hatch>=1.17.1",
