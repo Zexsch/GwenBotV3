@@ -6,12 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-OWNER_ID: int = int(os.getenv("OWNER_ID", 0))  # Change to your own discord user ID
+OWNER_ID: int = int(os.getenv("OWNER_ID", "0"))  # Change to your own discord user ID
 DEFAULT_CHANNEL: int = int(
-    os.getenv("DEFAULT_CHANNEL", 0)
+    os.getenv("DEFAULT_CHANNEL", "0")
 )  # Default channel that the sendshit 'command' sends to.
 MESSAGE_CHANNEL: int = int(
-    os.getenv("MESSAGE_CHANNEL", 0)
+    os.getenv("MESSAGE_CHANNEL", "0")
 )  # Default channel to count messages
 PREFIX: str = "+"  # Bot prefix.
 
