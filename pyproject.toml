@@ -34,6 +34,7 @@ packages = ["src/gwenbotv3"]
 [dependency-groups]
 dev = [
     "bandit>=1.9.4",
+    "dotenv>=0.9.9",
     "hatch>=1.17.1",
     "mypy>=2.3.0",
     "pip-audit>=2.10.1",
