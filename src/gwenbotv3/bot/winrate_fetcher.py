@@ -481,3 +481,7 @@ class WinrateFetcher:
             return self._get_all_no_opponent(champ)
 
         return self._get_all_with_opponent(champ)
+
+    @property
+    def patch(self) -> str:
+        return ".".join(self.patch_version.split(".")[:-1])

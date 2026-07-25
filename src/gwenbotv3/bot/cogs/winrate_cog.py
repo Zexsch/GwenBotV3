@@ -29,10 +29,6 @@ class WinrateCog(commands.Cog):
             "master_plus": "M+",
         }
 
-        self.current_patch = ".".join(
-            self.winrate_fetcher.patch_version.split(".")[:-1]
-        )
-
     @commands.command(aliases=["winrate"])
     async def wr(
         self, ctx: commands.Context[commands.Bot], champion_name: str, *args: str
@@ -143,4 +139,4 @@ class WinrateCog(commands.Cog):
     @commands.command(aliases=["checkver", "patch"])
     async def version(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the current league patch."""
-        await ctx.send(f"Currently on league patch {self.current_patch}.")
+        await ctx.send(f"Currently on league patch {self.winrate_fetcher.patch}.")
