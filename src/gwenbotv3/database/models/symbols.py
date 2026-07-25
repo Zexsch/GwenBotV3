@@ -55,6 +55,11 @@ class SymbolCounter(Base):
     def __repr__(self) -> str:
         return f"{self.server_id} : {self.amount}"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SymbolCounter):
+            return NotImplemented
+        return self.symbol_id == other.symbol_id
+
 
 class SymbolUser(Base):
     __tablename__ = "symbol_user"
@@ -74,3 +79,11 @@ class SymbolUser(Base):
 
     user_ref: Mapped[Users] = relationship(back_populates="symbol_counts")
     server_ref: Mapped[Servers] = relationship(back_populates="symbol_user_entries")
+
+    def __repr__(self) -> str:
+        return f"<{self.user_id=}>,<{self.symbols_server=}>,<{self.amount=}>"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, SymbolUser):
+            return NotImplemented
+        return self.s_user_id == other.s_user_id

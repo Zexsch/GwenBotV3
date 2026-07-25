@@ -33,3 +33,8 @@ class Gwenseek(Base):
 
     def __repr__(self) -> str:
         return f"Seek: {self.seek_id} | User: {self.user_id} | Server: {self.server_id}"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Gwenseek):
+            return NotImplemented
+        return self.seek_id == other.seek_id

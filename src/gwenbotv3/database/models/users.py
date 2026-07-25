@@ -55,3 +55,8 @@ class Users(Base):
 
     def __str__(self) -> str:
         return self.full_user
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Users):
+            return NotImplemented
+        return self.user_id == other.user_id

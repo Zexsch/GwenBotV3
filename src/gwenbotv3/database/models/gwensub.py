@@ -27,6 +27,11 @@ class Subs(Base):
     def __repr__(self) -> str:
         return f"<Sub:{self.sub_id}><User:{self.user_id}><Server:{self.server_id}>"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Subs):
+            return NotImplemented
+        return self.sub_id == other.sub_id
+
 
 class Blacklist(Base):
     __tablename__ = "blacklist"
@@ -48,3 +53,8 @@ class Blacklist(Base):
             f"<Sub:{self.blacklist_id}><User:{self.user_id}><Server:{self.server_id}>"
             f"<Owner:{self.by_owner}>"
         )
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Blacklist):
+            return NotImplemented
+        return self.blacklist_id == other.blacklist_id

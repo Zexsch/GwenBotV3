@@ -66,3 +66,8 @@ class Servers(Base):
 
     def __str__(self) -> str:
         return self.full_server
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Servers):
+            return NotImplemented
+        return self.server_id == other.server_id
