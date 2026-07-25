@@ -6,8 +6,8 @@ from sqlite3 import Cursor
 from discord import Message
 from discord.ext.commands import Bot, Context
 
-from gwenbotv3.database import User, connect
-from gwenbotv3.database._models.exceptions import (
+from gwenbotv3.database_handling import User, connect
+from gwenbotv3.database_handling._models.exceptions import (
     EmptyDataclass,
     UserNotAnonymised,
     UserOrCtxNotGiven,

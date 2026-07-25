@@ -8,6 +8,8 @@ license = "MIT"
 keywords = ["discord", "league of legends", "gwen", "bot"]
 authors = [{ name = "Zexsch"}]
 dependencies = [
+    "aiomysql>=0.3.2",
+    "alembic>=1.18.5",
     "beautifulsoup4>=4.15.0",
     "discord-py>=2.7.1",
     "openai>=2.48.0",

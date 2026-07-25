@@ -4,7 +4,7 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from gwenbotv3.database._models import User
+from gwenbotv3.database_handling._models import User
 
 
 class ServerNotFoundException(Exception):

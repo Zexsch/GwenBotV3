@@ -2,7 +2,7 @@
 
 from discord.ext import commands
 
-from gwenbotv3.database import GwenSubHandler
+from gwenbotv3.database_handling import GwenSubHandler
 
 
 class CommandsCog(commands.Cog):

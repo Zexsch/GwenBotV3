@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.server_handler import ServerHandler
+from gwenbotv3.database_handling.get_context import context
+from gwenbotv3.database_handling.handlers.server_handler import ServerHandler
 
 
 class ModerationCog(commands.Cog):

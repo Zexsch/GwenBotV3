@@ -3,13 +3,13 @@
 import logging
 from sqlite3 import Cursor
 
-from gwenbotv3.database import User, UserContext, connect
-from gwenbotv3.database._models.exceptions import (
+from gwenbotv3.database_handling import User, UserContext, connect
+from gwenbotv3.database_handling._models.exceptions import (
     AmountNotInt,
     LimitTooHigh,
 )
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database_handling.get_context import context
+from gwenbotv3.database_handling.handlers.user_handler import UserHandler
 
 
 class SymbolHandler:

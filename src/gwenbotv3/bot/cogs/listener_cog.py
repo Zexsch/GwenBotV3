@@ -8,10 +8,10 @@ from discord.channel import TextChannel
 from discord.ext import commands
 
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
-from gwenbotv3.database import GwenSubHandler, SymbolHandler, UserContext
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.server_handler import ServerHandler
-from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database_handling import GwenSubHandler, SymbolHandler, UserContext
+from gwenbotv3.database_handling.get_context import context
+from gwenbotv3.database_handling.handlers.server_handler import ServerHandler
+from gwenbotv3.database_handling.handlers.user_handler import UserHandler
 
 
 class ListenerCog(commands.Cog):

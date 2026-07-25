@@ -13,9 +13,9 @@ from openai.types.chat import (
     ChatCompletionUserMessageParam,
 )
 
-from gwenbotv3.database import GwenseekHandler, GwenSubHandler, User
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database_handling import GwenseekHandler, GwenSubHandler, User
+from gwenbotv3.database_handling.get_context import context
+from gwenbotv3.database_handling.handlers.user_handler import UserHandler
 
 # ruff: noqa: UP007
 Message = Union[

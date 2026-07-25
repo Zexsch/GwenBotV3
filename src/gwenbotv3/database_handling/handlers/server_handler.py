@@ -7,13 +7,13 @@ from discord import Message
 from discord.ext.commands import Bot, Context
 
 from gwenbotv3.config import PREFIX
-from gwenbotv3.database import Server, connect
-from gwenbotv3.database._models.exceptions import (
+from gwenbotv3.database_handling import Server, connect
+from gwenbotv3.database_handling._models.exceptions import (
     EmptyDataclass,
     NotInAGuildException,
     UserOrCtxNotGiven,
 )
-from gwenbotv3.database._models.models import UserContext
+from gwenbotv3.database_handling._models.models import UserContext
 
 
 class ServerHandler:

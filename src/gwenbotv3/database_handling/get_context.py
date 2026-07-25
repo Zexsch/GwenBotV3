@@ -3,9 +3,9 @@
 from discord import Message
 from discord.ext.commands import Bot, Context
 
-from gwenbotv3.database import UserContext
-from gwenbotv3.database.handlers.server_handler import ServerHandler
-from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database_handling import UserContext
+from gwenbotv3.database_handling.handlers.server_handler import ServerHandler
+from gwenbotv3.database_handling.handlers.user_handler import UserHandler
 
 
 def context(ctx: Context[Bot] | Message) -> UserContext:

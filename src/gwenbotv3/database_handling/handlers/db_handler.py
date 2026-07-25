@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from sqlite3 import Cursor
 
-from gwenbotv3.database import connect
+from gwenbotv3.database_handling import connect
 
 
 class DatabaseHandler:
