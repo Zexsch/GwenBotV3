@@ -27,6 +27,8 @@ repos:
         args:
           - --format
           - requirements.txt
+          - --no-group
+          - dev
           - --output-file
           - requirements.txt
         files: ^uv\.lock$
