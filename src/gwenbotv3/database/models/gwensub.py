@@ -1,6 +1,7 @@
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import BigInteger, Boolean, ForeignKey, UniqueConstraint
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gwenbotv3.database.base import Base
@@ -20,6 +21,12 @@ class Subs(Base):
     sub_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
     server_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("servers.server_id"))
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
 
     user_ref: Mapped[Users] = relationship(back_populates="subs")
     server_ref: Mapped[Servers] = relationship(back_populates="subs")
@@ -44,6 +51,12 @@ class Blacklist(Base):
     user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
     server_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("servers.server_id"))
     by_owner: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
 
     user_ref: Mapped[Users] = relationship(back_populates="blacklist_entries")
     server_ref: Mapped[Servers] = relationship(back_populates="blacklist_entries")
