@@ -1,14 +1,14 @@
 """Houses the context function."""
 
 from discord import Message
-from discord.ext.commands import Context
+from discord.ext.commands import Bot, Context
 
 from gwenbotv3.database import UserContext
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database.handlers.user_handler import UserHandler
 
 
-def context(ctx: Context | Message) -> UserContext:
+def context(ctx: Context[Bot] | Message) -> UserContext:
     """Takes in either a Context or Message object and returns a UserContext.
 
     Args:

@@ -1,21 +1,32 @@
+"""Houses the moderation cog."""
+
 import logging
 
+import discord
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Bot, Context
 
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 
 
 class ModerationCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Anything to do with server moderation."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.server_handler = ServerHandler()
         self.logger = logging.getLogger(__name__)
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def prefix(self, ctx: Context, new_prefix: str):
+    async def prefix(self, ctx: Context[Bot], new_prefix: str) -> None:
+        """Changes a server's prefix.
+
+        Args:
+            ctx (Context): Discord Context.
+            new_prefix (str): The prefix to be set.
+        """
         if not new_prefix:
             await ctx.send("Please input a valid prefix.")
             return
@@ -31,7 +42,9 @@ class ModerationCog(commands.Cog):
         await ctx.send(f"Changed prefix to {new_prefix}.")
 
     @prefix.error
-    async def _error(self, ctx: commands.Context, error) -> None:
+    async def _error(
+        self, ctx: commands.Context[Bot], error: discord.DiscordException
+    ) -> None:
         """Run if a user does not have the permissions necessary to run a command."""
 
         if isinstance(error, commands.MissingPermissions):

@@ -1,31 +1,50 @@
+"""Houses the owner cog."""
+
 import logging
 
+import discord
 from discord.ext import commands
 
 from gwenbotv3.database import DatabaseHandler, GwenSubHandler, SymbolHandler
-from gwenbotv3.utils import get_user
+from gwenbotv3.utils import get_mention
 
 
 class OwnerCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Any commands that only the bot owner should be able to execute go in here."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.gwensub_handler = GwenSubHandler()
         self.symbol_handler = SymbolHandler()
         self.database_handler = DatabaseHandler()
         self.logger = logging.getLogger(__name__)
 
-    #  These 2 commands make it so that the owner of the bot can always add and remove users from the blacklist.
+    #  These 2 commands make it so that the owner of the bot can always add or
+    #  remove users from the blacklist.
     @commands.command()
     @commands.is_owner()
-    async def fuckyou(self, ctx: commands.Context, user_id) -> None:
-        """Alternative to +blacklist. Instead of permissions this requires the sender to be the owner of the bot.
-        Change OWNER_ID in Config.config to your ID."""
+    async def fuckyou(
+        self, ctx: commands.Context[commands.Bot], user_id: int | str | None
+    ) -> None:
+        """Adds a user to the blacklist in a specific server.
+
+        Unlike ModerationCog's blacklist command, this command will set
+        by_owner to true.
+
+        Args:
+            ctx (commands.Context): Discord Context.
+            user_id (_type_): ID of the user to be blacklisted.
+        """
 
         if ctx.guild is None:
             await ctx.send("Command must be used in a server.")
             return
 
-        user_id = get_user(ctx, user_id)
+        if user_id is None:
+            await ctx.send("How could you have forgotten...")
+            return
+
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -47,15 +66,28 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def unfuckyou(self, ctx: commands.Context, user_id) -> None:
-        """Alternative to +blremove. Instead of permissions this requires the sender to be the owner of the bot.
-        Change OWNER_ID in Config.config to your ID."""
+    async def unfuckyou(
+        self, ctx: commands.Context[commands.Bot], user_id: str | int | None
+    ) -> None:
+        """Removes a user from the blacklist in a specific server.
+
+        Unlike ModerationCog's unblacklist command, this command removes
+        the blacklist row where by_owner is set to true.
+
+        Args:
+            ctx (commands.Context): Discord Context.
+            user_id (_type_): ID of the user to be unblacklisted.
+        """
 
         if ctx.guild is None:
             await ctx.send("Command must be used in a server.")
             return
 
-        user_id = get_user(ctx, user_id)
+        if not user_id:
+            await ctx.send("How could you have forgotten...")
+            return
+
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -77,14 +109,20 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def fuckyouremove(self, ctx: commands.Context, user_id) -> None:
+    async def fuckyouremove(
+        self, ctx: commands.Context[commands.Bot], user_id: str | int | None
+    ) -> None:
         """Removes a person from GwenSubs. Only usable by Owner."""
 
         if ctx.guild is None:
             await ctx.send("Command must be used in a server.")
             return
 
-        user_id = get_user(ctx, user_id)
+        if not user_id:
+            await ctx.send("How could you have forgotten...")
+            return
+
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -104,7 +142,8 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def shutdown(self, ctx: commands.Context) -> None:
+    async def shutdown(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Shuts down the bot in case of emergency."""
         await ctx.send("Shutting down!")
 
         self.logger.critical("Bot shut down forcefully!")
@@ -113,7 +152,8 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def modify(self, ctx: commands.Context) -> None:
+    async def modify(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Runs the modify SQL script."""
         self.database_handler.modify_db()
         await ctx.send("Ran modify script.")
 
@@ -122,7 +162,10 @@ class OwnerCog(commands.Cog):
     @fuckyou.error
     @fuckyouremove.error
     @shutdown.error
-    async def _not_owner(self, ctx: commands.Context, error: Exception) -> None:
+    async def _not_owner(
+        self, ctx: commands.Context[commands.Bot], error: discord.DiscordException
+    ) -> None:
+        """Overloads the bot's error handling."""
         if isinstance(error, commands.CheckFailure):
             self.logger.info(
                 "Some idiot tried running my command. user=%s, username=%s",

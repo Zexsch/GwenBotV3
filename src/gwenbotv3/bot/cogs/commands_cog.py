@@ -1,55 +1,75 @@
+"""Houses the Commands cog."""
+
 from discord.ext import commands
 
 from gwenbotv3.database import GwenSubHandler
 
 
 class CommandsCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Any commands that don't fit into other cogs go in here."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.gwensub_handler = GwenSubHandler()
 
     @commands.command(aliases=["jax"])
-    async def evasion(self, ctx: commands.Context):
+    async def evasion(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message"""
         await ctx.send(
-            r"Active: Jax enters Evasion, a defensive stance, for up to 2 seconds, causing all basic attacks against him to miss. Jax also takes 25% reduced damage from all champion area of effect abilities. After 1 second, Jax can reactivate to end it immediately."
+            "Active: Jax enters Evasion, a defensive stance, for up to 2 seconds, "
+            + "causing all basic attacks against him to miss. "
+            + r"Jax also takes 25% reduced damage from all champion area of effect "
+            + "abilities. After 1 second, Jax can reactivate to end it immediately."
         )
 
     @commands.command(aliases=["gwen", "immune"])
-    async def g(self, ctx: commands.Context):
-        if not self.gwensub_handler.fetch_sub_by_ids(ctx.author.id, ctx.guild.id):  # type: ignore
+    async def g(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Responds with gwen is immune in chat."""
+        if not ctx.guild:
+            await ctx.send("Command must be used in a server.")
+            return
+
+        if not self.gwensub_handler.fetch_sub_by_ids(ctx.author.id, ctx.guild.id):
             return
 
         await ctx.send("Gwen is immune.")
 
     @commands.command()
-    async def aatrox(self, ctx: commands.Context):
+    async def aatrox(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send("Aatrox got ignited.")
 
     @commands.command(aliases=["lh"])
-    async def listenhere(self, ctx: commands.Context):
+    async def listenhere(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send("listen here you little shit")
 
     @commands.command()
-    async def emo(self, ctx: commands.Context):
+    async def emo(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send("Aatrox's biggest fan (owns an Aatrox tshirt)")
 
     @commands.command(aliases=["george"])
-    async def sylas(self, ctx: commands.Context):
+    async def sylas(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send("Sylas pressed W. https://imgur.com/IHyk5hl")
 
     @commands.command(aliases=["Wis'adel", "w", "balans"])
-    async def wisadel(self, ctx: commands.Context):
+    async def wisadel(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send(
             "Immediately summons 2 Shadows of Revenant within attack range "
             + "(max 3, persists after the skill ends); ATK +180%, attack "
             + "interval increases significantly, ATK increases to 220% when attacking, "
-            + "splash damage radius expands, and 1st Talent activation chance increases to 100%. "
+            + "splash damage radius expands, and 1st Talent activation chance "
+            + "increases to 100%. "
             + "Skill activation grants 6 ammo and the skill ends when all ammo are used"
             + "(Can manually deactivate skill)"
         )
 
     @commands.command()
-    async def lana(self, ctx: commands.Context):
+    async def lana(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send(
             "https://media.discordapp.net/attachments/1320437220116791406/1321894179646734366"
             + "/IMG_6786.png?ex=676ee564&is=676d93e4&hm="
@@ -59,7 +79,8 @@ class CommandsCog(commands.Cog):
         )
 
     @commands.command()
-    async def zex(self, ctx: commands.Context):
+    async def zex(self, ctx: commands.Context[commands.Bot]) -> None:
+        """See message."""
         await ctx.send(
             "https://media.discordapp.net/attachments/"
             + "1320437220116791406/1338656615619887145/Screenshot_202"

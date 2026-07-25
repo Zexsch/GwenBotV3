@@ -1,9 +1,9 @@
 """Houses the get_mention function."""
 
-from discord.ext.commands import Context
+from discord.ext.commands import Bot, Context
 
 
-def get_mention(ctx: Context, user_id: int | str) -> int | None:
+def get_mention(ctx: Context[Bot], user_id: int | str) -> int | None:
     """Get the first mention of a message.
 
     Args:

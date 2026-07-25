@@ -3,11 +3,16 @@ import sqlite3
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Concatenate, ParamSpec, TypeVar
 from types import TracebackType
+from typing import Concatenate, cast
 
 
 class _DatabaseConnector:
+    """Context manager to start a database connection.
+
+    Enables foreign_keys intrinsically.
+    """
+
     def __init__(self) -> None:
         db_folder = Path(__file__).resolve().parent.parent / "db"
 
@@ -17,7 +22,7 @@ class _DatabaseConnector:
         self.database_path: str = str(db_folder / "GwenUsers.db")
         self.logger = logging.getLogger(__name__)
 
-    def __enter__(self):
+    def __enter__(self) -> sqlite3.Cursor:
         # pylint: disable=attribute-defined-outside-init
         self.connection = sqlite3.connect(self.database_path)
         self.connection.execute("PRAGMA foreign_keys = 1")
@@ -30,7 +35,7 @@ class _DatabaseConnector:
         exc_type: type[BaseException] | None,
         _exc_value: BaseException | None,
         _traceback: TracebackType | None,
-    ):
+    ) -> None:
         if exc_type is None:
             self.connection.commit()
         else:
@@ -40,22 +45,19 @@ class _DatabaseConnector:
         self.connection.close()
 
 
-Self = TypeVar("Self")
-P = ParamSpec("P")
-R = TypeVar("R")
-
-
-def connect(
+def connect[Self, **P, R](
     func: Callable[Concatenate[Self, sqlite3.Cursor, P], R],
 ) -> Callable[Concatenate[Self, P], R]:
-    """
-    Use as a decorator to connect to the database
-    Name conflict with sqlite3.connect, so either rename this or use module import to avoid name space collusion
+    """Connect to the database.
 
-    :param func: Function to connect to the database with.
-    :type func: Callable[Concatenate[Self, sqlite3.Cursor, P], R]
-    :return: Will inject the following parameter types: self, sqlite3.Cursor, *args, **kwargs
-    :rtype: Callable[Concatenate[Self, P], R]
+    Use as a decorator every time an sqlite3.Cursor object is needed.
+    This decorator will inject the cursor object as the second positional argument
+    into the decorated method.
+
+    Returns:
+        Callable[Concatenate[Self, P], R]: The decorated method,
+            but with an sqlite3.Cursor object injected as the second
+            positional argument.
     """
 
     @wraps(func)
@@ -63,4 +65,4 @@ def connect(
         with _DatabaseConnector() as cursor:
             return func(self, cursor, *args, **kwargs)
 
-    return wrapper
+    return cast(Callable[Concatenate[Self, P], R], wrapper)

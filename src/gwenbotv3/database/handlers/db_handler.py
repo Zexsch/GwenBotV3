@@ -1,3 +1,5 @@
+"""Anything to do with the database itself, not specific tables."""
+
 import logging
 from pathlib import Path
 from sqlite3 import Cursor
@@ -6,13 +8,18 @@ from gwenbotv3.database import connect
 
 
 class DatabaseHandler:
-    def __init__(self):
+    """Interacts with the database. Not tied to any tables."""
+
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.sql_files = Path(__file__).resolve().parent / "sql_files"
 
     @connect
     def initialise(self, cur: Cursor) -> None:
-        """Try to create the Database tables each time the bot runs."""
+        """Initialises the database.
+
+        This should run every time the bot starts.
+        """
         self.logger.info("Attempting to create Database tables.")
 
         init_file = self.sql_files / "tables.sql"
@@ -30,6 +37,11 @@ class DatabaseHandler:
 
     @connect
     def modify_db(self, cur: Cursor) -> None:
+        """Runs the modify sql script.
+
+        This script is found in ./sql_files. It can be used to alter
+            the database in any way.
+        """
         self.logger.warning("Running modify sql script")
 
         change_file = self.sql_files / "change.sql"

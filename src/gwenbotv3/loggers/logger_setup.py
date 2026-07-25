@@ -26,8 +26,13 @@ def setup_logging(log_dir: Path, logger_name: str | None = None) -> logging.Logg
     """
     log_dir.mkdir(parents=True, exist_ok=True)
 
+    log_format = (
+        "%(asctime)s | %(levelname)-8s | %(name)s | "
+        + "%(module)s:%(funcName)s:%(lineno)d | %(message)s"
+    )
+
     formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(module)s:%(funcName)s:%(lineno)d | %(message)s",
+        fmt=log_format,
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 

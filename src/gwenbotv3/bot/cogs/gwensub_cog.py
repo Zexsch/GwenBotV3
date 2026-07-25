@@ -1,22 +1,29 @@
+"""Houses the Gwensub cog."""
+
 import logging
 
+import discord
 from discord.ext import commands
 
 from gwenbotv3.database import GwenSubHandler
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.server_handler import ServerHandler
-from gwenbotv3.utils import get_user
+from gwenbotv3.utils import get_mention
 
 
 class GwensubCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Anything to do with gwenbot subscription.
+
+    For the actual gwen response, see listener_cog."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.gwensub_handler = GwenSubHandler()
         self.server_handler = ServerHandler()
         self.logger = logging.getLogger()
 
     @commands.command(name="GwenAdd", aliases=["add"])
-    async def gwen_add(self, ctx: commands.Context) -> None:
+    async def gwen_add(self, ctx: commands.Context[commands.Bot]) -> None:
         """Command to add user to the subscribed database"""
 
         if ctx.guild is None:
@@ -44,7 +51,7 @@ class GwensubCog(commands.Cog):
         await ctx.send("Successfully subscribed to GwenBot.")
 
     @commands.command(name="remove", aliases=["gwenremove", "rem", "removesub"])
-    async def gwen_remove(self, ctx: commands.Context) -> None:
+    async def gwen_remove(self, ctx: commands.Context[commands.Bot]) -> None:
         """Command to remove user from the subscribed database"""
 
         if ctx.guild is None:
@@ -69,7 +76,7 @@ class GwensubCog(commands.Cog):
 
     @commands.command(name="checkgs", aliases=["checksub"])
     async def checkgs(
-        self, ctx: commands.Context, user_id: str | int | None = None
+        self, ctx: commands.Context[commands.Bot], user_id: str | int | None = None
     ) -> None:
         """Command to check if a user is subbed. +checkgs id[optional]"""
 
@@ -87,7 +94,7 @@ class GwensubCog(commands.Cog):
             await ctx.send("You are not subscribed.")
             return
 
-        user_id = get_user(ctx, user_id)
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -101,7 +108,7 @@ class GwensubCog(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="quote")
-    async def quote(self, ctx: commands.Context) -> None:
+    async def quote(self, ctx: commands.Context[commands.Bot]) -> None:
         """Command to add/undo Quote"""
 
         if ctx.guild is None:
@@ -122,7 +129,9 @@ class GwensubCog(commands.Cog):
 
     @commands.command(name="modremove")
     @commands.has_permissions(kick_members=True)
-    async def removesubmod(self, ctx: commands.Context, user_id) -> None:
+    async def removesubmod(
+        self, ctx: commands.Context[commands.Bot], user_id: str | int | None
+    ) -> None:
         """Command to forcefully remove a user from the GwenBot subscription.
         Usable only by users with kick_members permissions."""
 
@@ -130,13 +139,17 @@ class GwensubCog(commands.Cog):
             await ctx.send("Command must be used in a server.")
             return
 
-        id = get_user(ctx, user_id)
+        if not user_id:
+            await ctx.send("You forgot to tell me which user to remove!")
+            return
 
-        if not id:
+        u_id = get_mention(ctx, user_id)
+
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
-        was_removed = self.gwensub_handler.remove_sub_by_ids(id, ctx.guild.id)
+        was_removed = self.gwensub_handler.remove_sub_by_ids(u_id, ctx.guild.id)
 
         if not was_removed:
             await ctx.send("User is not subscribed to GwenBot.")
@@ -146,14 +159,22 @@ class GwensubCog(commands.Cog):
 
     @commands.command(aliases=["bl"])
     @commands.has_permissions(kick_members=True)
-    async def blacklist(self, ctx: commands.Context, user_id) -> None:
-        """Command to add a user to the blacklist. Requires the user to have kick_members permissions."""
+    async def blacklist(
+        self, ctx: commands.Context[commands.Bot], user_id: int | str | None
+    ) -> None:
+        """Command to add a user to the blacklist.
+
+        Requires the user to have kick_members permissions."""
 
         if ctx.guild is None:
             await ctx.send("Command must be used in a server.")
             return
 
-        user_id = get_user(ctx, user_id)
+        if not user_id:
+            await ctx.send("You forgot to tell me which user to blacklist!")
+            return
+
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -172,14 +193,22 @@ class GwensubCog(commands.Cog):
         name="blremove", aliases=["blr", "blacklistremove", "unblacklist", "unbl"]
     )
     @commands.has_permissions(kick_members=True)
-    async def blremove(self, ctx: commands.Context, user_id) -> None:
-        """Command to remove a user from the blacklist. Requires the user to have kick_members permissions."""
+    async def blremove(
+        self, ctx: commands.Context[commands.Bot], user_id: int | str | None
+    ) -> None:
+        """Command to remove a user from the blacklist.
+
+        Requires the user to have kick_members permissions."""
 
         if ctx.guild is None:
             await ctx.send("Command must be used in a server.")
             return
 
-        user_id = get_user(ctx, user_id)
+        if not user_id:
+            await ctx.send("You forgot to tell me which user to unblacklist!")
+            return
+
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -202,7 +231,9 @@ class GwensubCog(commands.Cog):
         await ctx.send("User successfully removed from the Blacklist.")
 
     @commands.command(name="checkbl", aliases=["check", "checkblacklist"])
-    async def checkbl(self, ctx: commands.Context, user_id=None) -> None:
+    async def checkbl(
+        self, ctx: commands.Context[commands.Bot], user_id: str | int | None = None
+    ) -> None:
         """Command to check if a user is blacklisted. +checkbl id[optional]"""
 
         if ctx.guild is None:
@@ -217,7 +248,7 @@ class GwensubCog(commands.Cog):
             await ctx.send("You are not Blacklisted.")
             return
 
-        user_id = get_user(ctx, user_id)
+        user_id = get_mention(ctx, user_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
@@ -238,7 +269,9 @@ class GwensubCog(commands.Cog):
     @removesubmod.error
     @blremove.error
     @blacklist.error
-    async def _error(self, ctx: commands.Context, error) -> None:
+    async def _error(
+        self, ctx: commands.Context[commands.Bot], error: discord.DiscordException
+    ) -> None:
         """Run if a user does not have the permissions necessary to run a command."""
 
         if isinstance(error, commands.MissingPermissions):

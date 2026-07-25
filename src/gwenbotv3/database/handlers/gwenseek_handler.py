@@ -1,3 +1,5 @@
+"""Anything to do with the Gwenseek database table."""
+
 import logging
 from sqlite3 import Cursor
 from typing import Any
@@ -8,7 +10,9 @@ from gwenbotv3.database.handlers.user_handler import UserHandler
 
 
 class GwenseekHandler:
-    def __init__(self):
+    """Interacts with the Gwenseek database table."""
+
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.user_handler = UserHandler()
 
@@ -20,7 +24,16 @@ class GwenseekHandler:
         message: str,
         reasoning_content: str,
     ) -> None:
+        """Adds context to the database.
 
+        Context includes the message that the user sent, as well
+            as the server in which it was sent in and the AI's response.
+
+        Args:
+            ctx (UserContext): UserContext object.
+            message (str): The message that the user sent.
+            reasoning_content (str): The message that the AI responded with.
+        """
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)
@@ -43,6 +56,11 @@ class GwenseekHandler:
 
     @connect
     def clear_context(self, cur: Cursor, ctx: UserContext) -> None:
+        """Clears all context of a user in a specific server.
+
+        Args:
+            ctx (UserContext): UserContext object.
+        """
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)
@@ -63,6 +81,11 @@ class GwenseekHandler:
 
     @connect
     def clear_all_context(self, cur: Cursor, ctx: UserContext) -> None:
+        """Clears all context of a user, in all servers.
+
+        Args:
+            ctx (UserContext): UserContext object.
+        """
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)
@@ -76,6 +99,13 @@ class GwenseekHandler:
 
     @connect
     def delete_oldest_context(self, cur: Cursor, ctx: UserContext) -> None:
+        """Removes the oldest context from a user in a server.
+
+        This clears one database line.
+
+        Args:
+            ctx (UserContext): UserContext object.
+        """
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)
@@ -84,7 +114,10 @@ class GwenseekHandler:
             return
 
         cur.execute(
-            "DELETE FROM Gwenseek WHERE g_id = (SELECT MIN(g_id) FROM Gwenseek WHERE user=? AND server=?)",
+            (
+                "DELETE FROM Gwenseek WHERE g_id = (SELECT MIN(g_id) FROM Gwenseek "
+                + "WHERE user=? AND server=?)"
+            ),
             (ctx.user.id, ctx.server.id),
         )
 
@@ -96,6 +129,15 @@ class GwenseekHandler:
 
     @connect
     def get_count(self, cur: Cursor, ctx: UserContext) -> int:
+        """Gets the amount of context rows in the database for
+            a user in a specific server.
+
+        Args:
+            ctx (UserContext): UserContext object.
+
+        Returns:
+            int: The amount.
+        """
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)
@@ -118,10 +160,22 @@ class GwenseekHandler:
             ctx.server.id,
         )
 
+        if not isinstance(res[0], int):
+            self.logger.critical("Fetched non-int amount from gwenseek count")
+            raise ValueError
+
         return res[0]
 
     @connect
     def fetch_context(self, cur: Cursor, ctx: UserContext) -> list[Any]:
+        """Fetches all context by a user in a specific server.
+
+        Args:
+            ctx (UserContext): UserContext object.
+
+        Returns:
+            list[Any]: All rows
+        """
         if not ctx.user:
             self.user_handler.insert_user(ctx.ctx)
             ctx = context(ctx.ctx)

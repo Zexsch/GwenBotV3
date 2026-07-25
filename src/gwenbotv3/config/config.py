@@ -1,3 +1,5 @@
+"""Used for configuration."""
+
 import os
 
 OWNER_ID: int = int(os.environ["OWNER_ID"])  # Change to your own discord user ID

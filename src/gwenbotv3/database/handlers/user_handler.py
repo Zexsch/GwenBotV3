@@ -4,7 +4,7 @@ import logging
 from sqlite3 import Cursor
 
 from discord import Message
-from discord.ext.commands import Context
+from discord.ext.commands import Bot, Context
 
 from gwenbotv3.database import User, connect
 from gwenbotv3.database._models.exceptions import (
@@ -17,11 +17,19 @@ from gwenbotv3.database._models.exceptions import (
 class UserHandler:
     """Class housing methods used to interact with the user table in the database."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
-    def _create_user(self, ctx: Context | Message):
-        """Creates a User object given a discord.commands.Context or discord.Message argument"""
+    def _create_user(self, ctx: Context[Bot] | Message) -> User:
+        """Creates a user object.
+
+        Args:
+            ctx (Context | Message): discord.commands.Context
+                or discord.Message object
+
+        Returns:
+            User: User created.
+        """
         return User(ctx.author.id, ctx.author.name, False)
 
     @connect
@@ -36,13 +44,13 @@ class UserHandler:
         """
         res = cur.execute("SELECT * FROM Users WHERE user_id=?", (user.id,)).fetchone()
 
-        return True if res else False
+        return bool(res)
 
     @connect
     def insert_user(
         self,
         cur: Cursor,
-        ctx: Context | Message | None = None,
+        ctx: Context[Bot] | Message | None = None,
         user: User | None = None,
     ) -> User:
         """Inserts a user into the database.
@@ -103,7 +111,7 @@ class UserHandler:
         return user
 
     @connect
-    def fetch_user(self, cur: Cursor, ctx: Context | Message) -> User:
+    def fetch_user(self, cur: Cursor, ctx: Context[Bot] | Message) -> User:
         """Returns a user from the database.
         Will automatically insert the user into the database if they're not yet in it.
 
@@ -124,7 +132,8 @@ class UserHandler:
         if len(res) < 3:
             self.logger.critical(
                 (
-                    "Successfully fetched a user, yet not all information was fetched properly. "
+                    "Successfully fetched a user, "
+                    + "yet not all information was fetched properly. "
                     + "On user: %s"
                 ),
                 user,
@@ -144,7 +153,7 @@ class UserHandler:
         return user
 
     @connect
-    def anonymise_user(self, cur: Cursor, ctx: Context) -> None:
+    def anonymise_user(self, cur: Cursor, ctx: Context[Bot]) -> None:
         """Anonymises a user.
         Sets their name to Unknown User and sets is_anonymised to true.
 
@@ -168,7 +177,7 @@ class UserHandler:
         self.logger.info("Anonymised user: %s", user.id)
 
     @connect
-    def deanonymise_user(self, cur: Cursor, ctx: Context) -> None:
+    def deanonymise_user(self, cur: Cursor, ctx: Context[Bot]) -> None:
         """Inverse of anonymise_user.
         Reverts their is_anonymised field to False and adds their name to the database.
 

@@ -4,6 +4,9 @@ database.db stores the actual sqlite3 database.
 database.handlers has the necessary classes to interact with the database."""
 
 from ._models import Server, User, UserContext, connect
+
+# ruff: noqa: F403
+# I'm not importing all this shit and adding it to all manually
 from .handlers import *
 
 __all__ = ["Server", "User", "UserContext", "connect"]

@@ -1,3 +1,5 @@
+"""The main logic behind getting champion winrates from u.gg."""
+
 import json
 import logging
 
@@ -119,15 +121,31 @@ class WinrateFetcher:
         self.ugg_div_values_reversed: list[str] = list(reversed(self.ugg_div_values))
 
     def _get_champion_list(self) -> list[str]:
-        """Gets list of champions."""
+        """Gets the full list of champions currently in league.
+
+        Always up to date, as it queries ddragon.
+
+        Returns:
+            list[str]: The list.
+        """
         self.logger.debug("Fetching champion.json")
-        url: str = f"https://ddragon.leagueoflegends.com/cdn/{self.patch_version}/data/en_US/champion.json"
+        url: str = (
+            "https://ddragon.leagueoflegends.com/cdn/"
+            + f"{self.patch_version}/data/en_US/champion.json"
+        )
 
         champion_response = request(url)
         champion_json: dict[str, str] = json.loads(champion_response.text)
         return [i.lower() for i in champion_json["data"]]
 
     def _get_current_patch(self) -> str:
+        """Gets the current league of legends patch.
+
+        Always up to date, as it queries ddragon.
+
+        Returns:
+            str: The patch formatted as a standard patch format: ab.cd, example 15.21
+        """
         url = "https://ddragon.leagueoflegends.com/realms/na.json"
         patch_response = request(url)
 
@@ -145,6 +163,16 @@ class WinrateFetcher:
         return self._role_lookup.get(lane, lane)
 
     def _check_patch(self, patch: str) -> str:
+        """Checks if an argument is a valid patch.
+
+        Standard patch format: ab.cd, example 15.21
+
+        Args:
+            patch (str): The argument to check.
+
+        Returns:
+            str: The patch, or an empty string if it's not a patch.
+        """
         # Standard patch format: ab.cd, example 15.21
         if (
             (len(patch) == 5 or len(patch) == 4)
@@ -157,9 +185,16 @@ class WinrateFetcher:
         return ""
 
     def _get_url(self, champ: Champion) -> str:
-        """Returns the url to fetch
+        """Returns the url to query for the winrate.
+
+        Takes the champion's elo, the opponent, the role and patch into account.
+        Dynamically builds a u.gg link out of these parametres.
+
+        Args:
+            champ (Champion): Champion object, including all necessary data.
+
         Returns:
-            str: url
+            str: The final link.
         """
         elo_str = ""
         opponent_str = ""
@@ -187,7 +222,10 @@ class WinrateFetcher:
                 opponent_str,
                 patch_str,
             )
-            return f"https://u.gg/lol/champions/{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
+            return (
+                "https://u.gg/lol/champions/"
+                + f"{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
+            )
 
         self.logger.debug(
             "Created url https://u.gg/lol/champions/%s/build?%s%s%s",
@@ -196,9 +234,26 @@ class WinrateFetcher:
             opponent_str,
             patch_str,
         )
-        return f"https://u.gg/lol/champions/{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
+        return (
+            "https://u.gg/lol/champions/"
+            + f"{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
+        )
 
     def _get_winrate(self, soup: BeautifulSoup) -> str:
+        """Gets the winrate from the BeautifulSoup object.
+
+        u.gg has a very odd and unfriendly html layout.
+
+        Args:
+            soup (BeautifulSoup): The BeautifulSoup object. Use _get_url
+                for the request to get the soup.
+
+        Raises:
+            WinrateNotFoundException: If no winrate was found.
+
+        Returns:
+            str: The winrate.
+        """
         for value in self.ugg_div_values:
             elements = soup.find_all(
                 "div", {"class": f"text-[14px] font-extrabold {value}-tier"}
@@ -210,43 +265,50 @@ class WinrateFetcher:
         raise WinrateNotFoundException()
 
     def _get_match_count(self, soup: BeautifulSoup, with_opponent: bool) -> str | None:
-        """Returns match count of a champ
+        """Returns the match count of the u.gg lookup.
 
         Args:
-            soup (BeautifulSoup): BeautifulSoup instance
-            with_opponent (bool): If opponent is given
+            soup (BeautifulSoup): BeautifulSoup object.
+            with_opponent (bool): If the query has an opponent or not.
+                The u.gg layout changes based on if an opponent is given or not.
 
         Returns:
-            int | None: Match count if found else None
+            str | None: The match count if found, else None.
         """
-        if not with_opponent:
-            try:
-                match_count: str = soup.find_all(
-                    "div", {"class": "text-[14px] font-extrabold"}
-                )[3].text
-            except IndexError:
-                return None
-        else:
-            match_count: str = soup.find(
+        if with_opponent:
+            match_count = soup.find(
                 "div",
                 {
-                    "class": "text-[20px] max-sm:text-[16px] max-xs:text-[14px] font-extrabold"
+                    "class": "text-[20px] max-sm:text-[16px] "
+                    + "max-xs:text-[14px] font-extrabold"
                 },
-            ).text  # type: ignore
+            )
 
-        if match_count is None:
+            if match_count is None:
+                return None
+
+            return match_count.text
+
+        try:
+            match_count = soup.find_all("div", {"class": "text-[14px] font-extrabold"})[
+                3
+            ]
+        except IndexError:
             return None
 
-        return match_count
+        if match_count is None:
+            return None  # type: ignore[unreachable]
+
+        return match_count.text
 
     def _get_pick_rate(self, soup: BeautifulSoup) -> str | None:
-        """Returns pick rate of a champ
+        """Returns the pick rate of the u.gg lookup.
 
         Args:
-            soup (BeautifulSoup): BeautifulSoup instance
+            soup (BeautifulSoup): BeautifulSoup object
 
         Returns:
-            float | None: Pick rate if found else None
+            float | None: Pick rate if found, else None.
         """
         try:
             pick_rate: str = soup.find_all(
@@ -258,13 +320,13 @@ class WinrateFetcher:
         return pick_rate
 
     def _get_ban_rate(self, soup: BeautifulSoup) -> str | None:
-        """Returns ban rate of a champ
+        """Returns the ban rate of the u.gg lookup.
 
         Args:
-            soup (BeautifulSoup): BeautifulSoup instance
+            soup (BeautifulSoup): BeautifulSoup object.
 
         Returns:
-            float | None: Ban rate if found else None
+            float | None: Ban rate if found, else None.
         """
         try:
             ban_rate: str = soup.find_all(
@@ -276,6 +338,16 @@ class WinrateFetcher:
         return ban_rate
 
     def _get_all_no_opponent(self, champ: Champion) -> Result:
+        """Gets all the stats if no opponent is given.
+
+        See the Result object for all stats.
+
+        Args:
+            champ (Champion): Champion object
+
+        Returns:
+            Result: The resulting stats, formatted in a dataclass.
+        """
         url = self._get_url(champ)
         web = request(url).content
 
@@ -304,7 +376,10 @@ class WinrateFetcher:
             )
             ban_rate = "Unknown"
 
-        final_string = f"with {match_count} matches played, a {pick_rate} pick rate and a {ban_rate} ban rate"
+        final_string = (
+            f"with {match_count} matches played, a {pick_rate} pick rate "
+            + f"and a {ban_rate} ban rate"
+        )
 
         result = Result(
             champ=champ,
@@ -317,6 +392,18 @@ class WinrateFetcher:
         return result
 
     def _get_all_with_opponent(self, champ: Champion) -> Result:
+        """Gets all the stats if an opponent is given.
+
+        See the Result object for all stats.
+        No opponent and with opponent are separate functions, as u.gg changes its
+        layout depending on if an opponent is given or not.
+
+        Args:
+            champ (Champion): Champion object
+
+        Returns:
+            Result: The resulting stats, formatted in a dataclass.
+        """
         url = self._get_url(champ)
         web = request(url).content
 
@@ -339,12 +426,31 @@ class WinrateFetcher:
             with_opponent=False,
             win_rate=win_rate,
             match_count=match_count,
-            final_string=f"against {champ.opponent.capitalize()} with {match_count} matches played",
+            final_string=(
+                f"against {champ.opponent.capitalize()} with {match_count} "
+                + "matches played"
+            ),
         )
 
         return result
 
     def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
+        """Gets the stats of of a Champion
+
+        Uses the optional parametres of opponent, elo, role, rank and patch.
+        These parametres are given in the args argument.
+        Builds the necessary u.gg url to fetch the winrate.
+
+        Args:
+            champ (Champion): Champion object.
+            args (tuple[str, ...]): Optional arguments for the u.gg url.
+
+        Raises:
+            ChampionNotFoundException: If the champion give is not a valid champion.
+
+        Returns:
+            Result: The resulting stats, formatted in a dataclass.
+        """
         champ.name = self._alternate_champion_check(champ.name)
 
         if champ.name not in self.all_champions:

@@ -1,3 +1,5 @@
+"""Houses the winrate cog."""
+
 import logging
 
 from discord.ext import commands
@@ -13,7 +15,9 @@ from gwenbotv3.utils.request import FailedRequest
 
 
 class WinrateCog(commands.Cog):
-    def __init__(self, bot: commands.Bot, winrate_fetcher: WinrateFetcher):
+    """Anything to do with the winrate commands."""
+
+    def __init__(self, bot: commands.Bot, winrate_fetcher: WinrateFetcher) -> None:
         self.bot = bot
         self.winrate_fetcher = winrate_fetcher
         self.logger = logging.getLogger(__name__)
@@ -30,7 +34,22 @@ class WinrateCog(commands.Cog):
         )
 
     @commands.command(aliases=["winrate"])
-    async def wr(self, ctx: commands.Context, champion_name: str, *args: str) -> None:
+    async def wr(
+        self, ctx: commands.Context[commands.Bot], champion_name: str, *args: str
+    ) -> None:
+        """Fetches the winrate of a champion. Uses u.gg for the winrate.
+
+        *args
+        ----------
+        :elo: Given elo.
+        :role: Given role.
+        :patch: Given patch.
+        :opponent: Given opponent.
+
+        Args:
+            ctx (commands.Context): Discord Context.
+            champion_name (str): Name of the champion.
+        """
         self.logger.debug(
             "Calling winrate for champ=%s with args=%s", champion_name, args
         )
@@ -52,7 +71,8 @@ class WinrateCog(commands.Cog):
             return
         except WinrateNotFoundException:
             await ctx.send(
-                "Oh no! Seems like Gwen ran into some issues whilst fetching the winrate! Are you sure that there's enough matches played?"
+                "Oh no! Seems like Gwen ran into some issues whilst fetching"
+                + " the winrate! Are you sure that there's enough matches played?"
             )
             self.logger.critical(
                 "Unable to fetch winrate for champ=%s, args=%s, channel=%s",
@@ -63,7 +83,8 @@ class WinrateCog(commands.Cog):
             return
         except StatsNotFoundException:
             await ctx.send(
-                "Oh no! Seems like Gwen ran into some issues whilst fetching the winrate!"
+                "Oh no! Seems like Gwen ran into some issues whilst"
+                + " fetching the winrate!"
             )
             self.logger.critical(
                 "Unable to fetch stats for champ=%s, args=%s, channel=%s",
@@ -74,7 +95,8 @@ class WinrateCog(commands.Cog):
             return
         except ChampionNotFoundException:
             await ctx.send(
-                "Gwen was unable to find your specified champion... Please check +list for a list of all accepted champion names!"
+                "Gwen was unable to find your specified champion... Please check +list "
+                + "for a list of all accepted champion names!"
             )
             return
 
@@ -84,13 +106,15 @@ class WinrateCog(commands.Cog):
             try:
                 if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
                     await ctx.send(
-                        f"Gwen can only gets stats for the past 5 patches! The current patch is {self.current_patch}."
+                        "Gwen can only gets stats for the past 5 patches! The current "
+                        + "patch is {self.current_patch}."
                     )
                     return
             except ValueError:
                 if champ.patch and (int(champ.patch[-1:]) < int(minor_patch) - 5):
                     await ctx.send(
-                        f"Gwen can only gets stats for the past 5 patches! The current patch is {self.current_patch}."
+                        "Gwen can only gets stats for the past 5 patches! The current "
+                        + "patch is {self.current_patch}."
                     )
                     return
 
@@ -117,5 +141,6 @@ class WinrateCog(commands.Cog):
         await ctx.send(" ".join(p for p in message if p))
 
     @commands.command(aliases=["checkver", "patch"])
-    async def version(self, ctx: commands.Context):
+    async def version(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Sends the current league patch."""
         await ctx.send(f"Currently on league patch {self.current_patch}.")

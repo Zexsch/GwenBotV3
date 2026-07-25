@@ -1,12 +1,23 @@
+"""Houses the Help cog."""
+
 import discord
 from discord.ext import commands
 
 
+# pylint: disable=line-too-long
+# ruff: noqa: E501
 class HelpCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Any commands relating to help."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    async def get_help_embed(self) -> discord.Embed:
+    async def _get_help_embed(self) -> discord.Embed:
+        """Gets the embed for the help command.
+
+        Returns:
+            discord.Embed: Embed
+        """
         embed = discord.Embed(
             title="GwenBot Help",
             description="Format: `+command (aliases)` _parameters_ - description",
@@ -64,7 +75,12 @@ class HelpCog(commands.Cog):
         embed.set_footer(text="GwenBot is open source: github.com/Zexsch/GwenBotV3")
         return embed
 
-    async def get_wrhelp_embed(self) -> discord.Embed:
+    async def _get_wrhelp_embed(self) -> discord.Embed:
+        """Gets the embed for the wrhelp command.
+
+        Returns:
+            discord.Embed: Embed
+        """
         embed = discord.Embed(
             title="Winrate Help",
             description="Format: `+command (aliases)` - description",
@@ -102,6 +118,11 @@ class HelpCog(commands.Cog):
         return embed
 
     async def get_privacy_embed(self) -> discord.Embed:
+        """Gets the embed for the privacy help command.
+
+        Returns:
+            discord.Embed: Embed
+        """
         embed = discord.Embed(
             title="Privacy",
             description="Format: `+command (aliases)` - description",
@@ -126,34 +147,25 @@ class HelpCog(commands.Cog):
         return embed
 
     @commands.command(aliases=["Menu"])
-    async def help(self, ctx: commands.Context):
+    async def help(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Sends the help message."""
         user: discord.Member | discord.User = ctx.message.author
-        embed = await self.get_help_embed()
-
-        if not isinstance(embed, discord.Embed):
-            await ctx.send("Gwen ran into some major issues!")
-            return
+        embed = await self._get_help_embed()
 
         await user.send(embed=embed)
 
     @commands.command(aliases=["wrhelp"])
-    async def winratehelp(self, ctx: commands.Context):
+    async def winratehelp(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Sends the winratehelp message."""
         user: discord.Member | discord.User = ctx.message.author
-        embed = await self.get_wrhelp_embed()
-
-        if not isinstance(embed, discord.Embed):
-            await ctx.send("Gwen ran into some major issues!")
-            return
+        embed = await self._get_wrhelp_embed()
 
         await user.send(embed=embed)
 
     @commands.command(aliases=["policy"])
-    async def privacy(self, ctx: commands.Context):
+    async def privacy(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Sends the privacy help message."""
         user: discord.Member | discord.User = ctx.message.author
         embed = await self.get_privacy_embed()
-
-        if not isinstance(embed, discord.Embed):
-            await ctx.send("Gwen ran into some major issues!")
-            return
 
         await user.send(embed=embed)

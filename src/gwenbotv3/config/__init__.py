@@ -1,3 +1,5 @@
+"""Any modules relating to configuration."""
+
 from .config import DEFAULT_CHANNEL, MESSAGE_CHANNEL, OWNER_ID, PREFIX
 
-__all__ = ["DEFAULT_CHANNEL", "MESSAGE_CHANNEL", "PREFIX"]
+__all__ = ["DEFAULT_CHANNEL", "MESSAGE_CHANNEL", "OWNER_ID", "PREFIX"]

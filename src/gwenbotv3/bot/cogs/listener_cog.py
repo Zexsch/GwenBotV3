@@ -1,7 +1,10 @@
+"""Any on_message listeners."""
+
 import logging
 from random import randint
 
 import discord
+from discord.channel import TextChannel
 from discord.ext import commands
 
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
@@ -12,7 +15,9 @@ from gwenbotv3.database.handlers.user_handler import UserHandler
 
 
 class ListenerCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Anything to do with on_message listens."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.symbol_handler = SymbolHandler()
         self.gwensub_handler = GwenSubHandler()
@@ -21,6 +26,13 @@ class ListenerCog(commands.Cog):
         self.logger = logging.getLogger(__name__)
 
     async def _symbol_check(self, ctx: UserContext, msg: discord.Message) -> None:
+        """Checks if the message sent is in the symbol counter and if it's the symbol.
+
+        Args:
+            ctx (UserContext): UserContext object.
+            msg (discord.Message): discord.Message object.
+        """
+
         channel = self.symbol_handler.fetch_channel(ctx)
 
         if not channel:
@@ -38,6 +50,7 @@ class ListenerCog(commands.Cog):
 
         creating_user = self.symbol_handler.fetch_creating_user(ctx)
 
+        # ruff: noqa: RUF001
         base_message = (
             f"<@{creating_user}> Somebody did a little fucky wuckie >.<!! "
             "A small oopsie woopsie uwu! Someone dared ruin the ? chain nya~!!! "
@@ -46,6 +59,9 @@ class ListenerCog(commands.Cog):
 
         default_channel_id = self.symbol_handler.fetch_channel(ctx)
         default_channel = self.bot.get_channel(default_channel_id)
+
+        if not isinstance(default_channel, TextChannel):
+            return
 
         if "@" not in msg.content:
             self.logger.debug(
@@ -57,7 +73,7 @@ class ListenerCog(commands.Cog):
             await default_channel.send(
                 base_message
                 + f'They dared send "{msg.content}" in our holy channel nya!'
-            )  # type: ignore
+            )
             return
 
         if "@" in msg.content:
@@ -69,7 +85,7 @@ class ListenerCog(commands.Cog):
 
             await default_channel.send(
                 base_message + 'They dared use an "@" in our holy channel nya!'
-            )  # type: ignore
+            )
             return
 
         if msg.author.id == latest_user.id:
@@ -81,14 +97,14 @@ class ListenerCog(commands.Cog):
             await default_channel.send(
                 base_message
                 + "They dared send two messages in a row in our holy channel nya!"
-            )  # type: ignore
+            )
             return
 
     async def _sendshit(self, msg: discord.Message) -> None:
         """Make the bot send any message. Only usable by bot owner.
         sendshit (message)$(channel id)[optional]
         Trigger on-message, not a command."""
-        if not msg.author.id == OWNER_ID:
+        if msg.author.id != OWNER_ID:
             return
 
         if "sendshit" not in msg.content.lower():
@@ -121,6 +137,12 @@ class ListenerCog(commands.Cog):
         await channel.send(res)
 
     async def _gwen_check(self, ctx: UserContext, msg: discord.Message) -> None:
+        """Checks if ``gwen`` or ``gw3n`` is in the message.
+
+        Args:
+            ctx (UserContext): UserContext object.
+            msg (discord.Message): discord.Message object.
+        """
         if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
             return
 
@@ -157,6 +179,10 @@ class ListenerCog(commands.Cog):
 
     @commands.Cog.listener("on_message")
     async def on_message(self, msg: discord.Message) -> None:
+        """discord.Bot.on_message overload.
+
+        Add all on_message listeners in here, as the bot can only have one.
+        """
         if msg.guild is None:
             return
 

@@ -1,5 +1,8 @@
+"""The main module for the discord app itself."""
+
 import logging
 import sys
+from typing import Any
 
 import discord
 from discord.ext import commands
@@ -10,13 +13,13 @@ from gwenbotv3.config import (
     PREFIX,
 )
 
+# pylint: disable=arguments-differ
+
 
 class App(commands.Bot):
-    """
-    Used to run all discord-related commands, such as sending or fetching messages.
-    """
+    """The app itself. This will run all cogs and handle generic discord errors."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
         super().__init__(
@@ -59,7 +62,7 @@ class App(commands.Bot):
         await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
 
-    async def on_error(self, event_method, *args, **kwargs):  # pylint: disable=arguments-differ
+    async def on_error(self, event_method: str, *args: Any, **kwargs: Any) -> None:
         self.logger.error(
             "Unhandled exception in event '%s' (args=%s, kwargs=%s)",
             event_method,
@@ -68,14 +71,9 @@ class App(commands.Bot):
             exc_info=sys.exc_info(),
         )
 
-    async def on_command_error(
-        self, ctx: commands.Context, error: commands.CommandError
-    ):  # pylint: disable=arguments-differ
-        if hasattr(ctx.command, "on_error"):
-            return
-
-        error = getattr(error, "original", error)
-
+    async def _command_errors(
+        self, ctx: commands.Context[Any], error: commands.CommandError
+    ) -> None:
         if isinstance(error, commands.CommandNotFound):
             self.logger.debug("Command not found: %s", ctx.message.content)
             return
@@ -92,6 +90,9 @@ class App(commands.Bot):
             )
             return
 
+    async def _permission_errors(
+        self, ctx: commands.Context[Any], error: commands.CommandError
+    ) -> None:
         if isinstance(error, commands.MissingPermissions):
             await ctx.reply(
                 "Unfortunately, you do not have the permissions to do this!"
@@ -100,10 +101,23 @@ class App(commands.Bot):
 
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.reply(
-                "Oh no! Seems like gwen doesn't have the following neccesary permissions: "
-                + f"{', '.join(error.missing_permissions)}"
+                "Oh no! Seems like gwen doesn't have the following neccesary "
+                + f"permissions: {', '.join(error.missing_permissions)}"
             )
             return
+
+    async def on_command_error(
+        self,
+        ctx: commands.Context[Any],
+        error: commands.CommandError,
+    ) -> None:
+        if hasattr(ctx.command, "on_error"):
+            return
+
+        error = getattr(error, "original", error)
+
+        await self._command_errors(ctx, error)
+        await self._permission_errors(ctx, error)
 
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(f"Slow down! Try again in {error.retry_after:.1f}s.")

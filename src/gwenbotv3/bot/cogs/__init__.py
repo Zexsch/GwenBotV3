@@ -1,3 +1,5 @@
+"""Houses all the cogs necessary for the bot's commands."""
+
 from .commands_cog import CommandsCog
 from .deepseek_cog import DeepseekCog
 from .dm_cog import DMCog

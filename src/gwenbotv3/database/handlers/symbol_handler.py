@@ -14,10 +14,11 @@ from gwenbotv3.database.handlers.user_handler import UserHandler
 
 class SymbolHandler:
     """Anything to do with the QuestionUser and QuestionCount tables.
+
     This is for the symbol counting and leaderboard feature.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.user_handler = UserHandler()
 
@@ -229,7 +230,8 @@ class SymbolHandler:
         )
 
         self.logger.info(
-            "Initialised Symbol counter for server=%s, channel_id=%s, symbol=%s, creating_user=%s",
+            "Initialised Symbol counter for server=%s, channel_id=%s, "
+            + "symbol=%s, creating_user=%s",
             ctx.server.id,
             channel_id,
             symbol,
@@ -333,12 +335,17 @@ class SymbolHandler:
 
         if not res:
             self.logger.warning(
-                "Tried to fetch symbol from a server without a counter set up. server=%s",
+                "Tried to fetch symbol from a server "
+                + "without a counter set up. server=%s",
                 ctx.server.id,
             )
             return ""
 
         self.logger.debug("Fetched symbol=%s for server=%s", res[0], ctx.server.id)
+
+        if not isinstance(res[0], str):
+            self.logger.critical("Fetched a non-string from fetch_symbol")
+            raise ValueError
 
         return res[0]
 
@@ -359,10 +366,15 @@ class SymbolHandler:
 
         if not res:
             self.logger.warning(
-                "Tried to fetch creating_user from a server without a counter set up. server=%s",
+                "Tried to fetch creating_user from a server "
+                + "without a counter set up. server=%s",
                 ctx.server.id,
             )
             return 0
+
+        if not isinstance(res[0], int):
+            self.logger.critical("Fetched non-int from creating user")
+            raise ValueError
 
         self.logger.debug(
             "Fetched creating_user=%s for server=%s", res[0], ctx.server.id

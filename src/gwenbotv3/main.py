@@ -22,7 +22,8 @@ init_logging(log_dir)
 from gwenbotv3 import App
 
 
-def main():
+def main() -> None:
+    """Main entry point."""
     logger = logging.getLogger(__name__)
     logger.info("Starting app.")
     app = App()

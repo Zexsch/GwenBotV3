@@ -1,3 +1,5 @@
+"""Houses the leaderboard cog."""
+
 import logging
 
 import discord
@@ -11,11 +13,13 @@ from gwenbotv3.database._models.exceptions import AmountNotInt, LimitTooHigh
 from gwenbotv3.database.get_context import context
 from gwenbotv3.database.handlers.server_handler import ServerHandler
 from gwenbotv3.database.handlers.user_handler import UserHandler
-from gwenbotv3.utils import get_user
+from gwenbotv3.utils import get_mention
 
 
 class LeaderboardCog(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    """Anything to do with the symbol counter."""
+
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.symbol_handler = SymbolHandler()
         self.user_handler = UserHandler()
@@ -25,8 +29,25 @@ class LeaderboardCog(commands.Cog):
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def initialise(
-        self, ctx: commands.Context, symbol: str, channel: discord.TextChannel
-    ):
+        self,
+        ctx: commands.Context[commands.Bot],
+        symbol: str,
+        channel: discord.TextChannel,
+    ) -> None:
+        """Initialises the symbol counter for a server.
+
+        :symbol: The symbol to count.
+        :channel: The channel to count in.
+
+        Args:
+            symbol (str): The symbol to count.
+            channel (discord.TextChannel): The channel to count in.
+        """
+
+        if not ctx.guild:
+            await ctx.send("Command has to be used in a server!")
+            return
+
         user_context = context(ctx)
 
         self.symbol_handler.initialise(user_context, symbol, channel.id)
@@ -37,18 +58,23 @@ class LeaderboardCog(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def recount(self, ctx: commands.Context):
+    async def recount(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Recounts the symbols sent in the initialised channel."""
         if not ctx.guild:
             await ctx.send("Command has to be used in a server!")
+            return
+
+        user_context = context(ctx)
+
+        channel = self.symbol_handler.fetch_channel(user_context)
+
+        if channel == 0:
+            await ctx.send("This server doesn't have a symbol counter set up!")
             return
 
         await ctx.send("Gwen is recounting. This might take a while.")
 
         self.logger.info("Started recounting for server=%s", ctx.guild.id)
-
-        user_context = context(ctx)
-
-        channel = self.symbol_handler.fetch_channel(user_context)
 
         channel_object = self.bot.get_channel(channel)
 
@@ -87,7 +113,8 @@ class LeaderboardCog(commands.Cog):
             "?",
         ]
     )
-    async def questions(self, ctx: commands.Context):
+    async def questions(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Fetches the amount of symbols sent in a server."""
         if not ctx.guild:
             await ctx.send("Command must be used in a server!")
             return
@@ -103,7 +130,7 @@ class LeaderboardCog(commands.Cog):
             await ctx.send("Oh no! It seems like gwen ran into some issues!")
             return
 
-        await ctx.send(f"The current amount of question marks is {amount}.")
+        await ctx.send(f"The current amount of symbols is {amount}.")
 
     @commands.command(
         aliases=[
@@ -117,18 +144,29 @@ class LeaderboardCog(commands.Cog):
             "?u",
         ]
     )
-    async def questions_user(self, ctx: commands.Context, id):
+    async def questions_user(
+        self, ctx: commands.Context[commands.Bot], u_id: int | str | None
+    ) -> None:
+        """Checks the amount of symbols sent in a server by a user.
+
+        Args:
+            id (int | str | None): ID of the user. Optionally a mention.
+                If None is given, check the user itself.
+        """
         if not ctx.guild:
             await ctx.send("Command must be used in a server!")
             return
 
-        user_id = get_user(ctx, id)
+        if not u_id:
+            u_id = ctx.author.id
+
+        user_id = get_mention(ctx, u_id)
 
         if not user_id:
             await ctx.send("Invalid id...")
             return
 
-        user = self.user_handler.fetch_user_by_id(id)
+        user = self.user_handler.fetch_user_by_id(user_id)
 
         if not user:
             await ctx.send("User has not interacted with Gwen before!")
@@ -150,11 +188,20 @@ class LeaderboardCog(commands.Cog):
             return  # Should never fire but linter's complaining
 
         await ctx.send(
-            f"The current amount of {symbol} sent by {user_context.user.id} in <#{channel}> is {amount}."
+            f"The current amount of {symbol} sent by {user_context.user.id} in "
+            + f"<#{channel}> is {amount}."
         )
 
     @commands.command(aliases=["lb"])
-    async def leaderboard(self, ctx: commands.Context, limit: int = 10):
+    async def leaderboard(
+        self, ctx: commands.Context[commands.Bot], limit: int = 10
+    ) -> None:
+        """Respons with the symbol counter leaderboard of the server.
+
+        Args:
+            limit (int, optional): Amount of leaderbord spots to fetch. Defaults to 10.
+            Maximum 20.
+        """
         if not ctx.guild:
             await ctx.send("Command has to be used in a server!")
             return
@@ -179,14 +226,18 @@ class LeaderboardCog(commands.Cog):
         await ctx.send(base_message)
 
     @initialise.error
-    async def _error(self, ctx: commands.Context, error) -> None:
+    async def _error(
+        self, ctx: commands.Context[commands.Bot], error: discord.DiscordException
+    ) -> None:
+        """Error overload."""
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("You do not have the permissions to use this command.")
         elif isinstance(error, commands.ChannelNotFound):
             await ctx.send("Gwen did not find the specified channel!")
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
-                "Gwen is missing some information here! Be sure to check the help command!"
+                "Gwen is missing some information here! Be sure to check the "
+                + "help command!"
             )
         else:
             import sys
