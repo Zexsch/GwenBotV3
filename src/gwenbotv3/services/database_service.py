@@ -23,23 +23,23 @@ class DatabaseService:
             func.coalesce(func.max(Gwenseek.created_at), epoch),
         )
 
-        stmt = (
+        s_stmt = (
             select(Users.user_id)
             .outerjoin(Subs, Subs.user_id == Users.user_id)
             .outerjoin(Gwenseek, Gwenseek.user_id == Users.user_id)
             .group_by(Users.user_id, Users.modified_at)
             .having(last_activity < cutoff)
         )
-        stale_user_ids = (await session.execute(stmt)).scalars().all()
+        stale_user_ids = (await session.execute(s_stmt)).scalars().all()
 
         if not stale_user_ids:
             return
 
-        stmt = delete(Subs).where(Subs.user_id.in_(stale_user_ids))
-        await session.execute(stmt)
+        d_stmt_1 = delete(Subs).where(Subs.user_id.in_(stale_user_ids))
+        await session.execute(d_stmt_1)
 
-        stmt = delete(Gwenseek).where(Gwenseek.user_id.in_(stale_user_ids))
-        await session.execute(stmt)
+        d_stmt_2 = delete(Gwenseek).where(Gwenseek.user_id.in_(stale_user_ids))
+        await session.execute(d_stmt_2)
 
         stmt = (
             update(Users)
