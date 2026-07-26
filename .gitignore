@@ -220,3 +220,6 @@ __marimo__/
 
 # Custom
 pylint_output
+
+# I always forget the commands
+.alembic_reminder 

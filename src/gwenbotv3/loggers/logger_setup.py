@@ -5,6 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 
+# pylint: disable=too-few-public-methods
 class _LevelEqualsFilter(logging.Filter):
     def __init__(self, level: int):
         super().__init__()
