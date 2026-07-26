@@ -1,0 +1,2 @@
+class GwenseekError(Exception):
+    pass

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     DateTime,
     ForeignKey,
     Integer,
@@ -20,8 +21,7 @@ if TYPE_CHECKING:
 
 class SymbolCounter(Base):
     __tablename__ = "symbol_counter"
-    # ruff: noqa: RUF012
-    __table_args__ = {"mysql_engine": "InnoDB"}
+    __table_args__ = ({"mysql_engine": "InnoDB"},)
 
     symbol_id: Mapped[int] = mapped_column(primary_key=True)
     amount: Mapped[int] = mapped_column(Integer, default=0)
@@ -31,11 +31,12 @@ class SymbolCounter(Base):
     server_id: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("servers.server_id"), unique=True, nullable=False
     )
-    channel_id: Mapped[int] = mapped_column(BigInteger, unique=True, nullable=False)
+    channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     symbol: Mapped[str] = mapped_column(String(50), nullable=False, default="?")
     creating_user: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("users.user_id"), nullable=False
     )
+    strict: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     setup_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=lambda: datetime.now(UTC),
@@ -54,6 +55,13 @@ class SymbolCounter(Base):
 
     def __repr__(self) -> str:
         return f"{self.server_id} : {self.amount}"
+
+    def __str__(self) -> str:
+        return (
+            f"<{self.symbol_id=}> <{self.server_id=}> <{self.channel_id=}> "
+            + f"<{self.amount=}> <{self.symbol=}> <{self.creating_user=}> "
+            + f"<{self.setup_at=}>"
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SymbolCounter):
