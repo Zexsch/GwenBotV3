@@ -484,4 +484,5 @@ class WinrateFetcher:
 
     @property
     def patch(self) -> str:
+        """Current patch."""
         return ".".join(self.patch_version.split(".")[:-1])
