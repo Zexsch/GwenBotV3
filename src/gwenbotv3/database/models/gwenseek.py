@@ -1,3 +1,7 @@
+"""Houses the Gwenseek Model.
+
+See the model for more information."""
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -7,11 +11,22 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gwenbotv3.database.base import Base
 
 if TYPE_CHECKING:
+    # For mappings, otherwise we have partial imports
     from gwenbotv3.database.models.servers import Servers
     from gwenbotv3.database.models.users import Users
 
 
 class Gwenseek(Base):
+    """Model for the ``Gwenseek`` database table.
+
+    This table is used for storing interactions between users and the deepseek API.
+
+    Relations
+    ---------
+    :user_ref: Foreign key relationship to the ``Users`` table.
+    :server_ref: Foreign key relationship to the ``Servers`` table.
+    """
+
     __tablename__ = "gwenseek"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}

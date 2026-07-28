@@ -1,3 +1,7 @@
+"""Exceptions used around the bot.
+
+All custom exceptions go into this module."""
+
 from ._services import (
     GwenseekError,
     LimitTooLargeError,

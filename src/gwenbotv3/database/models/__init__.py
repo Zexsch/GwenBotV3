@@ -1,3 +1,8 @@
+"""SQLAlchemy Table models.
+
+Import this module directly for Alembic, do not import directly from submodules.
+For more custom modules, set any discord ID to BigIntegers."""
+
 from .gwenseek import Gwenseek
 from .gwensub import Blacklist, Subs
 from .servers import Servers

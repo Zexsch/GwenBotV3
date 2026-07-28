@@ -1,3 +1,7 @@
+"""Exceptions for the Gwensub service."""
+
+
+# pylint: disable=missing-class-docstring
 class GwensubError(Exception):
     pass
 

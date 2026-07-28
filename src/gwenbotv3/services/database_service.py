@@ -1,3 +1,5 @@
+"""Houses the Database Service."""
+
 import datetime
 import logging
 
@@ -9,11 +11,23 @@ from gwenbotv3.database.models import Gwenseek, Subs, Users
 
 
 class DatabaseService:
+    """Interacts with the database itself, not any tables.
+
+    Any and all changes that act upon the database directly, such as
+    configuration, triggers, etc go in here. For table specific logic,
+    see the other services."""
+
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     @connect
     async def purge_stale_users(self, session: AsyncSession) -> None:
+        """Deletes user data for users that haven't been active.
+
+        This will set is_anonymised for users to True, removing their username
+        from the database. It will also remove any active GwenBot subscriptions
+        and Gwenseek history.
+        """
         cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=180)
         epoch = datetime.datetime(1970, 1, 1)
 

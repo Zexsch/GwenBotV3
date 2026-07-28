@@ -1,3 +1,5 @@
+"""Houses the ``SymbolCounter`` and ``SymbolUser`` ORM models."""
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -20,6 +22,10 @@ if TYPE_CHECKING:
 
 
 class SymbolCounter(Base):
+    """Symbol Counter ORM Model.
+
+    I'm too tired of this fucking piece of shit to explain it."""
+
     __tablename__ = "symbol_counter"
     __table_args__ = ({"mysql_engine": "InnoDB"},)
 
@@ -32,11 +38,12 @@ class SymbolCounter(Base):
         BigInteger, ForeignKey("servers.server_id"), unique=True, nullable=False
     )
     channel_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    symbol: Mapped[str] = mapped_column(String(50), nullable=False, default="?")
+    symbol: Mapped[str] = mapped_column(String(200), nullable=False, default="?")
     creating_user: Mapped[int] = mapped_column(
         BigInteger, ForeignKey("users.user_id"), nullable=False
     )
     strict: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    strict_channel: Mapped[int] = mapped_column(BigInteger, nullable=True)
     setup_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=lambda: datetime.now(UTC),
@@ -70,6 +77,10 @@ class SymbolCounter(Base):
 
 
 class SymbolUser(Base):
+    """Symbol User ORM Model.
+
+    I'm too tired of this fucking piece of shit to explain it."""
+
     __tablename__ = "symbol_user"
     __table_args__ = (
         UniqueConstraint("user_id", "symbols_server"),

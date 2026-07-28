@@ -1,3 +1,5 @@
+"""Houses the Servers ORM Model."""
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -13,6 +15,17 @@ if TYPE_CHECKING:
 
 
 class Servers(Base):
+    """ORM Model for Discord guilds.
+
+    Relations
+    ---------
+    :gwenseek_entries: Maps to the ``Gwenseek`` model
+    :symbol_count: Maps to the ``SymbolCounter`` model
+    :symbol_user_entries: Maps to the ``SymbolUser`` model
+    :subs: Maps to the ``Subs`` model
+    :blacklist_entries: Maps to the ``Blacklist`` model
+    """
+
     __tablename__ = "servers"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}
@@ -54,6 +67,7 @@ class Servers(Base):
     # Funcs
     @property
     def full_server(self) -> str:
+        """Full server string, will all information."""
         return (
             f"ID: {self.server_id} | Owner: {self.owner_id} | "
             f"Members: {self.member_count} | Quote: {self.quote} | "

@@ -1,3 +1,5 @@
+"""Helpers to connect to the database."""
+
 import logging
 from collections.abc import Awaitable, Callable
 from functools import wraps
@@ -42,16 +44,23 @@ class _DatabaseConnector:
 def connect[Self, **P, R](
     func: Callable[Concatenate[Self, AsyncSession, P], Awaitable[R]],
 ) -> Callable[Concatenate[Self, P], Awaitable[R]]:
-    """Connect to the database.
+    """Injects an asynchronous database session into a decorated method.
 
-    Use as a decorator every time a DB session is needed.
-    This decorator will inject the session as the second positional argument
-    into the decorated method.
+    Use as a decorator on every method that needs access to the database.
+    This will automatically inject an SQLAlchemy Async session as the
+    second positional argument, right after Self. As it is an async session,
+    the function to be decorated must also be async.
+    Always use this decorator instead of manually creating sessions.
 
-    Returns:
-        Callable[Concatenate[Self, P], R]: The decorated method,
-            but with a Session object injected as the second
-            positional argument.
+    Parameters
+    ----------
+    func : Callable[Concatenate[Self, AsyncSession, P], Awaitable[R]]
+        An async method requiring an ``AsyncSession`` argument after ``self``.
+
+    Returns
+    -------
+    Callable[Concatenate[Self, P], Awaitable[R]]
+        The decorated function, but with an SQLAlchemy Async Session injected.
     """
 
     @wraps(func)

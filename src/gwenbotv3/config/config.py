@@ -18,6 +18,8 @@ PREFIX: str = "+"  # Bot prefix.
 
 # pylint: disable=too-few-public-methods
 class DatabaseConfig:
+    """Config for the database."""
+
     DB_USER = os.getenv("DB_USER")
     DB_PASS = os.getenv("DB_PASS")
     DB_HOST = os.getenv("DB_HOST")

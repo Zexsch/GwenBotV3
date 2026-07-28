@@ -1,3 +1,7 @@
+"""Initialises the SQLAlchemy engine.
+
+Use async_session as a session factory to connect to the database."""
+
 import logging
 
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine

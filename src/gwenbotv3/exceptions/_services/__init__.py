@@ -1,3 +1,5 @@
+"""Exceptions for various services."""
+
 from .gwenseek_exceptions import GwenseekError
 from .gwensub_exceptions import (
     UserIsBlacklistedError,

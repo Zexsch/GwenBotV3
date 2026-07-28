@@ -1,3 +1,5 @@
+"""Helpers for connecting to the database."""
+
 import logging
 import sqlite3
 from collections.abc import Callable

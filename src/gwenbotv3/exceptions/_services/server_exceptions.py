@@ -1,3 +1,9 @@
+"""Exceptions for the Server service."""
+
+
+# pylint: disable=missing-class-docstring
+
+
 class ServerError(Exception):
     pass
 

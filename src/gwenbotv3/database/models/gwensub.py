@@ -1,3 +1,5 @@
+"""Houses the Subs and Blacklist ORM Models."""
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -7,11 +9,23 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gwenbotv3.database.base import Base
 
 if TYPE_CHECKING:
+    # For mappings, otherwise we have partial imports
     from gwenbotv3.database.models.servers import Servers
     from gwenbotv3.database.models.users import Users
 
 
 class Subs(Base):
+    """ORM Model for GwenBot Subscriptions.
+
+    Once a user is subscribed in a server,
+    GwenBot will respond in chat if a user mentions gwen.
+
+    Relations
+    ---------
+    :user_ref: Foreign key relationship to the ``Users`` table.
+    :server_ref: Foreign key relationship to the ``Servers`` table.
+    """
+
     __tablename__ = "subs"
     __table_args__ = (
         UniqueConstraint("user_id", "server_id"),
@@ -41,6 +55,19 @@ class Subs(Base):
 
 
 class Blacklist(Base):
+    """ORM Model for GwenBot blacklists.
+
+    Blacklists are a tool for moderators to stop a user
+    from interacting with Gwen in specific ways.
+    Those include GwenBot Subscriptions or using GwenBot to interact
+    with the deepseek API.
+
+    Relations
+    ---------
+    :user_ref: Foreign key relationship to the ``Users`` table.
+    :server_ref: Foreign key relationship to the ``Servers`` table.
+    """
+
     __tablename__ = "blacklist"
     __table_args__ = (
         UniqueConstraint("user_id", "server_id", "by_owner"),

@@ -1,3 +1,5 @@
+"""Houses the ``Users`` ORM Model."""
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -13,6 +15,16 @@ if TYPE_CHECKING:
 
 
 class Users(Base):
+    """ORM Model for Discord users.
+
+    Relations
+    ---------
+    :gwenseek_entries: Maps to the ``Gwenseek`` model
+    :symbol_counts: Maps to the ``SymbolUser`` model
+    :subs: Maps to the ``Subs`` model
+    :blacklist_entries: Maps to the ``Blacklist`` model
+    """
+
     __tablename__ = "users"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}
@@ -45,6 +57,7 @@ class Users(Base):
     # Funcs
     @property
     def full_user(self) -> str:
+        """Full user string, including all information."""
         return (
             f"Name: {self.user_name} | ID: {self.user_id} | Anon.: {self.is_anonymised}"
             + f" | Created: {self.created_at} | Modified: {self.modified_at}"

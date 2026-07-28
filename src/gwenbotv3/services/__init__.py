@@ -1,3 +1,5 @@
+"""Services that directly interact with the database."""
+
 from .database_service import DatabaseService
 from .gwenseek_service import GwenseekService
 from .gwensub_service import GwensubService

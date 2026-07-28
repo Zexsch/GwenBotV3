@@ -1,3 +1,9 @@
+"""Exceptions for the Symbol service."""
+
+
+# pylint: disable=missing-class-docstring
+
+
 class SymbolError(Exception):
     pass
 

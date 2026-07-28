@@ -1,3 +1,5 @@
+"""Houses the Gwenseek service."""
+
 import logging
 from collections.abc import Sequence
 
@@ -9,11 +11,20 @@ from gwenbotv3.database.models import Gwenseek
 
 
 class GwenseekService:
+    """Interacts with the Gwenseek database table."""
+
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     @connect
     async def select_seek(self, session: AsyncSession, seek_id: int) -> Gwenseek | None:
+        """Selects a row using the seek_id primary key.
+
+        Returns
+        -------
+        Gwenseek | None
+            Gwenseek object if found, else None
+        """
         seek = await session.get(Gwenseek, seek_id)
         return seek
 
@@ -21,6 +32,20 @@ class GwenseekService:
     async def select_seeks_by_ids(
         self, session: AsyncSession, user_id: int, server_id: int
     ) -> Sequence[Gwenseek]:
+        """Selects all seeks matching the user_id and server_id.
+
+        Parameters
+        ----------
+        user_id : int
+            ID of the user.
+        server_id : int
+            ID of the guild.
+
+        Returns
+        -------
+        Sequence[Gwenseek]
+            All found seeks. Empty sequence if none are found.
+        """
         stmt = select(Gwenseek).where(
             Gwenseek.user_id == user_id, Gwenseek.server_id == server_id
         )
@@ -30,7 +55,21 @@ class GwenseekService:
     async def _select_seek_count(
         self, session: AsyncSession, user_id: int, server_id: int
     ) -> int | None:
-        stmt = select(func.count(Gwenseek.user_id)).where(
+        """Selects how many seeks a user has in a specific server.
+
+        Parameters
+        ----------
+        user_id : int
+            ID of the user.
+        server_id : int
+            ID of the server.
+
+        Returns
+        -------
+        int | None
+            Amount fetched, None if no are found.
+        """
+        stmt = select(func.count(Gwenseek.user_id)).where(  # pylint: disable=not-callable
             Gwenseek.user_id == user_id, Gwenseek.server_id == server_id
         )
 
@@ -40,6 +79,15 @@ class GwenseekService:
     async def _delete_oldest_seek(
         self, session: AsyncSession, user_id: int, server_id: int
     ) -> None:
+        """Deletes the oldest seek from a user in a server.
+
+        Parameters
+        ----------
+        user_id : int
+            ID of the user.
+        server_id : int
+            ID of the server.
+        """
         oldest_seek = (
             select(func.min(Gwenseek.seek_id))
             .where(Gwenseek.user_id == user_id, Gwenseek.server_id == server_id)
@@ -62,6 +110,22 @@ class GwenseekService:
         message: str,
         reasoning_content: str,
     ) -> None:
+        """Adds a seek.
+
+        Seeks are interactions with the Deepseek API, stored to include prior
+        context in future responses.
+
+        Parameters
+        ----------
+        user_id : int
+            ID of the user.
+        server_id : int
+            ID of the guild.
+        message : str
+            Original message of the user, not including any commands.
+        reasoning_content : str
+            The AI's response to the query.
+        """
         seek_count = await self._select_seek_count(user_id=user_id, server_id=server_id)
 
         if seek_count and seek_count > 5:
