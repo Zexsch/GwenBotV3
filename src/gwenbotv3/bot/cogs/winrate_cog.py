@@ -11,7 +11,7 @@ from gwenbotv3.bot.exceptions import (
 )
 from gwenbotv3.bot.models import Champion
 from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
-from gwenbotv3.utils.request import FailedRequest
+from gwenbotv3.utils.request import FailedRequestError
 
 
 class WinrateCog(commands.Cog):
@@ -54,7 +54,7 @@ class WinrateCog(commands.Cog):
 
         try:
             result = self.winrate_fetcher.get_stats(champ, args)
-        except FailedRequest as e:
+        except FailedRequestError as e:
             await ctx.send(
                 "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
             )
