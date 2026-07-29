@@ -78,13 +78,13 @@ class ServerHandler:
 
         cur.execute(
             "INSERT INTO Servers(server_id, owner_id, member_count, quote, prefix) "
-            + "VALUES(?,?,?,?,?)",
+            "VALUES(?,?,?,?,?)",
             (server.id, server.owner_id, server.member_count, server.quote, PREFIX),
         )
 
         self.logger.info(
             "Inserted new server: "
-            + "server_id=%s, owner_id=%s, member_count=%s, quote=%s, prefix=%s",
+            "server_id=%s, owner_id=%s, member_count=%s, quote=%s, prefix=%s",
             server.id,
             server.owner_id,
             server.member_count,
@@ -116,7 +116,7 @@ class ServerHandler:
         if len(res) < 3:
             self.logger.critical(
                 "Fetched info from server=%s, yet not all information "
-                + "was fetched properly. Column count: %s",
+                "was fetched properly. Column count: %s",
                 server.id,
                 len(res),
             )
@@ -162,7 +162,7 @@ class ServerHandler:
         if server.quote:
             self.logger.info(
                 "Tried to set quote to True on a server which already has "
-                + "quote enabled. server=%s",
+                "quote enabled. server=%s",
                 server.id,
             )
             return False
@@ -189,7 +189,7 @@ class ServerHandler:
         if not server.quote:
             self.logger.info(
                 "Tried to set quote to False on a server which does not "
-                + "have quote enabled. server=%s",
+                "have quote enabled. server=%s",
                 server.id,
             )
             return False
@@ -217,14 +217,12 @@ class ServerHandler:
         if not res:
             self.logger.warning(
                 "Tried to fetch server by id without the server existing in the db. "
-                + "server=%s",
+                "server=%s",
                 server_id,
             )
             return None
 
-        server = Server(id=res[0], owner_id=res[1], member_count=res[2], quote=res[3])
-
-        return server
+        return Server(id=res[0], owner_id=res[1], member_count=res[2], quote=res[3])
 
     @connect
     def change_prefix(self, cur: Cursor, ctx: UserContext, new_prefix: str) -> None:
@@ -259,6 +257,6 @@ class ServerHandler:
 
         if not isinstance(res[0], str):
             self.logger.critical("Fetched non-str prefix")
-            raise ValueError
+            raise TypeError
 
         return res[0]

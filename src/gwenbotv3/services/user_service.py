@@ -35,8 +35,7 @@ class UserService:
         Users | None
             Users if found, else None.
         """
-        user = await session.get(Users, user_id)
-        return user
+        return await session.get(Users, user_id)
 
     @connect
     async def update_username(

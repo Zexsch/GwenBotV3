@@ -7,6 +7,8 @@ from typing import Any
 from gwenbotv3.database_handling._models import User
 
 
+# This will all be deleted soon anyway lmao
+# ruff: noqa
 class ServerNotFoundException(Exception):
     """If a server was not found in the database."""
 

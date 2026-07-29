@@ -68,7 +68,7 @@ class WinrateCog(commands.Cog):
         except WinrateNotFoundException:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst fetching"
-                + " the winrate! Are you sure that there's enough matches played?"
+                " the winrate! Are you sure that there's enough matches played?"
             )
             self.logger.critical(
                 "Unable to fetch winrate for champ=%s, args=%s, channel=%s",
@@ -80,7 +80,7 @@ class WinrateCog(commands.Cog):
         except StatsNotFoundException:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst"
-                + " fetching the winrate!"
+                " fetching the winrate!"
             )
             self.logger.critical(
                 "Unable to fetch stats for champ=%s, args=%s, channel=%s",
@@ -92,7 +92,7 @@ class WinrateCog(commands.Cog):
         except ChampionNotFoundException:
             await ctx.send(
                 "Gwen was unable to find your specified champion... Please check +list "
-                + "for a list of all accepted champion names!"
+                "for a list of all accepted champion names!"
             )
             return
 
@@ -103,14 +103,14 @@ class WinrateCog(commands.Cog):
                 if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
                     await ctx.send(
                         "Gwen can only gets stats for the past 5 patches! The current "
-                        + "patch is {self.current_patch}."
+                        "patch is {self.current_patch}."
                     )
                     return
             except ValueError:
                 if champ.patch and (int(champ.patch[-1:]) < int(minor_patch) - 5):
                     await ctx.send(
                         "Gwen can only gets stats for the past 5 patches! The current "
-                        + "patch is {self.current_patch}."
+                        "patch is {self.current_patch}."
                     )
                     return
 

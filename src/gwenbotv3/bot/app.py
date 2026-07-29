@@ -113,7 +113,7 @@ class App(commands.Bot):
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.reply(
                 "Oh no! Seems like gwen doesn't have the following neccesary "
-                + f"permissions: {', '.join(error.missing_permissions)}"
+                f"permissions: {', '.join(error.missing_permissions)}"
             )
             return
 

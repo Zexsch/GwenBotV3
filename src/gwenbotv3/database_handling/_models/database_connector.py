@@ -41,7 +41,13 @@ class _DatabaseConnector:
         if exc_type is None:
             self.connection.commit()
         else:
-            self.logger.exception("Error in Database connection, rolling back.")
+            self.logger.error(
+                "Error in Database connection, rolling back. "
+                "<type=%s> <value=%s> <traceback=%s>",
+                exc_type,
+                _exc_value,
+                _traceback,
+            )
             self.connection.rollback()
 
         self.connection.close()

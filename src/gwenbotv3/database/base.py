@@ -11,4 +11,4 @@ class Base(DeclarativeBase):
 
     Inherit from this in every SQLAlchemy model."""
 
-    pass  # pylint: disable=unnecessary-pass
+    # pylint: disable=unnecessary-pass

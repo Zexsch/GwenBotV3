@@ -28,8 +28,8 @@ class DatabaseService:
         from the database. It will also remove any active GwenBot subscriptions
         and Gwenseek history.
         """
-        cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=180)
-        epoch = datetime.datetime(1970, 1, 1)
+        cutoff = datetime.datetime.now(tz=datetime.UTC) - datetime.timedelta(days=180)
+        epoch = datetime.datetime(1970, 1, 1, tzinfo=datetime.UTC)
 
         last_activity = func.greatest(
             Users.modified_at,

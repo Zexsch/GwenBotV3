@@ -28,6 +28,4 @@ def context(ctx: Context[Bot] | Message) -> UserContext:
     if isinstance(ctx, Context):
         message = ctx.message.content
 
-    user_context = UserContext(user=user, server=server, message=message, ctx=ctx)
-
-    return user_context
+    return UserContext(user=user, server=server, message=message, ctx=ctx)

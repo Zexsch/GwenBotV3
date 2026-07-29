@@ -11,14 +11,14 @@ from typing import Any
 import requests
 
 
-class FailedRequest(Exception):
+class FailedRequestError(Exception):
     """
     Raise if a request has failed for any reason
     not handled by the request function."""
 
     def __init__(self, **kwargs: Any) -> None:
         self.logger = logging.getLogger(__name__)
-        self.logger.exception("Request failed with %s", kwargs)
+        self.logger.error("Request failed with %s", kwargs)
         super().__init__(f"Request failed with {kwargs=}")
 
 
@@ -49,17 +49,19 @@ def request(url: str, headers: dict[str, str] | None = None) -> requests.Respons
     try:
         response = requests.get(url=url, headers=headers, timeout=10)
     except requests.exceptions.Timeout as exc:
-        raise FailedRequest(url=url, headers=headers, reason="Timeout") from exc
+        raise FailedRequestError(url=url, headers=headers, reason="Timeout") from exc
 
     while response.status_code == 429:
         time.sleep(int(response.headers.get("Retry-After", 1)))
         try:
             response = requests.get(url=url, headers=headers, timeout=10)
         except requests.exceptions.Timeout as exc:
-            raise FailedRequest(url=url, headers=headers, reason="Timeout") from exc
+            raise FailedRequestError(
+                url=url, headers=headers, reason="Timeout"
+            ) from exc
 
     if not response.ok:
-        raise FailedRequest(
+        raise FailedRequestError(
             url=url,
             headers=headers,
             reason="Response not OK",

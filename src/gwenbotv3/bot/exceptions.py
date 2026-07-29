@@ -4,6 +4,8 @@ import logging
 from typing import Any
 
 
+# WIll be deleted soon
+# ruff: noqa
 class WinrateNotFoundException(Exception):
     """If a winrate isn't found for a champion."""
 

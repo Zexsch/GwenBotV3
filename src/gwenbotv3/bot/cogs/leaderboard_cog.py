@@ -124,7 +124,7 @@ class LeaderboardCog(commands.Cog):
         try:
             amount = self.symbol_handler.fetch_amount(user_context)
         except AmountNotInt:
-            self.logger.error(
+            self.logger.exception(
                 "Amount fetched in server=%s was not an integer", ctx.guild.id
             )
             await ctx.send("Oh no! It seems like gwen ran into some issues!")
@@ -189,7 +189,7 @@ class LeaderboardCog(commands.Cog):
 
         await ctx.send(
             f"The current amount of {symbol} sent by {user_context.user.id} in "
-            + f"<#{channel}> is {amount}."
+            f"<#{channel}> is {amount}."
         )
 
     @commands.command(aliases=["lb"])
@@ -237,7 +237,7 @@ class LeaderboardCog(commands.Cog):
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
                 "Gwen is missing some information here! Be sure to check the "
-                + "help command!"
+                "help command!"
             )
         else:
             import sys

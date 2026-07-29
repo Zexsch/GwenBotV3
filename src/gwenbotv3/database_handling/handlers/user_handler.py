@@ -133,8 +133,8 @@ class UserHandler:
             self.logger.critical(
                 (
                     "Successfully fetched a user, "
-                    + "yet not all information was fetched properly. "
-                    + "On user: %s"
+                    "yet not all information was fetched properly. "
+                    "On user: %s"
                 ),
                 user,
             )
@@ -224,6 +224,4 @@ class UserHandler:
         if not res:
             return None
 
-        user = User(id=res[0], name=res[1], is_anonymised=res[2])
-
-        return user
+        return User(id=res[0], name=res[1], is_anonymised=res[2])

@@ -60,7 +60,7 @@ class Users(Base):
         """Full user string, including all information."""
         return (
             f"Name: {self.user_name} | ID: {self.user_id} | Anon.: {self.is_anonymised}"
-            + f" | Created: {self.created_at} | Modified: {self.modified_at}"
+            f" | Created: {self.created_at} | Modified: {self.modified_at}"
         )
 
     def __repr__(self) -> str:

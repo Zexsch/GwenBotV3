@@ -116,7 +116,7 @@ class GwenseekHandler:
         cur.execute(
             (
                 "DELETE FROM Gwenseek WHERE g_id = (SELECT MIN(g_id) FROM Gwenseek "
-                + "WHERE user=? AND server=?)"
+                "WHERE user=? AND server=?)"
             ),
             (ctx.user.id, ctx.server.id),
         )
@@ -162,7 +162,7 @@ class GwenseekHandler:
 
         if not isinstance(res[0], int):
             self.logger.critical("Fetched non-int amount from gwenseek count")
-            raise ValueError
+            raise TypeError
 
         return res[0]
 

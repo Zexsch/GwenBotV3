@@ -25,8 +25,7 @@ class GwenseekService:
         Gwenseek | None
             Gwenseek object if found, else None
         """
-        seek = await session.get(Gwenseek, seek_id)
-        return seek
+        return await session.get(Gwenseek, seek_id)
 
     @connect
     async def select_seeks_by_ids(
@@ -140,7 +139,7 @@ class GwenseekService:
 
         self.logger.debug(
             "Adding seek: "
-            + "<user_id=%i> <server_id=%i> <user_message=%s> <reasoning_message=%s>",
+            "<user_id=%i> <server_id=%i> <user_message=%s> <reasoning_message=%s>",
             user_id,
             server_id,
             message,

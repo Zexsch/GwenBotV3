@@ -38,8 +38,7 @@ class GwensubService:
         Subs | None
             Subs object if found, else None
         """
-        sub = await session.get(Subs, sub_id)
-        return sub
+        return await session.get(Subs, sub_id)
 
     @connect
     async def select_sub_by_ids(

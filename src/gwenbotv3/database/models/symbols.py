@@ -66,8 +66,8 @@ class SymbolCounter(Base):
     def __str__(self) -> str:
         return (
             f"<{self.symbol_id=}> <{self.server_id=}> <{self.channel_id=}> "
-            + f"<{self.amount=}> <{self.symbol=}> <{self.creating_user=}> "
-            + f"<{self.setup_at=}>"
+            f"<{self.amount=}> <{self.symbol=}> <{self.creating_user=}> "
+            f"<{self.setup_at=}>"
         )
 
     def __eq__(self, other: object) -> bool:

@@ -124,9 +124,9 @@ class SymbolHandler:
         """
         res = cur.execute(
             "SELECT u.user_id, u.user_name, u.is_anonymised "
-            + "FROM QuestionCount qc "
-            + "JOIN Users u ON qc.latest_user = u.user_id "
-            + "WHERE qc.server = ?",
+            "FROM QuestionCount qc "
+            "JOIN Users u ON qc.latest_user = u.user_id "
+            "WHERE qc.server = ?",
             (ctx.server.id,),
         ).fetchone()
 
@@ -141,7 +141,7 @@ class SymbolHandler:
                 self.logger.critical(
                     (
                         "Successfully fetched a user, yet not all information "
-                        + "was fetched properly. On user: %s"
+                        "was fetched properly. On user: %s"
                     ),
                     ctx.ctx.author.id,  # Had to do this because pylance is shit
                 )
@@ -231,7 +231,7 @@ class SymbolHandler:
 
         self.logger.info(
             "Initialised Symbol counter for server=%s, channel_id=%s, "
-            + "symbol=%s, creating_user=%s",
+            "symbol=%s, creating_user=%s",
             ctx.server.id,
             channel_id,
             symbol,
@@ -279,11 +279,11 @@ class SymbolHandler:
 
         res = cur.execute(
             "SELECT u.user_id, u.user_name, u.is_anonymised, qu.amount "
-            + "FROM QuestionUser qu "
-            + "JOIN Users u ON u.user_id = qu.user "
-            + "WHERE qu.questions_server=? "
-            + "ORDER BY qu.amount DESC, u.user_id ASC "
-            + "LIMIT ?",
+            "FROM QuestionUser qu "
+            "JOIN Users u ON u.user_id = qu.user "
+            "WHERE qu.questions_server=? "
+            "ORDER BY qu.amount DESC, u.user_id ASC "
+            "LIMIT ?",
             (ctx.server.id, limit),
         ).fetchall()
 
@@ -336,7 +336,7 @@ class SymbolHandler:
         if not res:
             self.logger.warning(
                 "Tried to fetch symbol from a server "
-                + "without a counter set up. server=%s",
+                "without a counter set up. server=%s",
                 ctx.server.id,
             )
             return ""
@@ -345,7 +345,7 @@ class SymbolHandler:
 
         if not isinstance(res[0], str):
             self.logger.critical("Fetched a non-string from fetch_symbol")
-            raise ValueError
+            raise TypeError
 
         return res[0]
 
@@ -367,14 +367,14 @@ class SymbolHandler:
         if not res:
             self.logger.warning(
                 "Tried to fetch creating_user from a server "
-                + "without a counter set up. server=%s",
+                "without a counter set up. server=%s",
                 ctx.server.id,
             )
             return 0
 
         if not isinstance(res[0], int):
             self.logger.critical("Fetched non-int from creating user")
-            raise ValueError
+            raise TypeError
 
         self.logger.debug(
             "Fetched creating_user=%s for server=%s", res[0], ctx.server.id

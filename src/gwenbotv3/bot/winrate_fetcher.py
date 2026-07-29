@@ -131,7 +131,7 @@ class WinrateFetcher:
         self.logger.debug("Fetching champion.json")
         url: str = (
             "https://ddragon.leagueoflegends.com/cdn/"
-            + f"{self.patch_version}/data/en_US/champion.json"
+            f"{self.patch_version}/data/en_US/champion.json"
         )
 
         champion_response = request(url)
@@ -224,7 +224,7 @@ class WinrateFetcher:
             )
             return (
                 "https://u.gg/lol/champions/"
-                + f"{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
+                f"{champ.name}/build/{role_str}?{elo_str}{opponent_str}{patch_str}"
             )
 
         self.logger.debug(
@@ -236,7 +236,7 @@ class WinrateFetcher:
         )
         return (
             "https://u.gg/lol/champions/"
-            + f"{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
+            f"{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
         )
 
     def _get_winrate(self, soup: BeautifulSoup) -> str:
@@ -280,7 +280,7 @@ class WinrateFetcher:
                 "div",
                 {
                     "class": "text-[20px] max-sm:text-[16px] "
-                    + "max-xs:text-[14px] font-extrabold"
+                    "max-xs:text-[14px] font-extrabold"
                 },
             )
 
@@ -378,18 +378,16 @@ class WinrateFetcher:
 
         final_string = (
             f"with {match_count} matches played, a {pick_rate} pick rate "
-            + f"and a {ban_rate} ban rate"
+            f"and a {ban_rate} ban rate"
         )
 
-        result = Result(
+        return Result(
             champ=champ,
             win_rate=win_rate,
             with_opponent=True,
             match_count=match_count,
             final_string=final_string,
         )
-
-        return result
 
     def _get_all_with_opponent(self, champ: Champion) -> Result:
         """Gets all the stats if an opponent is given.
@@ -421,18 +419,16 @@ class WinrateFetcher:
         if not champ.opponent:
             raise StatsNotFoundException(champ=champ)
 
-        result = Result(
+        return Result(
             champ=champ,
             with_opponent=False,
             win_rate=win_rate,
             match_count=match_count,
             final_string=(
                 f"against {champ.opponent.capitalize()} with {match_count} "
-                + "matches played"
+                "matches played"
             ),
         )
-
-        return result
 
     def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
         """Gets the stats of of a Champion

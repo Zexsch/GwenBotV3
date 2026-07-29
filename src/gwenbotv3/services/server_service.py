@@ -32,8 +32,7 @@ class ServerService:
         Servers | None
             Server if found, else None.
         """
-        server = await session.get(Servers, server_id)
-        return server
+        return await session.get(Servers, server_id)
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     @connect
