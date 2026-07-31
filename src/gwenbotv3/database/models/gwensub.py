@@ -1,5 +1,7 @@
 """Houses the Subs and Blacklist ORM Models."""
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -42,8 +44,9 @@ class Subs(Base):
         nullable=False,
     )
 
-    user_ref: Mapped[Users] = relationship(back_populates="subs")
-    server_ref: Mapped[Servers] = relationship(back_populates="subs")
+    # ruff: noqa: UP037
+    user_ref: Mapped["Users"] = relationship(back_populates="subs")
+    server_ref: Mapped["Servers"] = relationship(back_populates="subs")
 
     def __repr__(self) -> str:
         return f"<Sub:{self.sub_id}><User:{self.user_id}><Server:{self.server_id}>"

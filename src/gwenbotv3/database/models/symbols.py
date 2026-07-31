@@ -1,5 +1,7 @@
 """Houses the ``SymbolCounter`` and ``SymbolUser`` ORM models."""
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -56,9 +58,10 @@ class SymbolCounter(Base):
         nullable=False,
     )
 
-    server_ref: Mapped[Servers] = relationship(back_populates="symbol_count")
-    latest_user_ref: Mapped[Users] = relationship(foreign_keys=[latest_user])
-    creating_user_ref: Mapped[Users] = relationship(foreign_keys=[creating_user])
+    # ruff: noqa: UP037
+    server_ref: Mapped["Servers"] = relationship(back_populates="symbol_count")
+    latest_user_ref: Mapped["Users"] = relationship(foreign_keys=[latest_user])
+    creating_user_ref: Mapped["Users"] = relationship(foreign_keys=[creating_user])
 
     def __repr__(self) -> str:
         return f"{self.server_id} : {self.amount}"

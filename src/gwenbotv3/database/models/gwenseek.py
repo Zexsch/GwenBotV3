@@ -2,6 +2,8 @@
 
 See the model for more information."""
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -43,8 +45,9 @@ class Gwenseek(Base):
         nullable=False,
     )
 
-    user_ref: Mapped[Users] = relationship(back_populates="gwenseek_entries")
-    server_ref: Mapped[Servers] = relationship(back_populates="gwenseek_entries")
+    # ruff: noqa: UP037
+    user_ref: Mapped["Users"] = relationship(back_populates="gwenseek_entries")
+    server_ref: Mapped["Servers"] = relationship(back_populates="gwenseek_entries")
 
     def __repr__(self) -> str:
         return f"Seek: {self.seek_id} | User: {self.user_id} | Server: {self.server_id}"

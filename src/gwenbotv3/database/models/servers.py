@@ -1,5 +1,7 @@
 """Houses the Servers ORM Model."""
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -52,15 +54,18 @@ class Servers(Base):
     )
 
     # Relations
-    gwenseek_entries: Mapped[list[Gwenseek]] = relationship(back_populates="server_ref")
-    symbol_count: Mapped[SymbolCounter] = relationship(
-        back_populates="server_ref", uselist=False
-    )
-    symbol_user_entries: Mapped[list[SymbolUser]] = relationship(
+    # ruff: noqa: UP037
+    gwenseek_entries: Mapped[list["Gwenseek"]] = relationship(
         back_populates="server_ref"
     )
-    subs: Mapped[list[Subs]] = relationship(back_populates="server_ref")
-    blacklist_entries: Mapped[list[Blacklist]] = relationship(
+    symbol_count: Mapped["SymbolCounter"] = relationship(
+        back_populates="server_ref", uselist=False
+    )
+    symbol_user_entries: Mapped[list["SymbolUser"]] = relationship(
+        back_populates="server_ref"
+    )
+    subs: Mapped[list["Subs"]] = relationship(back_populates="server_ref")
+    blacklist_entries: Mapped[list["Blacklist"]] = relationship(
         back_populates="server_ref"
     )
 

@@ -1,5 +1,7 @@
 """Houses the ``Users`` ORM Model."""
 
+from __future__ import annotations
+
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -49,10 +51,13 @@ class Users(Base):
     )
 
     # Relations
-    gwenseek_entries: Mapped[list[Gwenseek]] = relationship(back_populates="user_ref")
-    symbol_counts: Mapped[list[SymbolUser]] = relationship(back_populates="user_ref")
-    subs: Mapped[list[Subs]] = relationship(back_populates="user_ref")
-    blacklist_entries: Mapped[list[Blacklist]] = relationship(back_populates="user_ref")
+    # ruff: noqa: UP037
+    gwenseek_entries: Mapped[list["Gwenseek"]] = relationship(back_populates="user_ref")
+    symbol_counts: Mapped[list["SymbolUser"]] = relationship(back_populates="user_ref")
+    subs: Mapped[list["Subs"]] = relationship(back_populates="user_ref")
+    blacklist_entries: Mapped[list["Blacklist"]] = relationship(
+        back_populates="user_ref"
+    )
 
     # Funcs
     @property
