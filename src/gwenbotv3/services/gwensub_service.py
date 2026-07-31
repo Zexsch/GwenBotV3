@@ -245,7 +245,7 @@ class GwensubService:
             user_id=user_id, server_id=server_id, by_owner=by_owner
         )
 
-        if blacklist is None:
+        if blacklist:
             raise UserIsBlacklistedError
 
         blacklist_add = Blacklist(
