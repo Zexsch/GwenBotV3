@@ -36,7 +36,7 @@ class DeepseekCog(commands.Cog):
         self.deepseek_client = AsyncOpenAI(
             api_key=self.__token, base_url="https://api.deepseek.com"
         )
-        self.model = "deepseek-v4-pro"  # TODO: make model use envs?
+        self.model = "deepseek-v4-flash"
 
         self.banned_phrases: list[str] = ["@everyone", "@here", "<@", "<@&", "<#"]
 
