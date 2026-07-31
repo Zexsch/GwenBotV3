@@ -448,6 +448,7 @@ class SymbolService:
         await self.update_latest_user_server(server_id=server_id, user_id=user_id)
         await self.update_user_counter_amount(server_id=server_id, user_id=user_id)
 
+    @connect
     async def leaderboard(
         self, session: AsyncSession, server_id: int, limit: int
     ) -> Sequence[Row[tuple[int, str, int]]]:

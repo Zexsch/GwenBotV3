@@ -4,6 +4,7 @@ from .database_service import DatabaseService
 from .gwenseek_service import GwenseekService
 from .gwensub_service import GwensubService
 from .server_service import ServerService
+from .symbol_service import SymbolService
 from .user_service import UserService
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     "GwenseekService",
     "GwensubService",
     "ServerService",
+    "SymbolService",
     "UserService",
 ]
