@@ -5,6 +5,7 @@ import logging
 import discord
 from discord.ext import commands
 
+from gwenbotv3.exceptions import UserIsBlacklistedError, UserNotBlacklistedError
 from gwenbotv3.services import GwensubService
 from gwenbotv3.utils import get_mention
 
@@ -52,9 +53,14 @@ class OwnerCog(commands.Cog):
             await ctx.send("User is already blacklisted.")
             return
 
-        await self.gwensub_service.insert_blacklist(
-            user_id=user_id, server_id=ctx.guild.id, by_owner=True
-        )
+        try:
+            await self.gwensub_service.insert_blacklist(
+                user_id=user_id, server_id=ctx.guild.id, by_owner=True
+            )
+        except UserIsBlacklistedError:
+            await ctx.send("User is already blacklisted!")
+            return
+
         await self.gwensub_service.delete_sub(user_id=user_id, server_id=ctx.guild.id)
 
         self.logger.info(
@@ -97,9 +103,13 @@ class OwnerCog(commands.Cog):
             await ctx.send("User is not Blacklisted.")
             return
 
-        await self.gwensub_service.delete_blacklist(
-            user_id=user_id, server_id=ctx.guild.id, by_owner=True
-        )
+        try:
+            await self.gwensub_service.delete_blacklist(
+                user_id=user_id, server_id=ctx.guild.id, by_owner=True
+            )
+        except UserNotBlacklistedError:
+            await ctx.send("User is not blacklisted!")
+            return
 
         self.logger.info(
             "Removed from blacklist by owner: user=%s, server=%s",
