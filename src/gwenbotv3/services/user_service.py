@@ -56,7 +56,7 @@ class UserService:
     @connect
     async def insert_user(
         self, session: AsyncSession, user_id: int, user_name: str
-    ) -> None:
+    ) -> Users:
         """Inserts a user into the database.
 
         Parameters
@@ -73,17 +73,19 @@ class UserService:
         user = await self.select_user(user_id)
 
         if user and user.user_name == user_name:
-            return
+            return user
 
         if not user:
             user = Users(user_id=user_id, user_name=user_name)
 
             self.logger.info("Adding user: %s", repr(user))
             session.add(user)
-            return
+            return user
 
         if user.user_name != user_name:
             await self.update_username(user_name=user_name, user_id=user_id)
+
+        return user
 
     @connect
     async def anonymise_user(self, session: AsyncSession, user_id: int) -> None:

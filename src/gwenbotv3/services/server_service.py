@@ -86,10 +86,10 @@ class ServerService:
         session: AsyncSession,
         server_id: int,
         *,
-        owner_id: int | None,
-        member_count: int | None,
-        quote: bool | None,
-        prefix: str | None,
+        owner_id: int | None = None,
+        member_count: int | None = None,
+        quote: bool | None = None,
+        prefix: str | None = None,
     ) -> None:
         """Updates a server in the database.
 
@@ -108,16 +108,6 @@ class ServerService:
         prefix : bool | None
             Custom prefix of the server.
         """
-        server = await self.select_server(server_id=server_id)
-
-        if server is None:
-            await self.insert_server(
-                server_id=server_id,
-                owner_id=owner_id,
-                member_count=member_count,
-                quote=quote,
-                prefix=prefix,
-            )
 
         values = {
             "owner_id": owner_id,

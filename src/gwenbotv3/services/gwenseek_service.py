@@ -112,7 +112,7 @@ class GwenseekService:
         """Adds a seek.
 
         Seeks are interactions with the Deepseek API, stored to include prior
-        context in future responses.
+        context in future responses. Will automatically trim contexts older than 5.
 
         Parameters
         ----------
@@ -147,3 +147,19 @@ class GwenseekService:
         )
 
         session.add(seek)
+
+    @connect
+    async def delete_seeks_by_server(
+        self, session: AsyncSession, user_id: int, server_id: int
+    ) -> None:
+        stmt = delete(Gwenseek).where(
+            Gwenseek.user_id == user_id, Gwenseek.server_id == server_id
+        )
+
+        await session.execute(stmt)
+
+    @connect
+    async def delete_all_seeks(self, session: AsyncSession, user_id: int) -> None:
+        stmt = delete(Gwenseek).where(Gwenseek.user_id == user_id)
+
+        await session.execute(stmt)

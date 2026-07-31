@@ -179,7 +179,12 @@ class GwensubService:
 
     @connect
     async def select_blacklist_by_ids(
-        self, session: AsyncSession, user_id: int, server_id: int, *, by_owner: bool
+        self,
+        session: AsyncSession,
+        user_id: int,
+        server_id: int,
+        *,
+        by_owner: bool = False,
     ) -> Blacklist | None:
         """Selects a blacklist row.
 
