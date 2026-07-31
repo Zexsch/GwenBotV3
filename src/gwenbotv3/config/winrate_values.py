@@ -1,4 +1,4 @@
-"""Hardcoded values for the winrate fetcher."""
+"""Constants for the winrate fetcher."""
 
 _ALTERNATIVE_ELOS: dict[str, list[str]] = {
     "platinum_plus": ["platplus", "plat+", "platinumplus"],

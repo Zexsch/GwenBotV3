@@ -71,6 +71,8 @@ class ListenerCog(commands.Cog):
             ctx (UserContext): UserContext object.
             msg (discord.Message): discord.Message object.
         """
+        # pylint: disable=too-many-return-statements
+        # Could avoid this via exceptions but too much effort
         if msg.guild is None:
             return
 
