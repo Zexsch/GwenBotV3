@@ -10,7 +10,6 @@ from gwenbotv3.database import connect
 from gwenbotv3.database.models import SymbolCounter, SymbolUser, Users
 from gwenbotv3.exceptions import (
     LimitTooLargeError,
-    StrictnessAlreadySetError,
     SymbolAlreadySetupError,
     SymbolNotSetupError,
     SymbolTooLongError,
@@ -201,32 +200,25 @@ class SymbolService:
         await session.execute(stmt)
 
     @connect
-    async def update_strictness(
-        self, session: AsyncSession, server_id: int, strict: bool
-    ) -> None:
+    async def flip_strictness(self, session: AsyncSession, server_id: int) -> bool:
         """Updates a counter's strictness. Sets it either to true or false.
 
         Parameters
         ----------
         server_id : int
             ID of the guild.
-        strict : bool
-            The strictness to set it to.
 
         Raises
         ------
         SymbolNotSetupError
             If the server has no symbol counter set up.
-        StrictnessAlreadySetError
-            If the given strictness is already the configured strictness.
         """
         check = await self.select_counter_by_ids(server_id=server_id)
 
         if not check:
             raise SymbolNotSetupError
 
-        if check.strict == strict:
-            raise StrictnessAlreadySetError
+        strict = not check.strict
 
         stmt = (
             update(SymbolCounter.strict)
@@ -238,6 +230,29 @@ class SymbolService:
 
         self.logger.info(
             "Updating strictness to %s for server: %s", strict, repr(check)
+        )
+
+        await session.execute(stmt)
+        return strict
+
+    @connect
+    async def update_strictness_channel(
+        self, session: AsyncSession, server_id: int, channel_id: int
+    ) -> None:
+        """Flips a counter's strictness.
+
+        Parameters
+        ----------
+        server_id : int
+            ID of the server.
+        channel_id : int
+            ID of the channel to set strictness_channel to.
+            This will be set even if strictness gets flipped to False.
+        """
+        stmt = (
+            update(SymbolCounter.strict_channel)
+            .where(SymbolCounter.server_id == server_id)
+            .values(strict_channel=channel_id)
         )
 
         await session.execute(stmt)

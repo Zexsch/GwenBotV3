@@ -13,9 +13,7 @@ from openai.types.chat import (
     ChatCompletionUserMessageParam,
 )
 
-from gwenbotv3.database_handling import GwenseekHandler, GwenSubHandler, User
-from gwenbotv3.database_handling.get_context import context
-from gwenbotv3.database_handling.handlers.user_handler import UserHandler
+from gwenbotv3.services import GwenseekService, GwensubService, UserService
 
 # ruff: noqa: UP007
 Message = Union[
@@ -31,14 +29,14 @@ class DeepseekCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.logger = logging.getLogger(__name__)
-        self.gwenseek_handler = GwenseekHandler()
-        self.gwensub_handler = GwenSubHandler()
-        self.user_handler = UserHandler()
+        self.gwenseek_service = GwenseekService()
+        self.gwensub_service = GwensubService()
+        self.user_service = UserService()
         self.__token = os.environ["DEEPSEEK_TOKEN"]
         self.deepseek_client = AsyncOpenAI(
             api_key=self.__token, base_url="https://api.deepseek.com"
         )
-        self.model = "deepseek-v4-pro"
+        self.model = "deepseek-v4-pro"  # TODO: make model use envs?
 
         self.banned_phrases: list[str] = ["@everyone", "@here", "<@", "<@&", "<#"]
 
@@ -88,12 +86,10 @@ class DeepseekCog(commands.Cog):
         reasoning: bool,
     ) -> None:
         """Logic to interact and handle the Deepseek API."""
-        if not ctx.guild:
-            await ctx.send("Command has to be used in a server!")
-            return
+        assert ctx.guild is not None
 
-        if self.gwensub_handler.fetch_blacklist_by_ids(
-            ctx.message.author.id, ctx.guild.id
+        if await self.gwensub_service.select_blacklist_by_ids(
+            user_id=ctx.author.id, server_id=ctx.guild.id
         ):
             await ctx.send("You have been blacklisted from using this command.")
             return
@@ -129,29 +125,23 @@ class DeepseekCog(commands.Cog):
             }
         ]
 
-        user_context = context(ctx)
+        user = await self.user_service.select_user(user_id=ctx.author.id)
 
-        if not user_context.user:
-            self.logger.debug(
-                "User field is none in Gwenseek func for user=%s", user_context
+        if not user:
+            user = await self.user_service.insert_user(
+                user_id=ctx.author.id, user_name=ctx.author.name
             )
-            self.user_handler.insert_user(ctx)
 
-            user = User(id=ctx.author.id, name=ctx.author.name, is_anonymised=False)
+        previous_context = await self.gwenseek_service.select_seeks_by_ids(
+            user_id=user.user_id, server_id=ctx.guild.id
+        )
 
-            user_context.user = user
-
-        context_count = self.gwenseek_handler.get_count(user_context)
-
-        previous_context = self.gwenseek_handler.fetch_context(user_context)
-
-        if context_count > 5:
-            self.gwenseek_handler.delete_oldest_context(user_context)
-
-        for i in previous_context:
+        for context in previous_context:
             # Maybe make a response dataclass object instead of using indices here?
-            full_messages.append({"role": "user", "content": i[3]})
-            full_messages.append({"role": "assistant", "content": i[4]})
+            full_messages.append({"role": "user", "content": context.user_message})
+            full_messages.append(
+                {"role": "assistant", "content": context.reasoning_content}
+            )
 
         full_messages.append({"role": "user", "content": original_message})
 
@@ -194,7 +184,7 @@ class DeepseekCog(commands.Cog):
             )
             self.logger.warning(
                 "User %s hit the content filter with original_message='%s'",
-                user_context.user.id,
+                user.user_id,
                 original_message,
             )
             return
@@ -230,7 +220,12 @@ class DeepseekCog(commands.Cog):
             )
             return
 
-        self.gwenseek_handler.add_context(user_context, original_message, content)
+        await self.gwenseek_service.add_seek(
+            user_id=user.user_id,
+            server_id=ctx.guild.id,
+            message=original_message,
+            reasoning_content=content,
+        )
 
         if not response.choices[0].message.content:
             self.logger.critical(
@@ -249,6 +244,7 @@ class DeepseekCog(commands.Cog):
         await ctx.send(f"||<@{ctx.message.author.id}>||")
 
     @commands.command(aliases=["deepseek", "seek"])
+    @commands.guild_only()
     async def gwenseek(
         self, ctx: commands.Context[commands.Bot], *, message: str
     ) -> None:
@@ -259,6 +255,7 @@ class DeepseekCog(commands.Cog):
         await self.gwenseekfunc(ctx, "reasoner", message, reasoning=True)
 
     @commands.command(aliases=["deepseekbasic", "seekbasic", "gwenseekb"])
+    @commands.guild_only()
     async def gwenseekbasic(
         self, ctx: commands.Context[commands.Bot], *, message: str
     ) -> None:
@@ -268,15 +265,21 @@ class DeepseekCog(commands.Cog):
     @commands.command(aliases=["ch", "clear"])
     async def clearhistory(self, ctx: commands.Context[commands.Bot]) -> None:
         """Clears a user's gwenseek history in a server."""
-        user_context = context(ctx)
+        if not ctx.guild:
+            await ctx.send(
+                "This command must be used in a server! If you want to"
+                " clear all history, including other servers, "
+                "use the *clearhistoryall* command instead!"
+            )
+            return
 
-        self.gwenseek_handler.clear_context(user_context)
+        await self.gwenseek_service.delete_seeks_by_server(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        )
         await ctx.send("Cleared your Gwenseek history, snip snip!")
 
     @commands.command(aliases=["cha", "chall"])
     async def clearhistoryall(self, ctx: commands.Context[commands.Bot]) -> None:
         """Clears the user's entire gwenseek history."""
-        user_context = context(ctx)
-
-        self.gwenseek_handler.clear_all_context(user_context)
+        await self.gwenseek_service.delete_all_seeks(user_id=ctx.author.id)
         await ctx.send("Cleared all your Gwenseek history, snip snip!")

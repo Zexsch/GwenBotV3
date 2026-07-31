@@ -88,6 +88,10 @@ class App(commands.Bot):
             self.logger.debug("Command not found: %s", ctx.message.content)
             return
 
+        if isinstance(error, commands.NoPrivateMessage):
+            await ctx.reply("Command must be used in a server!")
+            return
+
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.reply(
                 f"You're missing some arguments! Here's some help: `{error.param.name}`"

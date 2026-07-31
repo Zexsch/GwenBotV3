@@ -2,7 +2,7 @@
 
 from discord.ext import commands
 
-from gwenbotv3.database_handling import GwenSubHandler
+from gwenbotv3.services import GwensubService
 
 
 class CommandsCog(commands.Cog):
@@ -10,7 +10,7 @@ class CommandsCog(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.gwensub_handler = GwenSubHandler()
+        self.gwensub_service = GwensubService()
 
     @commands.command(aliases=["jax"])
     async def evasion(self, ctx: commands.Context[commands.Bot]) -> None:
@@ -23,13 +23,14 @@ class CommandsCog(commands.Cog):
         )
 
     @commands.command(aliases=["gwen", "immune"])
+    @commands.guild_only()
     async def g(self, ctx: commands.Context[commands.Bot]) -> None:
         """Responds with gwen is immune in chat."""
-        if not ctx.guild:
-            await ctx.send("Command must be used in a server.")
-            return
+        assert ctx.guild is not None
 
-        if not self.gwensub_handler.fetch_sub_by_ids(ctx.author.id, ctx.guild.id):
+        if not await self.gwensub_service.select_sub_by_ids(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        ):
             return
 
         await ctx.send("Gwen is immune.")

@@ -152,6 +152,15 @@ class GwenseekService:
     async def delete_seeks_by_server(
         self, session: AsyncSession, user_id: int, server_id: int
     ) -> None:
+        """Deletes all seeks by a user in a specific server.
+
+        Parameters
+        ----------
+        user_id : int
+            ID of the user.
+        server_id : int
+            ID of the server
+        """
         stmt = delete(Gwenseek).where(
             Gwenseek.user_id == user_id, Gwenseek.server_id == server_id
         )
@@ -160,6 +169,13 @@ class GwenseekService:
 
     @connect
     async def delete_all_seeks(self, session: AsyncSession, user_id: int) -> None:
+        """Deletes all of a user's seeks.
+
+        Parameters
+        ----------
+        user_id : int
+            ID of the user.
+        """
         stmt = delete(Gwenseek).where(Gwenseek.user_id == user_id)
 
         await session.execute(stmt)

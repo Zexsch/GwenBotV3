@@ -10,6 +10,7 @@ from gwenbotv3.database import connect
 from gwenbotv3.database.models import Gwenseek, Subs, Users
 
 
+# pylint: disable=too-few-public-methods
 class DatabaseService:
     """Interacts with the database itself, not any tables.
 

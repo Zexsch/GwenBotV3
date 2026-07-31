@@ -6,8 +6,7 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
-from gwenbotv3.database_handling.get_context import context
-from gwenbotv3.database_handling.handlers.server_handler import ServerHandler
+from gwenbotv3.services import ServerService
 
 
 class ModerationCog(commands.Cog):
@@ -15,7 +14,7 @@ class ModerationCog(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.server_handler = ServerHandler()
+        self.server_service = ServerService()
         self.logger = logging.getLogger(__name__)
 
     @commands.command()
@@ -27,19 +26,20 @@ class ModerationCog(commands.Cog):
             ctx (Context): Discord Context.
             new_prefix (str): The prefix to be set.
         """
+        assert ctx.guild is not None
         if not new_prefix:
             await ctx.send("Please input a valid prefix.")
             return
 
-        if len(new_prefix) > 1:
-            await ctx.send("Prefix must only be one character.")
+        if len(new_prefix) > 5:
+            await ctx.send("Your prefix can be at most 5 characters long!")
             return
 
-        user_context = context(ctx)
+        await self.server_service.update_server(
+            server_id=ctx.guild.id, prefix=new_prefix
+        )
 
-        self.server_handler.change_prefix(user_context, new_prefix)
-
-        await ctx.send(f"Changed prefix to {new_prefix}.")
+        await ctx.send(f"Changed prefix to {new_prefix}")
 
     @prefix.error
     async def _error(
