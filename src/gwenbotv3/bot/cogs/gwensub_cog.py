@@ -1,11 +1,13 @@
 """Houses the Gwensub cog."""
 
+import contextlib
 import logging
 from typing import Any
 
 import discord
 from discord.ext import commands
 
+from gwenbotv3.exceptions import UserNotSubscribedError
 from gwenbotv3.services import GwensubService, ServerService
 from gwenbotv3.utils import get_mention
 
@@ -142,7 +144,12 @@ class GwensubCog(commands.Cog):
             await ctx.send("Invalid id...")
             return
 
-        await self.gwensub_service.delete_sub(user_id=u_id, server_id=ctx.guild.id)
+        try:
+            await self.gwensub_service.delete_sub(user_id=u_id, server_id=ctx.guild.id)
+        except UserNotSubscribedError:
+            await ctx.send("User is not subscribed!")
+            return
+
         await ctx.send("User removed from GwenBot subscription.")
 
     @commands.command(aliases=["bl"])
@@ -177,7 +184,11 @@ class GwensubCog(commands.Cog):
         await self.gwensub_service.select_sub_by_ids(
             user_id=user_id, server_id=ctx.guild.id
         )
-        await self.gwensub_service.delete_sub(user_id=user_id, server_id=ctx.guild.id)
+
+        with contextlib.suppress(UserNotSubscribedError):
+            await self.gwensub_service.delete_sub(
+                user_id=user_id, server_id=ctx.guild.id
+            )
 
         await ctx.send("User successfully added to the Blacklist.")
 
@@ -206,6 +217,10 @@ class GwensubCog(commands.Cog):
         ):
             await ctx.send("User is not Blacklisted.")
             return
+
+        await self.gwensub_service.delete_blacklist(
+            user_id=u_id, server_id=ctx.guild.id
+        )
 
         await ctx.send("User successfully removed from the Blacklist.")
 

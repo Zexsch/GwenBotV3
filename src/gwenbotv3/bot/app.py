@@ -82,44 +82,48 @@ class App(commands.Bot):
 
     async def _command_errors(
         self, ctx: commands.Context[Self], error: commands.CommandError
-    ) -> None:
+    ) -> bool:
         """Check if an error is related to specific command errors."""
         if isinstance(error, commands.CommandNotFound):
             self.logger.debug("Command not found: %s", ctx.message.content)
-            return
+            return True
 
         if isinstance(error, commands.NoPrivateMessage):
             await ctx.reply("Command must be used in a server!")
-            return
+            return True
 
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.reply(
                 f"You're missing some arguments! Here's some help: `{error.param.name}`"
             )
-            return
+            return True
 
         if isinstance(error, commands.BadArgument):
             await ctx.reply(
                 f"Oh no! One of your arguments was wrong. Here's some help: {error}"
             )
-            return
+            return True
+
+        return False
 
     async def _permission_errors(
         self, ctx: commands.Context[Self], error: commands.CommandError
-    ) -> None:
+    ) -> bool:
         """Check if an error is related to permissions."""
         if isinstance(error, commands.MissingPermissions):
             await ctx.reply(
                 "Unfortunately, you do not have the permissions to do this!"
             )
-            return
+            return True
 
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.reply(
                 "Oh no! Seems like gwen doesn't have the following neccesary "
                 f"permissions: {', '.join(error.missing_permissions)}"
             )
-            return
+            return True
+
+        return False
 
     async def on_command_error(
         self,
@@ -131,8 +135,11 @@ class App(commands.Bot):
 
         error = getattr(error, "original", error)
 
-        await self._command_errors(ctx, error)
-        await self._permission_errors(ctx, error)
+        check1 = await self._command_errors(ctx, error)
+        check2 = await self._permission_errors(ctx, error)
+
+        if any([check1, check2]):
+            return
 
         if isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(f"Slow down! Try again in {error.retry_after:.1f}s.")

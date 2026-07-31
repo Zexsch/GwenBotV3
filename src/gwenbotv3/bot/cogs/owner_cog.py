@@ -1,11 +1,16 @@
 """Houses the owner cog."""
 
+import contextlib
 import logging
 
 import discord
 from discord.ext import commands
 
-from gwenbotv3.exceptions import UserIsBlacklistedError, UserNotBlacklistedError
+from gwenbotv3.exceptions import (
+    UserIsBlacklistedError,
+    UserNotBlacklistedError,
+    UserNotSubscribedError,
+)
 from gwenbotv3.services import GwensubService
 from gwenbotv3.utils import get_mention
 
@@ -61,7 +66,10 @@ class OwnerCog(commands.Cog):
             await ctx.send("User is already blacklisted!")
             return
 
-        await self.gwensub_service.delete_sub(user_id=user_id, server_id=ctx.guild.id)
+        with contextlib.suppress(UserNotSubscribedError):
+            await self.gwensub_service.delete_sub(
+                user_id=user_id, server_id=ctx.guild.id
+            )
 
         self.logger.info(
             "Added to blacklist by owner: user=%s, server=%s",
