@@ -1,14 +1,17 @@
 """Houses the Privacy cog."""
 
+import contextlib
 import logging
 from textwrap import dedent
 
 from discord.ext import commands
 
-from gwenbotv3.database import GwenseekHandler, GwenSubHandler
-from gwenbotv3.database._models.exceptions import UserNotAnonymised
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.exceptions import (
+    UserIsAnonymisedError,
+    UserNotAnonymisedError,
+    UserNotSubscribedError,
+)
+from gwenbotv3.services import GwenseekService, GwensubService, UserService
 
 
 class PrivacyCog(commands.Cog):
@@ -17,9 +20,9 @@ class PrivacyCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.logger = logging.getLogger(__name__)
-        self.user_handler = UserHandler()
-        self.gwensub_handler = GwenSubHandler()
-        self.gwenseek_handler = GwenseekHandler()
+        self.user_service = UserService()
+        self.gwensub_service = GwensubService()
+        self.gwenseek_service = GwenseekService()
 
     @commands.command(aliases=["anonymize", "pseudonymise", "pseudonymize"])
     async def anonymise(self, ctx: commands.Context[commands.Bot]) -> None:
@@ -29,17 +32,18 @@ class PrivacyCog(commands.Cog):
             and prevents their username from ending up in the database again.
         This also removes all subscriptions and deepseek context.
 
-        The user ID is kept for blacklists to work."""
-
-        if not ctx.guild:
-            await ctx.send("Command must be used in a server!")
+        The user ID is kept for blacklists to work.
+        """
+        try:
+            await self.user_service.anonymise_user(user_id=ctx.author.id)
+        except UserIsAnonymisedError:
+            await ctx.send("You are already anonymised!")
             return
 
-        user_context = context(ctx)
+        with contextlib.suppress(UserNotSubscribedError):
+            await self.gwensub_service.delete_all_subs(user_id=ctx.author.id)
 
-        self.user_handler.anonymise_user(ctx)
-        self.gwensub_handler.remove_all_sub(user_context)
-        self.gwenseek_handler.clear_all_context(user_context)
+        await self.gwenseek_service.delete_all_seeks(user_id=ctx.author.id)
 
         # ruff: noqa: E501
         # pylint: disable=line-too-long
@@ -75,14 +79,13 @@ class PrivacyCog(commands.Cog):
     )
     async def unanonymise(self, ctx: commands.Context[commands.Bot]) -> None:
         """Unanonymises a user. Puts their username back into the database."""
-        if not ctx.guild:
-            await ctx.send("Command must be used in a server!")
-            return
 
         try:
-            self.user_handler.deanonymise_user(ctx)
-        except UserNotAnonymised:
-            await ctx.send("You are not pseudonymised!")
+            await self.user_service.unanonymise_user(
+                user_id=ctx.author.id, user_name=ctx.author.name
+            )
+        except UserNotAnonymisedError:
+            await ctx.send("You are not anonymised!")
             return
 
         self.logger.info("Unanonymised user=%s", ctx.author.id)

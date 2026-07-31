@@ -1,13 +1,12 @@
 """Houses the Gwensub cog."""
 
 import logging
+from typing import Any
 
 import discord
 from discord.ext import commands
 
-from gwenbotv3.database import GwenSubHandler
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.server_handler import ServerHandler
+from gwenbotv3.services import GwensubService, ServerService
 from gwenbotv3.utils import get_mention
 
 
@@ -18,59 +17,63 @@ class GwensubCog(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.gwensub_handler = GwenSubHandler()
-        self.server_handler = ServerHandler()
+        self.gwensub_service = GwensubService()
+        self.server_service = ServerService()
         self.logger = logging.getLogger()
 
     @commands.command(name="GwenAdd", aliases=["add"])
     async def gwen_add(self, ctx: commands.Context[commands.Bot]) -> None:
         """Command to add user to the subscribed database"""
+        assert ctx.guild is not None
 
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
+        server = await self.server_service.select_server(server_id=ctx.guild.id)
 
-        user_context = context(ctx)
-
-        if self.gwensub_handler.fetch_blacklist(user_context):
-            await ctx.send("You are blacklisted from using this function.")
-            return
-
-        server = self.server_handler.fetch_server(ctx)
+        assert server is not None  # Should technically never trigger
 
         if server.quote:
             await ctx.send("The server has blocked this function.")
             return
 
-        if self.gwensub_handler.fetch_sub(user_context):
+        if await self.gwensub_service.select_blacklist_by_ids(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        ):
+            await ctx.send("You are blacklisted from using this function.")
+            return
+
+        if await self.gwensub_service.select_sub_by_ids(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        ):
             await ctx.send("You are already subscribed to GwenBot.")
             return
 
-        self.gwensub_handler.add_sub(user_context)
+        await self.gwensub_service.insert_sub(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        )
 
         await ctx.send("Successfully subscribed to GwenBot.")
 
     @commands.command(name="remove", aliases=["gwenremove", "rem", "removesub"])
     async def gwen_remove(self, ctx: commands.Context[commands.Bot]) -> None:
         """Command to remove user from the subscribed database"""
+        assert ctx.guild is not None
 
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
-
-        user_context = context(ctx)
-
-        if self.gwensub_handler.fetch_blacklist(user_context):
+        if await self.gwensub_service.select_blacklist_by_ids(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        ):
             await ctx.send("You are blacklisted from using this function.")
             return
 
-        if not self.gwensub_handler.fetch_sub(user_context):
+        if not await self.gwensub_service.select_sub_by_ids(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        ):
             await ctx.send(
                 "You are not currently subscribed to GwenBot.", ephemeral=True
             )
             return
 
-        self.gwensub_handler.remove_sub(user_context)
+        await self.gwensub_service.delete_sub(
+            user_id=ctx.author.id, server_id=ctx.guild.id
+        )
 
         await ctx.send("Successfully removed from the GwenBot Subscription.")
 
@@ -79,15 +82,12 @@ class GwensubCog(commands.Cog):
         self, ctx: commands.Context[commands.Bot], user_id: str | int | None = None
     ) -> None:
         """Command to check if a user is subbed. +checkgs id[optional]"""
-
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
-
-        user_context = context(ctx)
+        assert ctx.guild is not None
 
         if user_id is None:
-            if self.gwensub_handler.fetch_sub(user_context):
+            if await self.gwensub_service.select_sub_by_ids(
+                user_id=ctx.author.id, server_id=ctx.guild.id
+            ):
                 await ctx.send("You are subscribed.")
                 return
 
@@ -100,7 +100,9 @@ class GwensubCog(commands.Cog):
             await ctx.send("Invalid id...")
             return
 
-        if self.gwensub_handler.fetch_sub_by_ids(user_id, ctx.guild.id):
+        if await self.gwensub_service.select_sub_by_ids(
+            user_id=user_id, server_id=ctx.guild.id
+        ):
             await ctx.send("User is subscribed.")
             return
 
@@ -110,21 +112,18 @@ class GwensubCog(commands.Cog):
     @commands.command(name="quote")
     async def quote(self, ctx: commands.Context[commands.Bot]) -> None:
         """Command to add/undo Quote"""
+        assert ctx.guild is not None
 
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
+        server = await self.server_service.select_server(server_id=ctx.guild.id)
 
-        user_context = context(ctx)
+        assert server is not None
 
-        has_no_quote = self.server_handler.add_quote(user_context.server)
-
-        if not has_no_quote:
-            self.server_handler.remove_quote(user_context.server)
+        if server.quote:
+            await self.server_service.update_server(server_id=ctx.guild.id, quote=False)
             await ctx.send("Gwen will now respond to chat.")
-
             return
 
+        await self.server_service.update_server(server_id=ctx.guild.id, quote=True)
         await ctx.send("Gwen will no longer respond to chat.")
 
     @commands.command(name="modremove")
@@ -134,14 +133,8 @@ class GwensubCog(commands.Cog):
     ) -> None:
         """Command to forcefully remove a user from the GwenBot subscription.
         Usable only by users with kick_members permissions."""
-
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
-
-        if not user_id:
-            await ctx.send("You forgot to tell me which user to remove!")
-            return
+        assert ctx.guild is not None
+        assert user_id is not None
 
         u_id = get_mention(ctx, user_id)
 
@@ -149,12 +142,7 @@ class GwensubCog(commands.Cog):
             await ctx.send("Invalid id...")
             return
 
-        was_removed = self.gwensub_handler.remove_sub_by_ids(u_id, ctx.guild.id)
-
-        if not was_removed:
-            await ctx.send("User is not subscribed to GwenBot.")
-            return
-
+        await self.gwensub_service.delete_sub(user_id=u_id, server_id=ctx.guild.id)
         await ctx.send("User removed from GwenBot subscription.")
 
     @commands.command(aliases=["bl"])
@@ -165,14 +153,8 @@ class GwensubCog(commands.Cog):
         """Command to add a user to the blacklist.
 
         Requires the user to have kick_members permissions."""
-
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
-
-        if not user_id:
-            await ctx.send("You forgot to tell me which user to blacklist!")
-            return
+        assert ctx.guild is not None
+        assert user_id is not None
 
         user_id = get_mention(ctx, user_id)
 
@@ -180,12 +162,22 @@ class GwensubCog(commands.Cog):
             await ctx.send("Invalid id...")
             return
 
-        if self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
-            await ctx.send("User is already in blacklist.")
+        if await self.gwensub_service.select_blacklist_by_ids(
+            user_id=user_id, server_id=ctx.guild.id
+        ):
+            await ctx.send("User is already blacklisted.")
             return
 
-        self.gwensub_handler.remove_sub_by_ids(user_id, ctx.guild.id)
-        self.gwensub_handler.blacklist_by_ids(user_id, ctx.guild.id)
+        if await self.gwensub_service.select_blacklist_by_ids(
+            user_id=user_id, server_id=ctx.guild.id, by_owner=True
+        ):
+            await ctx.send("User was blacklisted by the bot owner.")
+            return
+
+        await self.gwensub_service.select_sub_by_ids(
+            user_id=user_id, server_id=ctx.guild.id
+        )
+        await self.gwensub_service.delete_sub(user_id=user_id, server_id=ctx.guild.id)
 
         await ctx.send("User successfully added to the Blacklist.")
 
@@ -200,32 +192,19 @@ class GwensubCog(commands.Cog):
 
         Requires the user to have kick_members permissions."""
 
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
+        assert ctx.guild is not None
+        assert user_id is not None
 
-        if not user_id:
-            await ctx.send("You forgot to tell me which user to unblacklist!")
-            return
+        u_id = get_mention(ctx, user_id)
 
-        user_id = get_mention(ctx, user_id)
-
-        if not user_id:
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
-        if not self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
+        if not await self.gwensub_service.select_blacklist_by_ids(
+            user_id=u_id, server_id=ctx.guild.id
+        ):
             await ctx.send("User is not Blacklisted.")
-            return
-
-        was_removed = self.gwensub_handler.remove_blacklist_by_ids(
-            user_id, ctx.guild.id
-        )
-
-        if not was_removed:
-            await ctx.send(
-                "User was blacklisted by the bot's owner and cannot be removed."
-            )
             return
 
         await ctx.send("User successfully removed from the Blacklist.")
@@ -236,25 +215,26 @@ class GwensubCog(commands.Cog):
     ) -> None:
         """Command to check if a user is blacklisted. +checkbl id[optional]"""
 
-        if ctx.guild is None:
-            await ctx.send("Command must be used in a server.")
-            return
+        assert ctx.guild is not None
 
         if user_id is None:
-            user_context = context(ctx)
-            if self.gwensub_handler.fetch_blacklist(user_context):
+            if await self.gwensub_service.select_blacklist_by_ids(
+                user_id=ctx.author.id, server_id=ctx.guild.id
+            ):
                 await ctx.send("You are Blacklisted.")
                 return
             await ctx.send("You are not Blacklisted.")
             return
 
-        user_id = get_mention(ctx, user_id)
+        u_id = get_mention(ctx, user_id)
 
-        if not user_id:
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
-        if self.gwensub_handler.fetch_blacklist_by_ids(user_id, ctx.guild.id):
+        if await self.gwensub_service.select_blacklist_by_ids(
+            user_id=u_id, server_id=ctx.guild.id
+        ):
             await ctx.send("User is Blacklisted.")
             return
 
@@ -290,3 +270,6 @@ class GwensubCog(commands.Cog):
             )
 
             await ctx.send("Gwen ran into some issues whilst performing this command!")
+
+    def cog_check(self, ctx: commands.Context[Any]) -> bool:
+        return ctx.guild is not None

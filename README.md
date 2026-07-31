@@ -8,7 +8,16 @@ The main commands are:<br>
 3. `gwenseek` - Uses the Deepseek API to give Gwen themed AI responses.
 
 ## Installation
+### Discord Setup
 Add your discord bot token as an environment variable called `TOKEN` <br>
 Add your deepseek token as an Environment Variable called `DEEPSEEK_TOKEN`<br>
-Add your discord user ID as an environment variable called `OWNER_ID`<br><br>
+Add your discord user ID as an environment variable called `OWNER_ID`<br>
+### Database Setup
+Currently, only mysql is supported.<br><br>
+Add your database service username as an environment variable called `DB_USER` <br>
+Add your database password as an environment variable called `DB_PASS` <br>
+Add your dtabase host FQDN or IP as an environment variable called `DB_HOST` <br>
+Add your database port as an environment variable called `DB_PORT` <br>
+Add your database name as an environment variable called `DB_NAME` <br>
+### Usage
 Clone this repo, then either run `main.py` directly or install via pip. If installed via pip, you can use the `gwenbot-init` command to start the bot.

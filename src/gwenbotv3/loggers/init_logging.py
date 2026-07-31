@@ -29,18 +29,28 @@ def init_logging(log_dir: Path) -> None:
     ) -> None:
 
         if exc_type is None:
-            logger.exception("Uncaught exception with no exc_type: ")
+            logger.error(
+                "Uncaught exception with no exc_type, <value=%s> <traceback=%s>",
+                exc_value,
+                exc_traceback,
+            )
             return
 
         if exc_value is None:
-            logger.exception("Uncaught exception with no exc_value: ")
+            logger.error(
+                "Uncaught exception with no exc_value, <type=%s> <traceback=%s> ",
+                exc_type,
+                exc_traceback,
+            )
             return
 
         if issubclass(exc_type, KeyboardInterrupt):
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
 
-        logger.exception("Uncaught exception: ")
+        logger.error(
+            "Uncaught exception: ", exc_info=(exc_type, exc_value, exc_traceback)
+        )
 
     sys.excepthook = handle_exception
     logger.info("Set up exception logging.")

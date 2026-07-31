@@ -11,7 +11,7 @@ from gwenbotv3.bot.exceptions import (
 )
 from gwenbotv3.bot.models import Champion
 from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
-from gwenbotv3.utils.request import FailedRequest
+from gwenbotv3.utils.request import FailedRequestError
 
 
 class WinrateCog(commands.Cog):
@@ -28,10 +28,6 @@ class WinrateCog(commands.Cog):
             "diamond_plus": "D+",
             "master_plus": "M+",
         }
-
-        self.current_patch = ".".join(
-            self.winrate_fetcher.patch_version.split(".")[:-1]
-        )
 
     @commands.command(aliases=["winrate"])
     async def wr(
@@ -58,7 +54,7 @@ class WinrateCog(commands.Cog):
 
         try:
             result = self.winrate_fetcher.get_stats(champ, args)
-        except FailedRequest as e:
+        except FailedRequestError as e:
             await ctx.send(
                 "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
             )
@@ -72,7 +68,7 @@ class WinrateCog(commands.Cog):
         except WinrateNotFoundException:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst fetching"
-                + " the winrate! Are you sure that there's enough matches played?"
+                " the winrate! Are you sure that there's enough matches played?"
             )
             self.logger.critical(
                 "Unable to fetch winrate for champ=%s, args=%s, channel=%s",
@@ -84,7 +80,7 @@ class WinrateCog(commands.Cog):
         except StatsNotFoundException:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst"
-                + " fetching the winrate!"
+                " fetching the winrate!"
             )
             self.logger.critical(
                 "Unable to fetch stats for champ=%s, args=%s, channel=%s",
@@ -96,7 +92,7 @@ class WinrateCog(commands.Cog):
         except ChampionNotFoundException:
             await ctx.send(
                 "Gwen was unable to find your specified champion... Please check +list "
-                + "for a list of all accepted champion names!"
+                "for a list of all accepted champion names!"
             )
             return
 
@@ -107,14 +103,14 @@ class WinrateCog(commands.Cog):
                 if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
                     await ctx.send(
                         "Gwen can only gets stats for the past 5 patches! The current "
-                        + "patch is {self.current_patch}."
+                        "patch is {self.current_patch}."
                     )
                     return
             except ValueError:
                 if champ.patch and (int(champ.patch[-1:]) < int(minor_patch) - 5):
                     await ctx.send(
                         "Gwen can only gets stats for the past 5 patches! The current "
-                        + "patch is {self.current_patch}."
+                        "patch is {self.current_patch}."
                     )
                     return
 
@@ -143,4 +139,4 @@ class WinrateCog(commands.Cog):
     @commands.command(aliases=["checkver", "patch"])
     async def version(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the current league patch."""
-        await ctx.send(f"Currently on league patch {self.current_patch}.")
+        await ctx.send(f"Currently on league patch {self.winrate_fetcher.patch}.")

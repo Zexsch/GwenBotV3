@@ -2,7 +2,7 @@
 
 import logging
 import sys
-from typing import Any
+from typing import Any, Self
 
 import discord
 from discord.ext import commands
@@ -12,10 +12,11 @@ from gwenbotv3.config import (
     OWNER_ID,
     PREFIX,
 )
+from gwenbotv3.exceptions import ServerIdNotGivenError, UserIdOrNameNotGivenError
+from gwenbotv3.services import DatabaseService, ServerService, UserService
+
 
 # pylint: disable=arguments-differ
-
-
 class App(commands.Bot):
     """The app itself. This will run all cogs and handle generic discord errors."""
 
@@ -32,8 +33,16 @@ class App(commands.Bot):
 
         self.logger = logging.getLogger(__name__)
         self.winrate_fetcher = WinrateFetcher()
+        self.user_service = UserService()
+        self.server_service = ServerService()
+        self.database_service = DatabaseService()
 
     async def setup_hook(self) -> None:
+        self.before_invoke(self.dispatch_before_hooks)
+        self.after_invoke(self.after_hook)
+
+        await self.database_service.purge_stale_users()
+
         from gwenbotv3.bot.cogs import (
             CommandsCog,
             DeepseekCog,
@@ -72,10 +81,15 @@ class App(commands.Bot):
         )
 
     async def _command_errors(
-        self, ctx: commands.Context[Any], error: commands.CommandError
+        self, ctx: commands.Context[Self], error: commands.CommandError
     ) -> None:
+        """Check if an error is related to specific command errors."""
         if isinstance(error, commands.CommandNotFound):
             self.logger.debug("Command not found: %s", ctx.message.content)
+            return
+
+        if isinstance(error, commands.NoPrivateMessage):
+            await ctx.reply("Command must be used in a server!")
             return
 
         if isinstance(error, commands.MissingRequiredArgument):
@@ -91,8 +105,9 @@ class App(commands.Bot):
             return
 
     async def _permission_errors(
-        self, ctx: commands.Context[Any], error: commands.CommandError
+        self, ctx: commands.Context[Self], error: commands.CommandError
     ) -> None:
+        """Check if an error is related to permissions."""
         if isinstance(error, commands.MissingPermissions):
             await ctx.reply(
                 "Unfortunately, you do not have the permissions to do this!"
@@ -102,7 +117,7 @@ class App(commands.Bot):
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.reply(
                 "Oh no! Seems like gwen doesn't have the following neccesary "
-                + f"permissions: {', '.join(error.missing_permissions)}"
+                f"permissions: {', '.join(error.missing_permissions)}"
             )
             return
 
@@ -135,3 +150,70 @@ class App(commands.Bot):
             exc_info=error,
         )
         await ctx.reply("Oh no! Gwen ran into some issues when running this command...")
+
+    async def dispatch_before_hooks(self, ctx: commands.Context[Self]) -> None:
+        """Before hooks run before commands get executed.
+
+        This function will cause the ``before_hook_servers`` and ``before_hook_users``
+        hooks to run before every command.
+        """
+        await self.before_hook_servers(ctx)
+        await self.before_hook_users(ctx)
+
+    async def before_hook_servers(self, ctx: commands.Context[Self]) -> None:
+        """Before hook for servers.
+
+        See ``before_hook_users`` for more information.
+        """
+        if not ctx.guild:
+            return
+
+        try:
+            await self.server_service.insert_server(
+                server_id=ctx.guild.id,
+                owner_id=ctx.guild.owner_id,
+                member_count=ctx.guild.member_count,
+            )
+        except ServerIdNotGivenError as exc:
+            self.logger.exception(
+                "Server ID was not given in before_hook. Context: %s", ctx
+            )
+            raise commands.CommandError(str(exc)) from exc
+        except Exception as exc:
+            self.logger.exception("Uncaught exception in before_hook. Context: %s", ctx)
+            raise commands.CommandError(str(exc)) from exc
+
+    async def before_hook_users(self, ctx: commands.Context[Self]) -> None:
+        """Before hook for users.
+
+        Adds user to the db with every command call
+        This could be done on a cog level basis, but easier to have it here
+        Triggers on_error or on_command_error if failed,
+        and doesn't allow further execution
+        Necessary because a lot of the db commands rely on a user being in the db
+        But having coupling the services together isn't a good idea,
+        nor is it a good idea to have to manually add users in every command
+        """
+
+        if ctx.author is None:
+            return  # type: ignore[unreachable] # Better to have than not
+
+        try:
+            await self.user_service.insert_user(ctx.author.id, ctx.author.name)
+        except UserIdOrNameNotGivenError as exc:
+            self.logger.exception(
+                "User ID or name was not given in before_hook. Context: %s", ctx
+            )
+            raise commands.CommandError(str(exc)) from exc
+        except Exception as exc:
+            self.logger.exception("Uncaught exception in before_hook. Context: %s", ctx)
+            raise commands.CommandError(str(exc)) from exc
+
+    async def after_hook(self, ctx: commands.Context[Self]) -> None:
+        """Logs commands used."""
+        if ctx.command_failed:
+            return
+
+        self.logger.debug(
+            "Invoked command <%s> by user <%s>", ctx.command, ctx.author.id
+        )

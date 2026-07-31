@@ -5,6 +5,7 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 
+# pylint: disable=too-few-public-methods
 class _LevelEqualsFilter(logging.Filter):
     def __init__(self, level: int):
         super().__init__()
@@ -28,7 +29,7 @@ def setup_logging(log_dir: Path, logger_name: str | None = None) -> logging.Logg
 
     log_format = (
         "%(asctime)s | %(levelname)-8s | %(name)s | "
-        + "%(module)s:%(funcName)s:%(lineno)d | %(message)s"
+        "%(module)s:%(funcName)s:%(lineno)d | %(message)s"
     )
 
     formatter = logging.Formatter(

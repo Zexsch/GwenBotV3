@@ -1,12 +1,8 @@
-"""Anything to do with the database.
+"""Helpers for the database.
 
-database.db stores the actual sqlite3 database.
-database.handlers has the necessary classes to interact with the database."""
+See ``.models`` for the SQLAlchemy table models.
+See ``gwenbotv3.services`` for implementations."""
 
-from ._models import Server, User, UserContext, connect
+from .connector import connect
 
-# ruff: noqa: F403
-# I'm not importing all this shit and adding it to all manually
-from .handlers import *
-
-__all__ = ["Server", "User", "UserContext", "connect"]
+__all__ = ["connect"]

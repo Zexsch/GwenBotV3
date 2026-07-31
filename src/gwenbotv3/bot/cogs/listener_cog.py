@@ -8,10 +8,8 @@ from discord.channel import TextChannel
 from discord.ext import commands
 
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
-from gwenbotv3.database import GwenSubHandler, SymbolHandler, UserContext
-from gwenbotv3.database.get_context import context
-from gwenbotv3.database.handlers.server_handler import ServerHandler
-from gwenbotv3.database.handlers.user_handler import UserHandler
+from gwenbotv3.database.models import SymbolCounter
+from gwenbotv3.services import GwensubService, ServerService, SymbolService
 
 
 class ListenerCog(commands.Cog):
@@ -19,86 +17,92 @@ class ListenerCog(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.symbol_handler = SymbolHandler()
-        self.gwensub_handler = GwenSubHandler()
-        self.server_handler = ServerHandler()
-        self.user_handler = UserHandler()
+        self.symbol_service = SymbolService()
+        self.gwensub_service = GwensubService()
+        self.server_service = ServerService()
         self.logger = logging.getLogger(__name__)
 
-    async def _symbol_check(self, ctx: UserContext, msg: discord.Message) -> None:
+    async def _strict_check(self, msg: discord.Message, counter: SymbolCounter) -> str:
+        # ruff: noqa: RUF001 # For weird symbols
+        base_message = (
+            f"<@{counter.creating_user}> Somebody did a little fucky wuckie >.<!! "
+            "A small oopsie woopsie uwu! Someone dared ruin the ? chain nya~!!! "
+            f"<@{msg.author.id}> what have you done!! (⁄ ⁄•⁄ω⁄•⁄ ⁄) "
+        )
+
+        if "@" not in msg.content:
+            self.logger.debug(
+                "User %s sent a non-question mark in counter for server=%s",
+                msg.author.id,
+                counter.server_id,
+            )
+
+            return (
+                base_message
+                + f'They dared send "{msg.content}" in our holy channel nya!'
+            )
+
+        if "@" in msg.content:
+            self.logger.warning(
+                "User %s sent a mention in counter for server=%s",
+                msg.author.id,
+                counter.server_id,
+            )
+
+            return base_message + 'They dared use an "@" in our holy channel nya!'
+
+        if msg.author.id == counter.latest_user:
+            self.logger.debug(
+                "User %s sent two messages in a row in server=%s",
+                msg.author.id,
+                counter.server_id,
+            )
+            return (
+                base_message
+                + "They dared send two messages in a row in our holy channel nya!"
+            )
+
+        raise NotImplementedError
+
+    async def _symbol_check(self, msg: discord.Message) -> None:
         """Checks if the message sent is in the symbol counter and if it's the symbol.
 
         Args:
             ctx (UserContext): UserContext object.
             msg (discord.Message): discord.Message object.
         """
-
-        channel = self.symbol_handler.fetch_channel(ctx)
-
-        if not channel:
+        if msg.guild is None:
             return
 
-        if channel != msg.channel.id:
-            return
-
-        symbol = self.symbol_handler.fetch_symbol(ctx)
-        latest_user = self.symbol_handler.fetch_latest_user(ctx)
-
-        if ctx.message == symbol and latest_user.id != msg.author.id:
-            self.symbol_handler.update(ctx)
-            return
-
-        creating_user = self.symbol_handler.fetch_creating_user(ctx)
-
-        # ruff: noqa: RUF001
-        base_message = (
-            f"<@{creating_user}> Somebody did a little fucky wuckie >.<!! "
-            "A small oopsie woopsie uwu! Someone dared ruin the ? chain nya~!!! "
-            f"<@{msg.author.id}> what have you done!! (⁄ ⁄•⁄ω⁄•⁄ ⁄) "
+        counter = await self.symbol_service.select_counter_by_ids(
+            server_id=msg.guild.id
         )
 
-        default_channel_id = self.symbol_handler.fetch_channel(ctx)
-        default_channel = self.bot.get_channel(default_channel_id)
-
-        if not isinstance(default_channel, TextChannel):
+        if not counter:
             return
 
-        if "@" not in msg.content:
-            self.logger.debug(
-                "User %s sent a non-question mark in counter for server=%s",
-                ctx.user,
-                ctx.server.id,
-            )
+        if counter.channel_id != msg.channel.id:
+            return
 
-            await default_channel.send(
-                base_message
-                + f'They dared send "{msg.content}" in our holy channel nya!'
+        if msg.content == counter.symbol and msg.author.id != counter.latest_user:
+            await self.symbol_service.update_counters(
+                server_id=msg.guild.id, user_id=msg.author.id
             )
             return
 
-        if "@" in msg.content:
-            self.logger.warning(
-                "User %s sent a mention in counter for server=%s",
-                ctx.user,
-                ctx.server.id,
-            )
-
-            await default_channel.send(
-                base_message + 'They dared use an "@" in our holy channel nya!'
-            )
+        if not counter.strict:
             return
 
-        if msg.author.id == latest_user.id:
-            self.logger.debug(
-                "User %s sent two messages in a row in server=%s",
-                ctx.user,
-                ctx.server.id,
-            )
-            await default_channel.send(
-                base_message
-                + "They dared send two messages in a row in our holy channel nya!"
-            )
+        if not counter.strict_channel:
             return
+
+        message = await self._strict_check(msg=msg, counter=counter)
+        reply_channel = self.bot.get_channel(counter.strict_channel)
+
+        if not isinstance(reply_channel, TextChannel):
+            return
+
+        await reply_channel.send(message)
 
     async def _sendshit(self, msg: discord.Message) -> None:
         """Make the bot send any message. Only usable by bot owner.
@@ -136,33 +140,35 @@ class ListenerCog(commands.Cog):
 
         await channel.send(res)
 
-    async def _gwen_check(self, ctx: UserContext, msg: discord.Message) -> None:
+    async def _gwen_server_check(self, server_id: int) -> bool:
+        server = await self.server_service.select_server(server_id=server_id)
+
+        if not server:
+            return False
+
+        return not server.quote
+
+    async def _gwen_check(self, msg: discord.Message) -> None:
         """Checks if ``gwen`` or ``gw3n`` is in the message.
 
         Args:
             ctx (UserContext): UserContext object.
             msg (discord.Message): discord.Message object.
         """
-        if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
-            return
+        assert msg.guild is not None
 
         if not msg.content:
             return
 
-        server_prefix = self.server_handler.fetch_prefix(ctx)
-
-        if msg.content[0] == server_prefix:
+        if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
             return
 
-        if not self.user_handler.fetch_user_by_id(msg.author.id):
+        if not await self._gwen_server_check(server_id=msg.guild.id):
             return
 
-        if not self.gwensub_handler.fetch_sub(ctx):
-            return
-
-        server = self.server_handler.fetch_server(msg)
-
-        if server.quote:
+        if not await self.gwensub_service.select_sub_by_ids(
+            user_id=msg.author.id, server_id=msg.guild.id
+        ):
             return
 
         if "gw3n" in msg.content.lower():
@@ -183,14 +189,12 @@ class ListenerCog(commands.Cog):
 
         Add all on_message listeners in here, as the bot can only have one.
         """
-        if msg.guild is None:
+        if not msg.guild:
             return
 
         if msg.author == self.bot.user:
             return
 
-        user_context = context(msg)
-
-        await self._symbol_check(user_context, msg)
+        await self._symbol_check(msg)
         await self._sendshit(msg)
-        await self._gwen_check(user_context, msg)
+        await self._gwen_check(msg)
