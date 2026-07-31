@@ -1,6 +1,6 @@
 """Hardcoded values for the winrate fetcher."""
 
-alternative_elos: dict[str, list[str]] = {
+_ALTERNATIVE_ELOS: dict[str, list[str]] = {
     "platinum_plus": ["platplus", "plat+", "platinumplus"],
     "diamond_2_plus": [
         "d2+",
@@ -24,7 +24,7 @@ alternative_elos: dict[str, list[str]] = {
     "emerald_plus": ["eme+", "emerald+", "emeplus", "emeraldplus"],
 }
 
-alternative_champions: dict[str, list[str]] = {
+_ALTERNATIVE_CHAMPIONS: dict[str, list[str]] = {
     "monkeyking": ["wukong"],
     "drmundo": ["mundo"],
     "kogmaw": ["kog'maw"],
@@ -40,7 +40,7 @@ alternative_champions: dict[str, list[str]] = {
     "leesin": ["lee"],
 }
 
-alternative_roles: dict[str, list[str]] = {
+_ALTERNATIVE_ROLES: dict[str, list[str]] = {
     "support": ["sup", "supp", "s"],
     "adc": ["bot", "bottom", "b"],
     "mid": ["midlane", "m"],
@@ -48,7 +48,7 @@ alternative_roles: dict[str, list[str]] = {
     "top": ["toplane", "t"],
 }
 
-elo_list: list[str] = [
+ELO_LIST: list[str] = [
     "overall",
     "challenger",
     "master",
@@ -67,16 +67,16 @@ elo_list: list[str] = [
     "",
 ]
 
-elo_lookup: dict[str, str] = {
-    alt: key for key, values in alternative_elos.items() for alt in values
+ELO_LOOKUP: dict[str, str] = {
+    alt: key for key, values in _ALTERNATIVE_ELOS.items() for alt in values
 }
 
-champion_lookup: dict[str, str] = {
-    alt: key for key, values in alternative_champions.items() for alt in values
+CHAMPION_LOOKUP: dict[str, str] = {
+    alt: key for key, values in _ALTERNATIVE_CHAMPIONS.items() for alt in values
 }
 
-role_lookup: dict[str, str] = {
-    alt: key for key, values in alternative_roles.items() for alt in values
+ROLE_LOOKUP: dict[str, str] = {
+    alt: key for key, values in _ALTERNATIVE_ROLES.items() for alt in values
 }
 
-role_list: list[str] = ["top", "jungle", "mid", "adc", "support"]
+ROLE_LIST: list[str] = ["top", "jungle", "mid", "adc", "support"]

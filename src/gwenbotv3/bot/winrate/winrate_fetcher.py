@@ -7,11 +7,11 @@ from bs4 import BeautifulSoup
 
 from gwenbotv3.bot.winrate.models import Champion, Result
 from gwenbotv3.config.winrate_values import (
-    champion_lookup,
-    elo_list,
-    elo_lookup,
-    role_list,
-    role_lookup,
+    CHAMPION_LOOKUP,
+    ELO_LIST,
+    ELO_LOOKUP,
+    ROLE_LIST,
+    ROLE_LOOKUP,
 )
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
@@ -77,13 +77,13 @@ class WinrateFetcher:
         return patch
 
     def _alternative_elo_check(self, elo: str) -> str:
-        return elo_lookup.get(elo, elo)
+        return ELO_LOOKUP.get(elo, elo)
 
     def _alternate_champion_check(self, name: str) -> str:
-        return champion_lookup.get(name, name)
+        return CHAMPION_LOOKUP.get(name, name)
 
     def _alternative_role_check(self, lane: str) -> str:
-        return role_lookup.get(lane, lane)
+        return ROLE_LOOKUP.get(lane, lane)
 
     def _check_patch(self, patch: str) -> str:
         """Checks if an argument is a valid patch.
@@ -384,7 +384,7 @@ class WinrateFetcher:
                 continue
 
             arg = self._alternative_role_check(arg)
-            if arg in role_list:
+            if arg in ROLE_LIST:
                 champ.role = arg
                 continue
 
@@ -393,7 +393,7 @@ class WinrateFetcher:
                 continue
 
             arg = self._alternative_elo_check(arg)
-            if arg in elo_list:
+            if arg in ELO_LIST:
                 champ.elo = arg
 
         if not champ.opponent:
