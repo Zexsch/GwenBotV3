@@ -4,13 +4,13 @@ import logging
 
 from discord.ext import commands
 
-from gwenbotv3.bot.exceptions import (
-    ChampionNotFoundException,
-    StatsNotFoundException,
-    WinrateNotFoundException,
-)
 from gwenbotv3.bot.models import Champion
 from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
+from gwenbotv3.exceptions import (
+    ChampionNotFoundError,
+    StatsNotFoundError,
+    WinrateNotFoundError,
+)
 from gwenbotv3.utils.request import FailedRequestError
 
 
@@ -65,7 +65,7 @@ class WinrateCog(commands.Cog):
                 e,
             )
             return
-        except WinrateNotFoundException:
+        except WinrateNotFoundError:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst fetching"
                 " the winrate! Are you sure that there's enough matches played?"
@@ -77,7 +77,7 @@ class WinrateCog(commands.Cog):
                 ctx.channel.id,
             )
             return
-        except StatsNotFoundException:
+        except StatsNotFoundError:
             await ctx.send(
                 "Oh no! Seems like Gwen ran into some issues whilst"
                 " fetching the winrate!"
@@ -89,7 +89,7 @@ class WinrateCog(commands.Cog):
                 ctx.channel.id,
             )
             return
-        except ChampionNotFoundException:
+        except ChampionNotFoundError:
             await ctx.send(
                 "Gwen was unable to find your specified champion... Please check +list "
                 "for a list of all accepted champion names!"

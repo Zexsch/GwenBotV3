@@ -23,13 +23,21 @@ from ._services import (
     UserNotFoundError,
     UserNotSubscribedError,
 )
+from .bot import (
+    ChampionNotFoundError,
+    StatsNotFoundError,
+    WinrateError,
+    WinrateNotFoundError,
+)
 
 __all__ = [
+    "ChampionNotFoundError",
     "GwenseekError",
     "LimitTooLargeError",
     "ServerError",
     "ServerIdNotGivenError",
     "ServerNotFoundError",
+    "StatsNotFoundError",
     "StrictnessAlreadySetError",
     "SymbolAlreadySetupError",
     "SymbolError",
@@ -44,4 +52,6 @@ __all__ = [
     "UserNotBlacklistedError",
     "UserNotFoundError",
     "UserNotSubscribedError",
+    "WinrateError",
+    "WinrateNotFoundError",
 ]

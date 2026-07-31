@@ -5,12 +5,12 @@ import logging
 
 from bs4 import BeautifulSoup
 
-from gwenbotv3.bot.exceptions import (
-    ChampionNotFoundException,
-    StatsNotFoundException,
-    WinrateNotFoundException,
-)
 from gwenbotv3.bot.models import Champion, Result
+from gwenbotv3.exceptions import (
+    ChampionNotFoundError,
+    StatsNotFoundError,
+    WinrateNotFoundError,
+)
 from gwenbotv3.utils.request import request
 
 
@@ -262,7 +262,7 @@ class WinrateFetcher:
                 text = element.get_text(strip=True)
                 if "%" in text and any(char.isdigit() for char in text):
                     return text
-        raise WinrateNotFoundException()
+        raise WinrateNotFoundError()
 
     def _get_match_count(self, soup: BeautifulSoup, with_opponent: bool) -> str | None:
         """Returns the match count of the u.gg lookup.
@@ -417,7 +417,7 @@ class WinrateFetcher:
             match_count = "Unknown"
 
         if not champ.opponent:
-            raise StatsNotFoundException(champ=champ)
+            raise StatsNotFoundError()
 
         return Result(
             champ=champ,
@@ -450,7 +450,7 @@ class WinrateFetcher:
         champ.name = self._alternate_champion_check(champ.name)
 
         if champ.name not in self.all_champions:
-            raise ChampionNotFoundException(name=champ.name)
+            raise ChampionNotFoundError()
 
         for arg in args:
             arg = arg.lower()
