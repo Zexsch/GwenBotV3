@@ -78,7 +78,7 @@ class Blacklist(Base):
     )
 
     blacklist_id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.user_id"))
+    user_id: Mapped[int] = mapped_column(BigInteger)
     server_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("servers.server_id"))
     by_owner: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -88,7 +88,6 @@ class Blacklist(Base):
         nullable=False,
     )
 
-    user_ref: Mapped[Users] = relationship(back_populates="blacklist_entries")
     server_ref: Mapped[Servers] = relationship(back_populates="blacklist_entries")
 
     def __repr__(self) -> str:

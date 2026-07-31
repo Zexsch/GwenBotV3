@@ -12,7 +12,7 @@ from gwenbotv3.database.base import Base
 
 if TYPE_CHECKING:
     from gwenbotv3.database.models.gwenseek import Gwenseek
-    from gwenbotv3.database.models.gwensub import Blacklist, Subs
+    from gwenbotv3.database.models.gwensub import Subs
     from gwenbotv3.database.models.symbols import SymbolUser
 
 
@@ -55,9 +55,6 @@ class Users(Base):
     gwenseek_entries: Mapped[list["Gwenseek"]] = relationship(back_populates="user_ref")
     symbol_counts: Mapped[list["SymbolUser"]] = relationship(back_populates="user_ref")
     subs: Mapped[list["Subs"]] = relationship(back_populates="user_ref")
-    blacklist_entries: Mapped[list["Blacklist"]] = relationship(
-        back_populates="user_ref"
-    )
 
     # Funcs
     @property
