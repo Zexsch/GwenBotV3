@@ -5,7 +5,14 @@ import logging
 
 from bs4 import BeautifulSoup
 
-from gwenbotv3.bot.models import Champion, Result
+from gwenbotv3.bot.winrate.models import Champion, Result
+from gwenbotv3.config.winrate_values import (
+    champion_lookup,
+    elo_list,
+    elo_lookup,
+    role_list,
+    role_lookup,
+)
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
     StatsNotFoundError,
@@ -18,97 +25,13 @@ class WinrateFetcher:
     """Used to get winrates"""
 
     def __init__(self) -> None:
-
         self.logger = logging.getLogger(__name__)
-
-        self.alternative_elos: dict[str, list[str]] = {
-            "platinum_plus": ["platplus", "plat+", "platinumplus"],
-            "diamond_2_plus": [
-                "d2+",
-                "d2",
-                "d2plus",
-                "diamond2",
-                "diamond2plus",
-                "diamond2+",
-                "diamond_2plus",
-                "diamond_2+",
-            ],
-            "diamond_plus": ["d+", "dplus", "diamondplus"],
-            "master_plus": [
-                "m+",
-                "master+",
-                "masterplus",
-                "masters",
-                "masters+",
-                "mastersplus",
-            ],
-            "emerald_plus": ["eme+", "emerald+", "emeplus", "emeraldplus"],
-        }
-
-        self.alternative_champions: dict[str, list[str]] = {
-            "monkeyking": ["wukong"],
-            "drmundo": ["mundo"],
-            "kogmaw": ["kog'maw"],
-            "jarvaniv": ["jarvan", "j4"],
-            "khazix": ["kha'zix"],
-            "ksante": ["k'sante"],
-            "masteryi": ["yi"],
-            "aatrox": ["emo"],
-            "tahmkench": ["tahm"],
-            "twistedfate": ["tf"],
-            "xinzhao": ["xin"],
-            "aurelionsol": ["asol"],
-            "leesin": ["lee"],
-        }
-
-        self.alternative_roles: dict[str, list[str]] = {
-            "support": ["sup", "supp", "s"],
-            "adc": ["bot", "bottom", "b"],
-            "mid": ["midlane", "m"],
-            "jungle": ["jgl", "j"],
-            "top": ["toplane", "t"],
-        }
-
-        self.elo_list: list[str] = [
-            "overall",
-            "challenger",
-            "master",
-            "grandmaster",
-            "diamond",
-            "platinum",
-            "emerald",
-            "gold",
-            "silver",
-            "bronze",
-            "iron",
-            "diamond_2_plus",
-            "master_plus",
-            "diamond_plus",
-            "platinum_plus",
-            "",
-        ]
-
-        self._elo_lookup: dict[str, str] = {
-            alt: key for key, values in self.alternative_elos.items() for alt in values
-        }
-
-        self._champion_lookup: dict[str, str] = {
-            alt: key
-            for key, values in self.alternative_champions.items()
-            for alt in values
-        }
-
-        self._role_lookup: dict[str, str] = {
-            alt: key for key, values in self.alternative_roles.items() for alt in values
-        }
 
         self.patch_version: str = self._get_current_patch()
         self.patch_major_version = self.patch_version.split(".")[0]
         self.patch_minor_version: str = self.patch_version.split(".")[1]
 
         self.all_champions: list[str] = self._get_champion_list()
-
-        self.role_list: list[str] = ["top", "jungle", "mid", "adc", "support"]
 
         self.ugg_div_values: list[str] = [
             "shinggo",
@@ -154,13 +77,13 @@ class WinrateFetcher:
         return patch
 
     def _alternative_elo_check(self, elo: str) -> str:
-        return self._elo_lookup.get(elo, elo)
+        return elo_lookup.get(elo, elo)
 
     def _alternate_champion_check(self, name: str) -> str:
-        return self._champion_lookup.get(name, name)
+        return champion_lookup.get(name, name)
 
     def _alternative_role_check(self, lane: str) -> str:
-        return self._role_lookup.get(lane, lane)
+        return role_lookup.get(lane, lane)
 
     def _check_patch(self, patch: str) -> str:
         """Checks if an argument is a valid patch.
@@ -461,7 +384,7 @@ class WinrateFetcher:
                 continue
 
             arg = self._alternative_role_check(arg)
-            if arg in self.role_list:
+            if arg in role_list:
                 champ.role = arg
                 continue
 
@@ -470,7 +393,7 @@ class WinrateFetcher:
                 continue
 
             arg = self._alternative_elo_check(arg)
-            if arg in self.elo_list:
+            if arg in elo_list:
                 champ.elo = arg
 
         if not champ.opponent:

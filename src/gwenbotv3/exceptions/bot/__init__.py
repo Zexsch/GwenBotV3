@@ -1,3 +1,5 @@
+"""Exceptions for bot modules."""
+
 from .winrate_fetcher import (
     ChampionNotFoundError,
     StatsNotFoundError,

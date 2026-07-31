@@ -7,7 +7,7 @@ from typing import Any, Self
 import discord
 from discord.ext import commands
 
-from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
+from gwenbotv3.bot.winrate import WinrateFetcher
 from gwenbotv3.config import (
     OWNER_ID,
     PREFIX,

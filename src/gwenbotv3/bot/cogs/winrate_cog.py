@@ -4,8 +4,7 @@ import logging
 
 from discord.ext import commands
 
-from gwenbotv3.bot.models import Champion
-from gwenbotv3.bot.winrate_fetcher import WinrateFetcher
+from gwenbotv3.bot.winrate import Champion, WinrateFetcher
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
     StatsNotFoundError,
