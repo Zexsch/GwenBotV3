@@ -13,6 +13,7 @@ Add your discord bot token as an environment variable called `TOKEN` <br>
 Add your deepseek token as an Environment Variable called `DEEPSEEK_TOKEN`<br>
 Add your discord user ID as an environment variable called `OWNER_ID`<br>
 ### Database Setup
+Currently, only mysql is supported.<br><br>
 Add your database service username as an environment variable called `DB_USER` <br>
 Add your database password as an environment variable called `DB_PASS` <br>
 Add your dtabase host FQDN or IP as an environment variable called `DB_HOST` <br>
