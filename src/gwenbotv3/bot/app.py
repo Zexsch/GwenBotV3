@@ -80,65 +80,48 @@ class App(commands.Bot):
             exc_info=sys.exc_info(),
         )
 
-    async def _command_errors(
-        self, ctx: commands.Context[Self], error: commands.CommandError
-    ) -> bool:
-        """Check if an error is related to specific command errors."""
+    async def on_command_error(
+        self,
+        ctx: commands.Context[Any],
+        error: commands.CommandError,
+    ) -> None:
+        # pylint: disable=too-many-return-statements
+        if hasattr(ctx.command, "on_error"):
+            return
+
+        error = getattr(error, "original", error)
+
         if isinstance(error, commands.CommandNotFound):
             self.logger.debug("Command not found: %s", ctx.message.content)
-            return True
+            return
 
         if isinstance(error, commands.NoPrivateMessage):
             await ctx.reply("Command must be used in a server!")
-            return True
+            return
 
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.reply(
                 f"You're missing some arguments! Here's some help: `{error.param.name}`"
             )
-            return True
+            return
 
         if isinstance(error, commands.BadArgument):
             await ctx.reply(
                 f"Oh no! One of your arguments was wrong. Here's some help: {error}"
             )
-            return True
+            return
 
-        return False
-
-    async def _permission_errors(
-        self, ctx: commands.Context[Self], error: commands.CommandError
-    ) -> bool:
-        """Check if an error is related to permissions."""
         if isinstance(error, commands.MissingPermissions):
             await ctx.reply(
                 "Unfortunately, you do not have the permissions to do this!"
             )
-            return True
+            return
 
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.reply(
                 "Oh no! Seems like gwen doesn't have the following neccesary "
                 f"permissions: {', '.join(error.missing_permissions)}"
             )
-            return True
-
-        return False
-
-    async def on_command_error(
-        self,
-        ctx: commands.Context[Any],
-        error: commands.CommandError,
-    ) -> None:
-        if hasattr(ctx.command, "on_error"):
-            return
-
-        error = getattr(error, "original", error)
-
-        check1 = await self._command_errors(ctx, error)
-        check2 = await self._permission_errors(ctx, error)
-
-        if any([check1, check2]):
             return
 
         if isinstance(error, commands.CommandOnCooldown):
@@ -152,10 +135,11 @@ class App(commands.Bot):
         self.logger.error(
             "Unhandled exception in command '%s' (invoked by %s in #%s)",
             ctx.command,
-            ctx.author,
+            ctx.author.id,
             ctx.channel,
             exc_info=error,
         )
+
         await ctx.reply("Oh no! Gwen ran into some issues when running this command...")
 
     async def dispatch_before_hooks(self, ctx: commands.Context[Self]) -> None:
