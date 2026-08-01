@@ -240,6 +240,7 @@ class HelpCog(commands.Cog):
 
     @commands.command()
     async def counterhelp(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Sends the counter help message."""
         user: discord.Member | discord.User = ctx.message.author
         embed = await self._get_counter_embed()
 

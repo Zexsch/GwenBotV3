@@ -183,7 +183,8 @@ class ListenerCog(commands.Cog):
             await msg.channel.send("Gwen is immune. You cannot escape.")
             return
 
-        ran_num: int = randint(0, 99)
+        # This isn't a cryptographic purpose.
+        ran_num: int = randint(0, 99)  # nosec B311
 
         if ran_num == 1:
             await msg.channel.send("Gwen is... not immune?")

@@ -77,6 +77,7 @@ exclude_lines = [
 
 [tool.bandit]
 exclude_dirs = ["tests", ".venv"]
+skips = ["B101"]
 
 [tool.vulture]
 paths = ["src/gwenbotv3"]
