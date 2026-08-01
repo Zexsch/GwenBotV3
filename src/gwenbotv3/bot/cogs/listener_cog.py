@@ -142,14 +142,6 @@ class ListenerCog(commands.Cog):
 
         await channel.send(res)
 
-    async def _gwen_server_check(self, server_id: int) -> bool:
-        server = await self.server_service.select_server(server_id=server_id)
-
-        if not server:
-            return False
-
-        return not server.quote
-
     async def _gwen_check(self, msg: discord.Message) -> None:
         """Checks if ``gwen`` or ``gw3n`` is in the message.
 
@@ -157,6 +149,7 @@ class ListenerCog(commands.Cog):
             ctx (UserContext): UserContext object.
             msg (discord.Message): discord.Message object.
         """
+        # pylint: disable=too-many-return-statements # Makes sense here
         assert msg.guild is not None
 
         if not msg.content:
@@ -165,7 +158,14 @@ class ListenerCog(commands.Cog):
         if not ("gwen" in msg.content.lower() or "gw3n" in msg.content.lower()):
             return
 
-        if not await self._gwen_server_check(server_id=msg.guild.id):
+        server = await self.server_service.select_server(server_id=msg.guild.id)
+
+        assert server is not None
+
+        if server.quote:
+            return
+
+        if msg.content.lower()[0 : len(server.prefix)] == server.prefix:
             return
 
         if not await self.gwensub_service.select_sub_by_ids(
