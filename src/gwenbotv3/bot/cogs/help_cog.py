@@ -63,12 +63,12 @@ class HelpCog(commands.Cog):
             ),
             inline=False,
         )
+        embed.add_field(name="Counter", value="See the `+counterhelp` command.")
         embed.add_field(
             name="Privacy",
             value=(
                 "[Privacy Policy](https://github.com/Zexsch/GwenBotV3/blob/main/PRIVACY.md)\n"
-                "`+anonymise (anonymize, pseudonymise)` - Pseudonymises your data. Your username is removed from Gwen's database and your interactions are deleted where possible. **Your user ID is kept so blacklists still work.**\n"
-                "`+unanonymise` - Restores username storage."
+                "See the `+privacy` command."
             ),
             inline=False,
         )
@@ -117,7 +117,7 @@ class HelpCog(commands.Cog):
 
         return embed
 
-    async def get_privacy_embed(self) -> discord.Embed:
+    async def _get_privacy_embed(self) -> discord.Embed:
         """Gets the embed for the privacy help command.
 
         Returns:
@@ -146,6 +146,65 @@ class HelpCog(commands.Cog):
         )
         return embed
 
+    async def _get_counter_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="Counter",
+            description="Format: `+command (aliases)` - description",
+            color=discord.Color.blurple(),
+        )
+        embed.add_field(
+            name="Counter",
+            value=(
+                "Server moderators can initialise a channel to start counting a symbol. "
+                "Once a channel is initialised, Gwen will count the amount of occurences "
+                "of this symbol sent in the specified channel."
+            ),
+        )
+        embed.add_field(
+            name="Commands",
+            value=(
+                "`+initialise` - See the initialise section.\n"
+                "`+strict` - See the strictness section.\n"
+                "`+recount` - Recounts the number of symbols. In long chats, this will take a while.\n"
+                "`+amount` - Tells you the amount of symbols sent.\n"
+                "`+amountu` - Tells you the amount of symbols sent by a user.\n"
+                "`+leaderboard` - See the leaderboard section."
+            ),
+        )
+        embed.add_field(
+            name="Initialise",
+            value=(
+                "# Usage\n"
+                "`+initialise` *symbol* *channel*\n\n"
+                "# Symbol\n"
+                "A symbol can be any string of characters which is at most 200 characters long.\n\n"
+                "# Channel\n"
+                "The channel to start counting in. By definition, this means that only symbols sent "
+                "in this specific channel will be counted, not server-wide.\n"
+                "You can either tag the channel directly or use an ID."
+            ),
+        )
+        embed.add_field(
+            name="Strictness",
+            value=(
+                "# Not strict\n"
+                "When the counter is set to not be strict, which is the default, Gwen will simply "
+                "ignore all instances of a counter's rules being broken.\n\n"
+                "# Rules\n"
+                "- Only the specified symbol is allowed to be sent in the chat.\n"
+                "- A user may only send one symbol in a row.\n\n"
+                "# Strict\n"
+                "When strictness is turned on, any infraction of the rules will not be counted.\n"
+                "The user that first initialised the counter will also be pinged in the channel where "
+                "the `+strict` command was used every time a rule gets broken.\n\n"
+                "# Usage\n"
+                "The `+strict` command flips the strictness for the counter. If it was disabled, it "
+                "will then be enabled, and vice-versa."
+            ),
+        )
+
+        return embed
+
     @commands.command(aliases=["Menu"])
     async def help(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the help message."""
@@ -166,6 +225,6 @@ class HelpCog(commands.Cog):
     async def privacy(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the privacy help message."""
         user: discord.Member | discord.User = ctx.message.author
-        embed = await self.get_privacy_embed()
+        embed = await self._get_privacy_embed()
 
         await user.send(embed=embed)

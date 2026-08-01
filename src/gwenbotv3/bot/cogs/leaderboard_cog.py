@@ -24,7 +24,7 @@ class LeaderboardCog(commands.Cog):
         self.user_service = UserService()
         self.logger = logging.getLogger(__name__)
 
-    @commands.command()
+    @commands.command(aliases=["initialize"])
     @commands.has_permissions(kick_members=True)
     async def initialise(
         self,
@@ -140,15 +140,16 @@ class LeaderboardCog(commands.Cog):
     @commands.command(
         aliases=[
             "question",
-            "amount",
+            "questions",
             "qm",
             "qms",
             "questionmarks",
             "questionmark",
             "?",
+            "symbols",
         ]
     )
-    async def questions(self, ctx: commands.Context[commands.Bot]) -> None:
+    async def amount(self, ctx: commands.Context[commands.Bot]) -> None:
         """Fetches the amount of symbols sent in a server."""
         assert ctx.guild is not None
 
@@ -165,7 +166,7 @@ class LeaderboardCog(commands.Cog):
     @commands.command(
         aliases=[
             "question_user",
-            "amount_user",
+            "questions_user",
             "qm_user",
             "qms_user",
             "questionmarks_user",
@@ -174,7 +175,7 @@ class LeaderboardCog(commands.Cog):
             "?u",
         ]
     )
-    async def questions_user(
+    async def amount_user(
         self, ctx: commands.Context[commands.Bot], u_id: int | str | None
     ) -> None:
         """Checks the amount of symbols sent in a server by a user.
@@ -260,7 +261,7 @@ class LeaderboardCog(commands.Cog):
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(
                 "Gwen is missing some information here! Be sure to check the "
-                "help command!"
+                "help command `+counterhelp`!"
             )
         else:
             import sys

@@ -26,7 +26,8 @@ if TYPE_CHECKING:
 class SymbolCounter(Base):
     """Symbol Counter ORM Model.
 
-    I'm too tired of this fucking piece of shit to explain it."""
+    I'm too tired of this fucking piece of shit to explain it.
+    See the help cog instead."""
 
     __tablename__ = "symbol_counter"
     __table_args__ = ({"mysql_engine": "InnoDB"},)
@@ -82,7 +83,8 @@ class SymbolCounter(Base):
 class SymbolUser(Base):
     """Symbol User ORM Model.
 
-    I'm too tired of this fucking piece of shit to explain it."""
+    I'm too tired of this fucking piece of shit to explain it.
+    See the help cog instead."""
 
     __tablename__ = "symbol_user"
     __table_args__ = (
