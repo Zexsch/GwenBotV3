@@ -246,7 +246,7 @@ class LeaderboardCog(commands.Cog):
 
         for row in leaderboard:
             _, user_name, amount = row.tuple()
-            base_message += f"{user_name}: {amount}"
+            base_message += f"{user_name}: {amount}\n"
 
         await ctx.send(base_message)
 
