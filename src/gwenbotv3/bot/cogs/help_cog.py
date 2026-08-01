@@ -202,6 +202,15 @@ class HelpCog(commands.Cog):
                 "will then be enabled, and vice-versa."
             ),
         )
+        embed.add_field(
+            name="Leaderboard",
+            value=(
+                "Gwen keeps track of who sent how many symbols.\n"
+                "This command will send the users with the highest amount, ranked, up "
+                "to a specified limit. The default limit is 10, but can be increased up "
+                "to 20 by using `+leaderboard` *amount*"
+            ),
+        )
 
         return embed
 
@@ -226,5 +235,12 @@ class HelpCog(commands.Cog):
         """Sends the privacy help message."""
         user: discord.Member | discord.User = ctx.message.author
         embed = await self._get_privacy_embed()
+
+        await user.send(embed=embed)
+
+    @commands.command()
+    async def counterhelp(self, ctx: commands.Context[commands.Bot]) -> None:
+        user: discord.Member | discord.User = ctx.message.author
+        embed = await self._get_counter_embed()
 
         await user.send(embed=embed)
