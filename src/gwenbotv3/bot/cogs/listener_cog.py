@@ -26,13 +26,13 @@ class ListenerCog(commands.Cog):
         # ruff: noqa: RUF001 # For weird symbols
         base_message = (
             f"<@{counter.creating_user}> Somebody did a little fucky wuckie >.<!! "
-            "A small oopsie woopsie uwu! Someone dared ruin the ? chain nya~!!! "
+            "A small oopsie woopsie uwu! Someone dared ruin the symbol chain nya~!!! "
             f"<@{msg.author.id}> what have you done!! (⁄ ⁄•⁄ω⁄•⁄ ⁄) "
         )
 
-        if "@" not in msg.content:
+        if "@" not in msg.content and msg.content != counter.symbol:
             self.logger.debug(
-                "User %s sent a non-question mark in counter for server=%s",
+                "User %s sent a non-symbol in counter for server=%s",
                 msg.author.id,
                 counter.server_id,
             )
@@ -42,7 +42,7 @@ class ListenerCog(commands.Cog):
                 + f'They dared send "{msg.content}" in our holy channel nya!'
             )
 
-        if "@" in msg.content:
+        if "@" in msg.content and msg.content != counter.symbol:
             self.logger.warning(
                 "User %s sent a mention in counter for server=%s",
                 msg.author.id,
@@ -73,8 +73,7 @@ class ListenerCog(commands.Cog):
         """
         # pylint: disable=too-many-return-statements
         # Could avoid this via exceptions but too much effort
-        if msg.guild is None:
-            return
+        assert msg.guild is not None
 
         counter = await self.symbol_service.select_counter_by_ids(
             server_id=msg.guild.id
