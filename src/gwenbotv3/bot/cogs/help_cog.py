@@ -149,7 +149,7 @@ class HelpCog(commands.Cog):
     async def _get_counter_embed(self) -> discord.Embed:
         embed = discord.Embed(
             title="Counter",
-            description="Format: `+command (aliases)` - description",
+            description="Format: `+command` *parameters* - description",
             color=discord.Color.blurple(),
         )
         embed.add_field(
@@ -174,11 +174,11 @@ class HelpCog(commands.Cog):
         embed.add_field(
             name="Initialise",
             value=(
-                "# Usage\n"
+                "**Usage**\n"
                 "`+initialise` *symbol* *channel*\n\n"
-                "# Symbol\n"
+                "**Symbol**\n"
                 "A symbol can be any string of characters which is at most 200 characters long.\n\n"
-                "# Channel\n"
+                "**Channel**\n"
                 "The channel to start counting in. By definition, this means that only symbols sent "
                 "in this specific channel will be counted, not server-wide.\n"
                 "You can either tag the channel directly or use an ID."
@@ -187,17 +187,17 @@ class HelpCog(commands.Cog):
         embed.add_field(
             name="Strictness",
             value=(
-                "# Not strict\n"
+                "**Not strict**\n"
                 "When the counter is set to not be strict, which is the default, Gwen will simply "
                 "ignore all instances of a counter's rules being broken.\n\n"
-                "# Rules\n"
+                "**Rules**\n"
                 "- Only the specified symbol is allowed to be sent in the chat.\n"
                 "- A user may only send one symbol in a row.\n\n"
-                "# Strict\n"
+                "**Strict**\n"
                 "When strictness is turned on, any infraction of the rules will not be counted.\n"
                 "The user that first initialised the counter will also be pinged in the channel where "
                 "the `+strict` command was used every time a rule gets broken.\n\n"
-                "# Usage\n"
+                "**Usage**\n"
                 "The `+strict` command flips the strictness for the counter. If it was disabled, it "
                 "will then be enabled, and vice-versa."
             ),
