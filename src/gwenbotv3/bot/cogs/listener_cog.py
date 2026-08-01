@@ -100,7 +100,10 @@ class ListenerCog(commands.Cog):
         try:
             message = await self._strict_check(msg=msg, counter=counter)
         except NotImplementedError:
-            return  # Ugly as hell, but should work
+            await self.symbol_service.update_counters(
+                server_id=msg.guild.id, user_id=msg.author.id
+            )
+            return
 
         reply_channel = self.bot.get_channel(counter.strict_channel)
 
