@@ -187,14 +187,14 @@ class SymbolService:
         if not check:
             raise SymbolNotSetupError
 
-        current_amount = await self.select_amount(server_id=server_id)
+        current_amount = await self.select_amount(server_id=server_id) + 1
 
         stmt = (
-            update(SymbolCounter.amount)
+            update(SymbolCounter)
             .where(
                 SymbolCounter.server_id == server_id,
             )
-            .values(amount=current_amount + 1)
+            .values(amount=current_amount)
         )
 
         await session.execute(stmt)
@@ -221,7 +221,7 @@ class SymbolService:
         strict = not check.strict
 
         stmt = (
-            update(SymbolCounter.strict)
+            update(SymbolCounter)
             .where(
                 SymbolCounter.server_id == server_id,
             )
@@ -250,7 +250,7 @@ class SymbolService:
             This will be set even if strictness gets flipped to False.
         """
         stmt = (
-            update(SymbolCounter.strict_channel)
+            update(SymbolCounter)
             .where(SymbolCounter.server_id == server_id)
             .values(strict_channel=channel_id)
         )
@@ -281,7 +281,7 @@ class SymbolService:
             raise SymbolNotSetupError
 
         stmt = (
-            update(SymbolCounter.latest_user)
+            update(SymbolCounter)
             .where(SymbolCounter.server_id == server_id)
             .values(latest_user=user_id)
         )
@@ -317,7 +317,7 @@ class SymbolService:
             raise SymbolTooLongError
 
         stmt = (
-            update(SymbolCounter.symbol)
+            update(SymbolCounter)
             .where(SymbolCounter.server_id == server_id)
             .values(symbol=symbol)
         )
@@ -426,7 +426,7 @@ class SymbolService:
             user = await self.insert_user_counter(server_id=server_id, user_id=user_id)
 
         stmt = (
-            update(SymbolUser.amount)
+            update(SymbolUser)
             .where(SymbolUser.user_id == user_id)
             .values(amount=user.amount + 1)
         )
