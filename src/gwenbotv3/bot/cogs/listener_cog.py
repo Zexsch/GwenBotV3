@@ -86,7 +86,7 @@ class ListenerCog(commands.Cog):
         if counter.channel_id != msg.channel.id:
             return
 
-        if msg.content == counter.symbol and msg.author.id != counter.latest_user:
+        if msg.content == counter.symbol and not counter.strict:
             await self.symbol_service.update_counters(
                 server_id=msg.guild.id, user_id=msg.author.id
             )
