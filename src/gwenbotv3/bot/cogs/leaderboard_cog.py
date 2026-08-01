@@ -92,6 +92,7 @@ class LeaderboardCog(commands.Cog):
                 f"Done! Updated your strictness to be {new_strictness}. "
                 "Set the channel that you will be pinged in to the current channel."
             )
+            return
 
         await ctx.send(f"Done! Updates your strictness to be {new_strictness}.")
 
