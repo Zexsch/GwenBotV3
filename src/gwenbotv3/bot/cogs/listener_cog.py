@@ -97,7 +97,11 @@ class ListenerCog(commands.Cog):
         if not counter.strict_channel:
             return
 
-        message = await self._strict_check(msg=msg, counter=counter)
+        try:
+            message = await self._strict_check(msg=msg, counter=counter)
+        except NotImplementedError:
+            return  # Ugly as hell, but should work
+
         reply_channel = self.bot.get_channel(counter.strict_channel)
 
         if not isinstance(reply_channel, TextChannel):
