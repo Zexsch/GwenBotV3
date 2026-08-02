@@ -1,6 +1,7 @@
 """Houses the Help cog."""
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 
@@ -73,6 +74,50 @@ class HelpCog(commands.Cog):
             inline=False,
         )
         embed.set_footer(text="GwenBot is open source: github.com/Zexsch/GwenBotV3")
+        return embed
+
+    async def _get_gwensub_embed(self) -> discord.Embed:
+        embed = discord.Embed(
+            title="GwenSub Help",
+            description="Format: `+command (aliases)` - description",
+            color=discord.Color.blurple(),
+        )
+        embed.add_field(
+            name="Description",
+            value=(
+                "Subscribing to GwenBot is fully free and offers only benefits, "
+                'such as making GwenBot reply with "Gwen is immune." whenever '
+                "Gwen is mentioned in chat.\n"
+                "Subscribe to GwenBot today to get free gwen replies in chat!"
+            ),
+            inline=False,
+        )
+        embed.add_field(
+            name="Commands",
+            value=(
+                "`+add` - Subscribes yourself to GwenBot.\n"
+                "`+remove` - Removes your subscription from GwenBot.\n"
+                "`+checkgs` - Check if you or another user is subscribed to GwenBot.\n"
+            ),
+            inline=False,
+        )
+        embed.add_field(
+            name="Moderation",
+            value=(
+                "**Commands**\n"
+                "`+blacklist` - Prevents a user from subscribing to GwenBot and clears any "
+                "active subscriptions.\n"
+                "`+unblacklist` - Removes a user from the blacklist.\n"
+                "`+quote` - See below.\n\n"
+                "**Quote**\n"
+                "Some guilds may want to disable GwenBot subscriptions entirely. Those "
+                "guilds can use the `+quote` command, which unsubscribes all currently "
+                "subscribed users and prevents anyone in the guild from subscribing again.\n"
+                "You can undo this choice by running the `+quote` command again."
+            ),
+            inline=False,
+        )
+
         return embed
 
     async def _get_wrhelp_embed(self) -> discord.Embed:
@@ -159,6 +204,7 @@ class HelpCog(commands.Cog):
                 "Once a channel is initialised, Gwen will count the amount of occurences "
                 "of this symbol sent in the specified channel."
             ),
+            inline=False,
         )
         embed.add_field(
             name="Commands",
@@ -183,6 +229,7 @@ class HelpCog(commands.Cog):
                 "in this specific channel will be counted, not server-wide.\n"
                 "You can either tag the channel directly or use an ID."
             ),
+            inline=False,
         )
         embed.add_field(
             name="Strictness",
@@ -201,6 +248,7 @@ class HelpCog(commands.Cog):
                 "The `+strict` command flips the strictness for the counter. If it was disabled, it "
                 "will then be enabled, and vice-versa."
             ),
+            inline=False,
         )
         embed.add_field(
             name="Leaderboard",
@@ -210,38 +258,78 @@ class HelpCog(commands.Cog):
                 "to a specified limit. The default limit is 10, but can be increased up "
                 "to 20 by using `+leaderboard` *amount*"
             ),
+            inline=False,
         )
 
         return embed
 
-    @commands.command(aliases=["Menu"])
-    async def help(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Sends the help message."""
-        user: discord.Member | discord.User = ctx.message.author
-        embed = await self._get_help_embed()
+    @commands.hybrid_command(aliases=["Menu"])
+    @app_commands.describe(command="Specify a command")
+    @app_commands.choices(
+        command=[
+            app_commands.Choice(name="Help", value="help"),
+            app_commands.Choice(name="Winrate", value="winrate"),
+            app_commands.Choice(name="Privacy", value="privacy"),
+            app_commands.Choice(name="Counter", value="counter"),
+            app_commands.Choice(name="GwenSub", value="subs"),
+        ]
+    )
+    async def help(
+        self,
+        ctx: commands.Context,
+        command: str | None = None,
+    ) -> None:
+        """Get help for commands!"""
+        match command:
+            case "winrate":
+                embed = await self._get_wrhelp_embed()
+            case "help":
+                embed = await self._get_help_embed()
+            case "privacy":
+                embed = await self._get_privacy_embed()
+            case "counter":
+                embed = await self._get_counter_embed()
+            case "subs":
+                embed = await self._get_gwensub_embed()
+            case _:
+                embed = await self._get_help_embed()
 
-        await user.send(embed=embed)
+        await self._reply(ctx=ctx, embed=embed)
 
     @commands.command(aliases=["wrhelp"])
     async def winratehelp(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the winratehelp message."""
-        user: discord.Member | discord.User = ctx.message.author
         embed = await self._get_wrhelp_embed()
 
-        await user.send(embed=embed)
+        await self._reply(ctx=ctx, embed=embed)
 
     @commands.command(aliases=["policy"])
     async def privacy(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the privacy help message."""
-        user: discord.Member | discord.User = ctx.message.author
         embed = await self._get_privacy_embed()
 
-        await user.send(embed=embed)
+        await self._reply(ctx=ctx, embed=embed)
 
     @commands.command()
     async def counterhelp(self, ctx: commands.Context[commands.Bot]) -> None:
         """Sends the counter help message."""
-        user: discord.Member | discord.User = ctx.message.author
         embed = await self._get_counter_embed()
 
+        await self._reply(ctx=ctx, embed=embed)
+
+    @commands.command()
+    async def subhelp(self, ctx: commands.Context[commands.Bot]) -> None:
+        "Sends the sub help message."
+        embed = await self._get_gwensub_embed()
+
+        await self._reply(ctx=ctx, embed=embed)
+
+    async def _reply(
+        self, ctx: commands.Context[commands.Bot], embed: discord.Embed
+    ) -> None:
+        if ctx.interaction is not None:
+            await ctx.send(embed=embed, ephemeral=True)
+            return
+
+        user = ctx.message.author
         await user.send(embed=embed)

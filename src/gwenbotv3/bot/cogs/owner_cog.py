@@ -29,7 +29,7 @@ class OwnerCog(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def fuckyou(
-        self, ctx: commands.Context[commands.Bot], user_id: int | str | None
+        self, ctx: commands.Context[commands.Bot], user_id: str | None = None
     ) -> None:
         """Adds a user to the blacklist in a specific server.
 
@@ -46,30 +46,28 @@ class OwnerCog(commands.Cog):
             await ctx.send("How could you have forgotten...")
             return
 
-        user_id = get_mention(ctx, user_id)
+        u_id = get_mention(ctx, user_id)
 
-        if not user_id:
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
         if await self.gwensub_service.select_blacklist_by_ids(
-            user_id=user_id, server_id=ctx.guild.id, by_owner=True
+            user_id=u_id, server_id=ctx.guild.id, by_owner=True
         ):
             await ctx.send("User is already blacklisted.")
             return
 
         try:
             await self.gwensub_service.insert_blacklist(
-                user_id=user_id, server_id=ctx.guild.id, by_owner=True
+                user_id=u_id, server_id=ctx.guild.id, by_owner=True
             )
         except UserIsBlacklistedError:
             await ctx.send("User is already blacklisted!")
             return
 
         with contextlib.suppress(UserNotSubscribedError):
-            await self.gwensub_service.delete_sub(
-                user_id=user_id, server_id=ctx.guild.id
-            )
+            await self.gwensub_service.delete_sub(user_id=u_id, server_id=ctx.guild.id)
 
         self.logger.info(
             "Added to blacklist by owner: user=%s, server=%s",
@@ -82,7 +80,7 @@ class OwnerCog(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def unfuckyou(
-        self, ctx: commands.Context[commands.Bot], user_id: str | int | None
+        self, ctx: commands.Context[commands.Bot], user_id: str | None = None
     ) -> None:
         """Removes a user from the blacklist in a specific server.
 
@@ -99,21 +97,21 @@ class OwnerCog(commands.Cog):
             await ctx.send("How could you have forgotten...")
             return
 
-        user_id = get_mention(ctx, user_id)
+        u_id = get_mention(ctx, user_id)
 
-        if not user_id:
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
         if not await self.gwensub_service.select_blacklist_by_ids(
-            user_id=user_id, server_id=ctx.guild.id, by_owner=True
+            user_id=u_id, server_id=ctx.guild.id, by_owner=True
         ):
             await ctx.send("User is not Blacklisted.")
             return
 
         try:
             await self.gwensub_service.delete_blacklist(
-                user_id=user_id, server_id=ctx.guild.id, by_owner=True
+                user_id=u_id, server_id=ctx.guild.id, by_owner=True
             )
         except UserNotBlacklistedError:
             await ctx.send("User is not blacklisted!")
@@ -130,7 +128,7 @@ class OwnerCog(commands.Cog):
     @commands.is_owner()
     @commands.guild_only()
     async def fuckyouremove(
-        self, ctx: commands.Context[commands.Bot], user_id: str | int | None
+        self, ctx: commands.Context[commands.Bot], user_id: str | None
     ) -> None:
         """Removes a person from GwenSubs. Only usable by Owner."""
         assert ctx.guild is not None
@@ -139,19 +137,19 @@ class OwnerCog(commands.Cog):
             await ctx.send("How could you have forgotten...")
             return
 
-        user_id = get_mention(ctx, user_id)
+        u_id = get_mention(ctx, user_id)
 
-        if not user_id:
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
         if not await self.gwensub_service.select_sub_by_ids(
-            user_id=user_id, server_id=ctx.guild.id
+            user_id=u_id, server_id=ctx.guild.id
         ):
             await ctx.send("User is not subscribed to GwenBot.")
             return
 
-        await self.gwensub_service.delete_sub(user_id=user_id, server_id=ctx.guild.id)
+        await self.gwensub_service.delete_sub(user_id=u_id, server_id=ctx.guild.id)
 
         self.logger.info(
             "Removed from subs by owner: user=%s, server=%s",
@@ -170,10 +168,17 @@ class OwnerCog(commands.Cog):
 
         await self.bot.close()
 
+    @commands.command()
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
+        synced = await self.bot.tree.sync()
+        await ctx.send(f"Synced {len(synced)} commands.")
+
     @unfuckyou.error
     @fuckyou.error
     @fuckyouremove.error
     @shutdown.error
+    @sync.error
     async def _not_owner(
         self, ctx: commands.Context[commands.Bot], error: discord.DiscordException
     ) -> None:
@@ -185,15 +190,16 @@ class OwnerCog(commands.Cog):
                 ctx.author.name,
             )
             await ctx.send("Who do you think you are...")
-        else:
-            import sys
+            return
 
-            original = getattr(error, "original", error)
-            self.logger.error(
-                "Unhandled error: %s: %s",
-                type(original).__name__,
-                original,
-                exc_info=sys.exc_info(),
-            )
+        import sys
 
-            await ctx.send("Gwen ran into some issues whilst performing this command!")
+        original = getattr(error, "original", error)
+        self.logger.error(
+            "Unhandled error: %s: %s",
+            type(original).__name__,
+            original,
+            exc_info=sys.exc_info(),
+        )
+
+        await ctx.send("Gwen ran into some issues whilst performing this command!")

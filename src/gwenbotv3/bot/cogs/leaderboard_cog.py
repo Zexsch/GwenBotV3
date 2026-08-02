@@ -5,6 +5,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from gwenbotv3.database.models import SymbolCounter
@@ -26,11 +27,20 @@ class LeaderboardCog(commands.Cog):
         self.user_service = UserService()
         self.logger = logging.getLogger(__name__)
 
-    @commands.command(aliases=["initialize"])
+    @commands.hybrid_command(
+        aliases=["initialize"],
+        description="Initialise a counter. See the help command for more information.",
+    )
     @commands.has_permissions(kick_members=True)
+    @discord.app_commands.describe(
+        symbol="The symbol to start counting.",
+        channel="The channel to start counting in.",
+        strict="Enables strictness. Once set, also requires a strict channel.",
+        strict_channel="Channel for mentions on rule breaks.",
+    )
     async def initialise(
         self,
-        ctx: commands.Context[commands.Bot],
+        ctx: commands.Context,
         symbol: str,
         channel: discord.TextChannel,
         strict: bool = False,
@@ -71,9 +81,14 @@ class LeaderboardCog(commands.Cog):
             f"Initialisation complete for channel {channel.name}, symbol {symbol}"
         )
 
-    @commands.command()
+    @commands.hybrid_command(
+        description=(
+            "Flips your counter's strictness. "
+            "See the help command for more information."
+        )
+    )
     @commands.has_permissions(kick_members=True)
-    async def strict(self, ctx: commands.Context[commands.Bot]) -> None:
+    async def strict(self, ctx: commands.Context) -> None:
         """Flips a counter's strictness."""
         assert ctx.guild is not None
 
@@ -106,10 +121,10 @@ class LeaderboardCog(commands.Cog):
 
         return since_last_recount <= timedelta(hours=24)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(kick_members=True)
-    async def recount(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Recounts the symbols sent in the initialised channel."""
+    async def recount(self, ctx: commands.Context) -> None:
+        """Recounts the symbols sent in the initialised channel. Has a 24h cooldown!"""
         assert ctx.guild is not None
 
         counter = await self.symbol_service.select_counter_by_ids(
@@ -156,7 +171,7 @@ class LeaderboardCog(commands.Cog):
         self.logger.info("Finished recounting for server=%s", ctx.guild.id)
         await ctx.send(f"Gwen has finished counting! <@{ctx.author.id}>")
 
-    @commands.command(
+    @commands.hybrid_command(
         aliases=[
             "question",
             "questions",
@@ -168,8 +183,8 @@ class LeaderboardCog(commands.Cog):
             "symbols",
         ]
     )
-    async def amount(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Fetches the amount of symbols sent in a server."""
+    async def amount(self, ctx: commands.Context) -> None:
+        """Fetches the amount of symbols sent in the counter."""
         assert ctx.guild is not None
 
         counter = await self.symbol_service.select_counter_by_ids(
@@ -182,7 +197,7 @@ class LeaderboardCog(commands.Cog):
 
         await ctx.send(f"The current amount is {counter.amount}!")
 
-    @commands.command(
+    @commands.hybrid_command(
         aliases=[
             "question_user",
             "questions_user",
@@ -192,10 +207,11 @@ class LeaderboardCog(commands.Cog):
             "questionmark_user",
             "?_u",
             "?u",
-        ]
+        ],
+        description="Checks the amoutn of symbols sent by a user.",
     )
     async def amount_user(
-        self, ctx: commands.Context[commands.Bot], u_id: int | str | None
+        self, ctx: commands.Context, user_id: str | None = None
     ) -> None:
         """Checks the amount of symbols sent in a server by a user.
 
@@ -212,17 +228,17 @@ class LeaderboardCog(commands.Cog):
             await ctx.send("This server doesn't have any counters set up!")
             return
 
-        if not u_id:
-            u_id = ctx.author.id
-
-        user_id = get_mention(ctx, u_id)
-
         if not user_id:
+            user_id = str(ctx.author.id)  # lmao.
+
+        u_id = get_mention(ctx, user_id)
+
+        if not u_id:
             await ctx.send("Invalid id...")
             return
 
         user_counter = await self.symbol_service.select_user_counter_by_ids(
-            server_id=ctx.guild.id, user_id=user_id
+            server_id=ctx.guild.id, user_id=u_id
         )
 
         if not user_counter:
@@ -237,9 +253,12 @@ class LeaderboardCog(commands.Cog):
             f"<#{symbol_counter.channel_id}> is {user_counter.amount}."
         )
 
-    @commands.command(aliases=["lb"])
+    @commands.hybrid_command(
+        aliases=["lb"], description="Replies with the leaderboard for counter."
+    )
+    @app_commands.describe(limit="The length of the leaderboard. It can at most be 20.")
     async def leaderboard(
-        self, ctx: commands.Context[commands.Bot], limit: int = 10
+        self, ctx: commands.Context, limit: int = 10
     ) -> None:
         """Respons with the symbol counter leaderboard of the server.
 

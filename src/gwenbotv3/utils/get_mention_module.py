@@ -3,7 +3,7 @@
 from discord.ext.commands import Bot, Context
 
 
-def get_mention(ctx: Context[Bot], user_id: int | str) -> int | None:
+def get_mention(ctx: Context[Bot], user_id: str) -> int | None:
     """Get the first mention of a message.
 
     Args:
@@ -14,7 +14,7 @@ def get_mention(ctx: Context[Bot], user_id: int | str) -> int | None:
         Optional[int]: id of the mention or None
     """
     try:
-        user_id = int(user_id)  # Type: ignore
+        int(user_id)
     except ValueError:
         if len(ctx.message.mentions) == 0:
             return None

@@ -12,9 +12,9 @@ class CommandsCog(commands.Cog):
         self.bot = bot
         self.gwensub_service = GwensubService()
 
-    @commands.command(aliases=["jax"])
-    async def evasion(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message"""
+    @commands.hybrid_command(aliases=["jax"])
+    async def evasion(self, ctx: commands.Context) -> None:
+        """Jax."""
         await ctx.send(
             "Active: Jax enters Evasion, a defensive stance, for up to 2 seconds, "
             "causing all basic attacks against him to miss. "
@@ -22,9 +22,9 @@ class CommandsCog(commands.Cog):
             "abilities. After 1 second, Jax can reactivate to end it immediately."
         )
 
-    @commands.command(aliases=["gwen", "immune"])
+    @commands.hybrid_command(aliases=["gwen", "immune"])
     @commands.guild_only()
-    async def g(self, ctx: commands.Context[commands.Bot]) -> None:
+    async def g(self, ctx: commands.Context) -> None:
         """Responds with gwen is immune in chat."""
         assert ctx.guild is not None
 
@@ -35,29 +35,29 @@ class CommandsCog(commands.Cog):
 
         await ctx.send("Gwen is immune.")
 
-    @commands.command()
-    async def aatrox(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command()
+    async def aatrox(self, ctx: commands.Context) -> None:
+        """The bane of all Aatrox players."""
         await ctx.send("Aatrox got ignited.")
 
-    @commands.command(aliases=["lh"])
-    async def listenhere(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command(aliases=["lh"])
+    async def listenhere(self, ctx: commands.Context) -> None:
+        """Why not just execute it?"""
         await ctx.send("listen here you little shit")
 
-    @commands.command()
-    async def emo(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command()
+    async def emo(self, ctx: commands.Context) -> None:
+        """Why not just execute it?"""
         await ctx.send("Aatrox's biggest fan (owns an Aatrox tshirt)")
 
-    @commands.command(aliases=["george"])
-    async def sylas(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command(aliases=["george"])
+    async def sylas(self, ctx: commands.Context) -> None:
+        """His W is balanced."""
         await ctx.send("Sylas pressed W. https://imgur.com/IHyk5hl")
 
-    @commands.command(aliases=["Wis'adel", "w", "balans"])
-    async def wisadel(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command(aliases=["Wis'adel", "w", "balans"])
+    async def wisadel(self, ctx: commands.Context) -> None:
+        """Difficulty? In *my* tower defence game?"""
         await ctx.send(
             "Immediately summons 2 Shadows of Revenant within attack range "
             "(max 3, persists after the skill ends); ATK +180%, attack "
@@ -68,9 +68,9 @@ class CommandsCog(commands.Cog):
             "(Can manually deactivate skill)"
         )
 
-    @commands.command()
-    async def lana(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command()
+    async def lana(self, ctx: commands.Context) -> None:
+        """Raiden Ei"""
         await ctx.send(
             "https://media.discordapp.net/attachments/1320437220116791406/1321894179646734366"
             "/IMG_6786.png?ex=676ee564&is=676d93e4&hm="
@@ -79,9 +79,9 @@ class CommandsCog(commands.Cog):
             "lossless&width=814&height=793"
         )
 
-    @commands.command()
-    async def zex(self, ctx: commands.Context[commands.Bot]) -> None:
-        """See message."""
+    @commands.hybrid_command()
+    async def zex(self, ctx: commands.Context) -> None:
+        """Brazil."""
         await ctx.send(
             "https://media.discordapp.net/attachments/"
             "1320437220116791406/1338656615619887145/Screenshot_202"
