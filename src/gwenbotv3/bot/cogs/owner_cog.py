@@ -170,10 +170,17 @@ class OwnerCog(commands.Cog):
 
         await self.bot.close()
 
+    @commands.command()
+    @commands.is_owner()
+    async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
+        synced = await self.bot.tree.sync()
+        await ctx.send(f"Synced {len(synced)} commands.")
+
     @unfuckyou.error
     @fuckyou.error
     @fuckyouremove.error
     @shutdown.error
+    @sync.error
     async def _not_owner(
         self, ctx: commands.Context[commands.Bot], error: discord.DiscordException
     ) -> None:
@@ -185,15 +192,16 @@ class OwnerCog(commands.Cog):
                 ctx.author.name,
             )
             await ctx.send("Who do you think you are...")
-        else:
-            import sys
+            return
 
-            original = getattr(error, "original", error)
-            self.logger.error(
-                "Unhandled error: %s: %s",
-                type(original).__name__,
-                original,
-                exc_info=sys.exc_info(),
-            )
+        import sys
 
-            await ctx.send("Gwen ran into some issues whilst performing this command!")
+        original = getattr(error, "original", error)
+        self.logger.error(
+            "Unhandled error: %s: %s",
+            type(original).__name__,
+            original,
+            exc_info=sys.exc_info(),
+        )
+
+        await ctx.send("Gwen ran into some issues whilst performing this command!")
