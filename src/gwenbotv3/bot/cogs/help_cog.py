@@ -187,7 +187,7 @@ class HelpCog(commands.Cog):
         )
 
         embed.set_footer(
-            text="Privacy Policy: https://github.com/Zexsch/GwenBotV3/blob/main/PRIVACY.md"
+            text="[Privacy Policy](https://github.com/Zexsch/GwenBotV3/blob/main/PRIVACY.md)"
         )
         return embed
 
