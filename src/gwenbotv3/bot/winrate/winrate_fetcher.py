@@ -2,6 +2,7 @@
 
 import json
 import logging
+from typing import Any
 
 from bs4 import BeautifulSoup
 
@@ -162,6 +163,14 @@ class WinrateFetcher:
             f"{champ.name}/build?{elo_str}{opponent_str}{patch_str}"
         )
 
+    def _get_winrate_percent(self, elements: Any) -> str | Any | None:
+        """Searches the elements of soup.find_all() for the winrate string."""
+        for element in elements:
+            text = element.get_text(strip=True)
+            if "%" in text and any(char.isdigit() for char in text):
+                return text
+        return None
+
     def _get_winrate(self, soup: BeautifulSoup) -> str:
         """Gets the winrate from the BeautifulSoup object.
 
@@ -188,10 +197,10 @@ class WinrateFetcher:
             ]
             for cls in ugg_classes:
                 elements = soup.find_all("div", {"class": cls})
-                for element in elements:
-                    text = element.get_text(strip=True)
-                    if "%" in text and any(char.isdigit() for char in text):
-                        return text
+                result = self._get_winrate_percent(elements=elements)
+                if result:
+                    return result
+
         raise WinrateNotFoundError()
 
     def _get_match_count(self, soup: BeautifulSoup, with_opponent: bool) -> str | None:
