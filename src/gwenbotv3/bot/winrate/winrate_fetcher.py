@@ -178,13 +178,20 @@ class WinrateFetcher:
             str: The winrate.
         """
         for value in self.ugg_div_values:
-            elements = soup.find_all(
-                "div", {"class": f"text-[14px] font-extrabold {value}-tier"}
-            )
-            for element in elements:
-                text = element.get_text(strip=True)
-                if "%" in text and any(char.isdigit() for char in text):
-                    return text
+            # Better to have one function do both with and without opp
+            ugg_classes = [
+                f"text-[14px] font-extrabold {value}-tier",  # No opponent
+                (
+                    "text-[20px] max-sm:text-[16px] max-xs:text-[14px] "
+                    f"font-extrabold {value}-tier"  # With opponent
+                ),
+            ]
+            for cls in ugg_classes:
+                elements = soup.find_all("div", {"class": cls})
+                for element in elements:
+                    text = element.get_text(strip=True)
+                    if "%" in text and any(char.isdigit() for char in text):
+                        return text
         raise WinrateNotFoundError()
 
     def _get_match_count(self, soup: BeautifulSoup, with_opponent: bool) -> str | None:
