@@ -242,9 +242,7 @@ class DeepseekCog(commands.Cog):
 
     @commands.hybrid_command(aliases=["deepseek", "seek"])
     @commands.guild_only()
-    async def gwenseek(
-        self, ctx: commands.Context, *, message: str
-    ) -> None:
+    async def gwenseek(self, ctx: commands.Context, *, message: str) -> None:
         """Ask Gwen something, with reasoning!"""
         # pylint: disable=line-too-long
         # Check https://discordpy.readthedocs.io/en/latest/ext/commands/commands.html?highlight=Keyword-Only%20Arguments

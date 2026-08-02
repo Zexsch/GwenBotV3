@@ -89,9 +89,7 @@ class GwensubCog(commands.Cog):
         await ctx.send("Successfully removed from the GwenBot Subscription.")
 
     @commands.hybrid_command(name="checkgs", aliases=["checksub"])
-    async def checkgs(
-        self, ctx: commands.Context, user_id: str | None = None
-    ) -> None:
+    async def checkgs(self, ctx: commands.Context, user_id: str | None = None) -> None:
         """Command to check if a user is subbed. +checkgs id[optional]"""
         assert ctx.guild is not None
 
@@ -230,9 +228,7 @@ class GwensubCog(commands.Cog):
         await ctx.send("User successfully removed from the Blacklist.")
 
     @commands.hybrid_command(name="checkbl", aliases=["check", "checkblacklist"])
-    async def checkbl(
-        self, ctx: commands.Context, user_id: str | None = None
-    ) -> None:
+    async def checkbl(self, ctx: commands.Context, user_id: str | None = None) -> None:
         """Command to check if a user is blacklisted. +checkbl id[optional]"""
 
         assert ctx.guild is not None

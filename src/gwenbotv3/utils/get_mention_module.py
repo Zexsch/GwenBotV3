@@ -13,10 +13,19 @@ def get_mention(ctx: Context[Bot], user_id: str) -> int | None:
     Returns:
         Optional[int]: id of the mention or None
     """
-    try:
-        int(user_id)
-    except ValueError:
-        if len(ctx.message.mentions) == 0:
-            return None
+    if len(user_id) < 3:
+        return None
 
-    return ctx.message.mentions[0].id
+    if user_id.isdigit():
+        return int(user_id)
+
+    if user_id.startswith("<@") and user_id.endswith(">"):
+        inner = user_id[2:-1]
+        if inner.isdigit():
+            return int(inner)
+        return None
+
+    if ctx.message.mentions:
+        return ctx.message.mentions[0].id
+
+    return None

@@ -259,9 +259,7 @@ class LeaderboardCog(commands.Cog):
         aliases=["lb"], description="Replies with the leaderboard for counter."
     )
     @app_commands.describe(limit="The length of the leaderboard. It can at most be 20.")
-    async def leaderboard(
-        self, ctx: commands.Context, limit: int = 10
-    ) -> None:
+    async def leaderboard(self, ctx: commands.Context, limit: int = 10) -> None:
         """Respons with the symbol counter leaderboard of the server.
 
         Args:
