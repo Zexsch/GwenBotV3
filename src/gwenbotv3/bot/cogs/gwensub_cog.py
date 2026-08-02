@@ -25,7 +25,7 @@ class GwensubCog(commands.Cog):
         self.logger = logging.getLogger()
 
     @commands.hybrid_command(
-        name="GwenAdd",
+        name="gwenadd",
         aliases=["gwen_add"],
         description="Subscribe to GwenBot and life gets better!",
     )
