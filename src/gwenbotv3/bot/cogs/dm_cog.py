@@ -1,6 +1,5 @@
 """Houses the DM Cog."""
 
-import discord
 from discord.ext import commands
 
 from gwenbotv3.bot.winrate import WinrateFetcher
@@ -14,20 +13,35 @@ class DMCog(commands.Cog):
         self.bot = bot
         self.winrate_fetcher = winrate_fetcher
 
-    @commands.command()
-    async def list(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Sends the user a list of all champions."""
-        user: discord.Member | discord.User = ctx.message.author
-        await user.send(", ".join(map(str, self.winrate_fetcher.all_champions)))
+    @commands.hybrid_command()
+    async def list(self, ctx: commands.Context) -> None:
+        """Sends a list of all champions."""
+        to_send = ", ".join(map(str, self.winrate_fetcher.all_champions))
+        if ctx.interaction is not None:
+            await ctx.send(to_send, ephemeral=True)
+            return
 
-    @commands.command()
-    async def elolist(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Sends the user a list of all elos."""
-        user: discord.Member | discord.User = ctx.message.author
-        await user.send(", ".join(map(str, ELO_LIST)))
+        user = ctx.message.author
+        await user.send(to_send)
 
-    @commands.command(aliases=["roles", "role", "rolelist"])
-    async def role_list(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Sends the user a list of all roles."""
-        user: discord.Member | discord.User = ctx.message.author
-        await user.send(", ".join(map(str, ROLE_LIST)))
+    @commands.hybrid_command()
+    async def elolist(self, ctx: commands.Context) -> None:
+        """Sends a list of all elos."""
+        to_send = ", ".join(map(str, ELO_LIST))
+        if ctx.interaction is not None:
+            await ctx.send(to_send, ephemeral=True)
+            return
+
+        user = ctx.message.author
+        await user.send(to_send)
+
+    @commands.hybrid_command(aliases=["roles", "role", "rolelist"])
+    async def role_list(self, ctx: commands.Context) -> None:
+        """Sends a list of all roles."""
+        to_send = ", ".join(map(str, ROLE_LIST))
+        if ctx.interaction is not None:
+            await ctx.send(to_send, ephemeral=True)
+            return
+
+        user = ctx.message.author
+        await user.send(to_send)

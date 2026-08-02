@@ -2,6 +2,7 @@
 
 import logging
 
+from discord import Interaction, app_commands
 from discord.ext import commands
 
 from gwenbotv3.bot.winrate import Champion, WinrateFetcher
@@ -28,23 +29,8 @@ class WinrateCog(commands.Cog):
             "master_plus": "M+",
         }
 
-    @commands.command(aliases=["winrate"])
-    async def wr(
-        self, ctx: commands.Context[commands.Bot], champion_name: str, *args: str
-    ) -> None:
-        """Fetches the winrate of a champion. Uses u.gg for the winrate.
-
-        *args
-        ----------
-        :elo: Given elo.
-        :role: Given role.
-        :patch: Given patch.
-        :opponent: Given opponent.
-
-        Args:
-            ctx (commands.Context): Discord Context.
-            champion_name (str): Name of the champion.
-        """
+    async def _winrate(self, champion_name: str, *args) -> str: # type: ignore[no-untyped-def]
+        """See wr docstring"""
         self.logger.debug(
             "Calling winrate for champ=%s with args=%s", champion_name, args
         )
@@ -54,64 +40,56 @@ class WinrateCog(commands.Cog):
         try:
             result = self.winrate_fetcher.get_stats(champ, args)
         except FailedRequestError as e:
-            await ctx.send(
-                "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
-            )
             self.logger.critical(
                 "Unable to request u.gg with champ=%s, args=%s, exc=%s",
                 champion_name,
                 args,
                 e,
             )
-            return
+            return (
+                "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
+            )
         except WinrateNotFoundError:
-            await ctx.send(
+            self.logger.critical(
+                "Unable to fetch winrate for champ=%s, args=%s",
+                champion_name,
+                args,
+            )
+            return (
                 "Oh no! Seems like Gwen ran into some issues whilst fetching"
                 " the winrate! Are you sure that there's enough matches played?"
             )
+        except StatsNotFoundError:
             self.logger.critical(
-                "Unable to fetch winrate for champ=%s, args=%s, channel=%s",
+                "Unable to fetch stats for champ=%s, args=%s",
                 champion_name,
                 args,
-                ctx.channel.id,
             )
-            return
-        except StatsNotFoundError:
-            await ctx.send(
+            return (
                 "Oh no! Seems like Gwen ran into some issues whilst"
                 " fetching the winrate!"
             )
-            self.logger.critical(
-                "Unable to fetch stats for champ=%s, args=%s, channel=%s",
-                champion_name,
-                args,
-                ctx.channel.id,
-            )
-            return
         except ChampionNotFoundError:
-            await ctx.send(
+            return (
                 "Gwen was unable to find your specified champion... Please check +list "
                 "for a list of all accepted champion names!"
             )
-            return
 
         if champ.patch:
             minor_patch = self.winrate_fetcher.patch_minor_version
 
             try:
                 if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
-                    await ctx.send(
+                    return (
                         "Gwen can only gets stats for the past 5 patches! The current "
                         "patch is {self.current_patch}."
                     )
-                    return
             except ValueError:
                 if champ.patch and (int(champ.patch[-1:]) < int(minor_patch) - 5):
-                    await ctx.send(
+                    return (
                         "Gwen can only gets stats for the past 5 patches! The current "
                         "patch is {self.current_patch}."
                     )
-                    return
 
         if result.champ.elo:
             result.champ.beautify_elo(self.beautified_elo_list)
@@ -133,9 +111,69 @@ class WinrateCog(commands.Cog):
 
         message.append(".")
 
-        await ctx.send(" ".join(p for p in message if p))
+        return " ".join(p for p in message if p)
 
-    @commands.command(aliases=["checkver", "patch"])
-    async def version(self, ctx: commands.Context[commands.Bot]) -> None:
+    @commands.command(aliases=["winrate"])
+    async def wr(
+        self, ctx: commands.Context[commands.Bot], champion_name: str, *args: str
+    ) -> None:
+        """Fetches the winrate of a champion. Uses u.gg for the winrate.
+
+        *args
+        ----------
+        :elo: Given elo.
+        :role: Given role.
+        :patch: Given patch.
+        :opponent: Given opponent.
+
+        Args:
+            ctx (commands.Context): Discord Context.
+            champion_name (str): Name of the champion.
+        """
+        msg = await self._winrate(champion_name, args)
+        await ctx.send(msg)
+
+    @app_commands.command(
+        name="winrate", description="Fetches the winrate of a champion."
+    )
+    @app_commands.describe(
+        champion_name="Name of the champion",
+        elo="Elo (e.g. d2+, plat+)",
+        role="Role/lane",
+        patch="Patch version",
+        opponent="Opponent champion for matchup winrate",
+    )
+    async def wr_slash(
+        self,
+        interaction: Interaction,
+        champion_name: str,
+        elo: str | None = None,
+        role: str | None = None,
+        patch: str | None = None,
+        opponent: str | None = None,
+    ) -> None:
+        """Same as wr but for slash commands."""
+        await interaction.response.defer()
+        msg = await self._winrate(champion_name, (elo, role, patch, opponent))
+        await interaction.response.send_message(msg)
+
+    @commands.hybrid_command(aliases=["checkver", "patch"])
+    async def version(self, ctx: commands.Context) -> None:
         """Sends the current league patch."""
         await ctx.send(f"Currently on league patch {self.winrate_fetcher.patch}.")
+
+    @wr_slash.error
+    async def on_wr_slash_error(
+        self, interaction: Interaction, error: app_commands.AppCommandError
+    ) -> None:
+        self.logger.error(
+            "Unhandled exception in command '%s' (invoked by %s in #%s)",
+            interaction.command,
+            interaction.user.id,
+            interaction.channel,
+            exc_info=error,
+        )
+
+        await interaction.response.send_message(
+            "Oh no! Gwen ran into some issues when running this command..."
+        )

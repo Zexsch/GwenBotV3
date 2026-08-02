@@ -1,6 +1,6 @@
 [project]
 name = "gwenbotv3"
-version = "3.3.0"
+version = "3.4.0"
 description = "GwenBotV3"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -45,6 +45,7 @@ dev = [
     "pytest-cov>=7.1.0",
     "radon>=6.0.1",
     "ruff>=0.16.0",
+    "ty>=0.0.65",
     "vulture>=2.16",
 ]
 
@@ -53,6 +54,9 @@ python_version = "3.14"
 strict = true
 warn_unreachable = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+# Despite its infancy, I'll use ty for this.
+# Hybrid commands mess up Context typing.
+disable_error_code = ["arg-type", "type-arg"]
 
 [[tool.mypy.overrides]]
 module = ["bs4.*"] # bs4 kinda shit with typing so

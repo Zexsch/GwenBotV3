@@ -17,9 +17,9 @@ class ModerationCog(commands.Cog):
         self.server_service = ServerService()
         self.logger = logging.getLogger(__name__)
 
-    @commands.command()
+    @commands.hybrid_command(description="Change the server's prefix!")
     @commands.has_permissions(kick_members=True)
-    async def prefix(self, ctx: Context[Bot], new_prefix: str) -> None:
+    async def prefix(self, ctx: Context, new_prefix: str) -> None:
         """Changes a server's prefix.
 
         Args:

@@ -24,8 +24,11 @@ class PrivacyCog(commands.Cog):
         self.gwensub_service = GwensubService()
         self.gwenseek_service = GwenseekService()
 
-    @commands.command(aliases=["anonymize", "pseudonymise", "pseudonymize"])
-    async def anonymise(self, ctx: commands.Context[commands.Bot]) -> None:
+    @commands.hybrid_command(
+        aliases=["anonymize", "pseudonymise", "pseudonymize"],
+        description="Remove your name from Gwen's database. See the privacy help command for more information.",
+    )
+    async def anonymise(self, ctx: commands.Context) -> None:
         """Anonymises a user.
 
         In practice, it is a pseudonymisation. It sets the user's name to Unknown user
@@ -67,7 +70,7 @@ class PrivacyCog(commands.Cog):
 
         await ctx.send(return_message)
 
-    @commands.command(
+    @commands.hybrid_command(
         aliases=[
             "deanonymize",
             "deanonymise",
@@ -75,9 +78,10 @@ class PrivacyCog(commands.Cog):
             "depseudonymise",
             "depseudonymize",
             "unpseudonymize",
-        ]
+        ],
+        description="Unanonymise yourself. See the privacy help command for more information.",
     )
-    async def unanonymise(self, ctx: commands.Context[commands.Bot]) -> None:
+    async def unanonymise(self, ctx: commands.Context) -> None:
         """Unanonymises a user. Puts their username back into the database."""
 
         try:

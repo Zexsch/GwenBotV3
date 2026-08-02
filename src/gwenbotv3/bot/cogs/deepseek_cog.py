@@ -240,12 +240,12 @@ class DeepseekCog(commands.Cog):
         await ctx.send(response.choices[0].message.content)
         await ctx.send(f"||<@{ctx.message.author.id}>||")
 
-    @commands.command(aliases=["deepseek", "seek"])
+    @commands.hybrid_command(aliases=["deepseek", "seek"])
     @commands.guild_only()
     async def gwenseek(
-        self, ctx: commands.Context[commands.Bot], *, message: str
+        self, ctx: commands.Context, *, message: str
     ) -> None:
-        """Wrapper for gwenseekfunc. Uses reasoning."""
+        """Ask Gwen something, with reasoning!"""
         # pylint: disable=line-too-long
         # Check https://discordpy.readthedocs.io/en/latest/ext/commands/commands.html?highlight=Keyword-Only%20Arguments
         # To see how *, message works
@@ -256,12 +256,12 @@ class DeepseekCog(commands.Cog):
     async def gwenseekbasic(
         self, ctx: commands.Context[commands.Bot], *, message: str
     ) -> None:
-        """Wrapper for gwenseekfunc. Doesn't use reasoning."""
+        """Ask gwen something, but without reasoning!"""
         await self.gwenseekfunc(ctx, "chat", message, reasoning=False)
 
-    @commands.command(aliases=["ch", "clear"])
-    async def clearhistory(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Clears a user's gwenseek history in a server."""
+    @commands.hybrid_command(aliases=["ch", "clear"])
+    async def clearhistory(self, ctx: commands.Context) -> None:
+        """Clears your gwenseek history in a server!"""
         if not ctx.guild:
             await ctx.send(
                 "This command must be used in a server! If you want to"
@@ -275,8 +275,8 @@ class DeepseekCog(commands.Cog):
         )
         await ctx.send("Cleared your Gwenseek history, snip snip!")
 
-    @commands.command(aliases=["cha", "chall"])
-    async def clearhistoryall(self, ctx: commands.Context[commands.Bot]) -> None:
-        """Clears the user's entire gwenseek history."""
+    @commands.hybrid_command(aliases=["cha", "chall"])
+    async def clearhistoryall(self, ctx: commands.Context) -> None:
+        """Clears your entire gwenseek history, in every server!"""
         await self.gwenseek_service.delete_all_seeks(user_id=ctx.author.id)
         await ctx.send("Cleared all your Gwenseek history, snip snip!")
