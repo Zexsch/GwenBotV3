@@ -12,6 +12,7 @@ The main commands are:<br>
 Add your discord bot token as an environment variable called `TOKEN` <br>
 Add your deepseek token as an Environment Variable called `DEEPSEEK_TOKEN`<br>
 Add your discord user ID as an environment variable called `OWNER_ID`<br>
+Add a test guild ID for slash commands as an environment variable called `TEST_GUILD`<br>
 ### Database Setup
 Currently, only mysql is supported.<br><br>
 Add your database service username as an environment variable called `DB_USER` <br>
