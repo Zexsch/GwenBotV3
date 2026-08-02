@@ -74,8 +74,10 @@ class LeaderboardCog(commands.Cog):
             )
         except LimitTooLargeError:
             await ctx.send("Your counting symbol can be at most 200 characters long!")
+            return
         except SymbolAlreadySetupError:
             await ctx.send("This server already has a counter set up!")
+            return
 
         await ctx.send(
             f"Initialisation complete for channel {channel.name}, symbol {symbol}"
