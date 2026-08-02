@@ -36,6 +36,7 @@ class App(commands.Bot):
         self.user_service = UserService()
         self.server_service = ServerService()
         self.database_service = DatabaseService()
+        self.prefix_cache: dict[int, str] = {}
 
     async def setup_hook(self) -> None:
         self.before_invoke(self.dispatch_before_hooks)
@@ -70,6 +71,20 @@ class App(commands.Bot):
         await self.add_cog(HelpCog(bot=self))
         await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
+
+    async def get_prefix(self, msg: discord.Message) -> list[str]:
+        # This overwrites Bot.get_prefix
+        if msg.guild is None:
+            return commands.when_mentioned_or(PREFIX)(self, msg)
+
+        if msg.guild.id not in self.prefix_cache:
+            self.prefix_cache[msg.guild.id] = await self.server_service.select_prefix(
+                msg.guild.id
+            )
+
+        return commands.when_mentioned_or(self.prefix_cache.get(msg.guild.id, PREFIX))(
+            self, msg
+        )
 
     async def on_error(self, event_method: str, *args: Any, **kwargs: Any) -> None:
         self.logger.error(
