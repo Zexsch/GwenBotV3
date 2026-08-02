@@ -1,6 +1,7 @@
 """The main module for the discord app itself."""
 
 import logging
+import os
 import sys
 from typing import Any, Self
 
@@ -71,6 +72,10 @@ class App(commands.Bot):
         await self.add_cog(HelpCog(bot=self))
         await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
+
+        guild = discord.Object(id=os.getenv("TEST_GUILD", ""))
+        self.tree.copy_global_to(guild=guild)
+        await self.tree.sync(guild=guild)
 
     async def get_prefix(self, msg: discord.Message) -> list[str]:
         # This overwrites Bot.get_prefix
