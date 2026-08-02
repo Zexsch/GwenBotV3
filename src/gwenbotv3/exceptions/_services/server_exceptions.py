@@ -14,3 +14,7 @@ class ServerIdNotGivenError(ServerError):
 
 class ServerNotFoundError(ServerError):
     pass
+
+
+class PrefixTooLongError(ServerError):
+    pass

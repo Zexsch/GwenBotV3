@@ -2,6 +2,7 @@
 
 import logging
 from collections.abc import Sequence
+from datetime import UTC, datetime
 
 from sqlalchemy import Row, asc, delete, desc, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -507,3 +508,22 @@ class SymbolService:
         )
 
         return (await session.execute(stmt)).all()
+
+    @connect
+    async def update_last_recount(self, session: AsyncSession, server_id: int) -> None:
+        """Updates the last recount date of a counter.
+
+        Sets it to datetime.now(UTC).
+
+        Parameters
+        ----------
+        server_id : int
+            ID of the guild.
+        """
+        stmt = (
+            update(SymbolCounter)
+            .where(SymbolCounter.server_id == server_id)
+            .values(last_recount=datetime.now(UTC))
+        )
+
+        await session.execute(stmt)

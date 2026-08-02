@@ -34,6 +34,7 @@ packages = ["src/gwenbotv3"]
 dev = [
     "alembic>=1.18.5",
     "bandit>=1.9.4",
+    "deptry>=0.25.1",
     "dotenv>=0.9.9",
     "hatch>=1.17.1",
     "mypy>=2.3.0",
@@ -88,3 +89,6 @@ package = true
 
 [tool.uv.workspace]
 members = ["."]
+
+[tool.deptry.per_rule_ignores]
+DEP003 = ["gwenbotv3"]

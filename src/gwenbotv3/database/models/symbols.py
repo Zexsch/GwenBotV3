@@ -58,6 +58,7 @@ class SymbolCounter(Base):
         onupdate=lambda: datetime.now(UTC),
         nullable=False,
     )
+    last_recount: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # ruff: noqa: UP037
     server_ref: Mapped["Servers"] = relationship(back_populates="symbol_count")

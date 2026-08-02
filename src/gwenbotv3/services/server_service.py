@@ -126,3 +126,23 @@ class ServerService:
         self.logger.info("Updated server: %s - Updated: %s", server_id, str(stmt))
 
         await session.execute(stmt)
+
+    async def select_prefix(self, server_id: int) -> str:
+        """Returns the prefix of a server.
+
+        Parameters
+        ----------
+        server_id : int
+            ID of the guild.
+
+        Returns
+        -------
+        str
+            Prefix.
+        """
+        server = await self.select_server(server_id=server_id)
+
+        if not server:
+            return "+"
+
+        return server.prefix

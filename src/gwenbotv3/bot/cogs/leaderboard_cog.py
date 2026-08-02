@@ -1,11 +1,13 @@
 """Houses the leaderboard cog."""
 
 import logging
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import discord
 from discord.ext import commands
 
+from gwenbotv3.database.models import SymbolCounter
 from gwenbotv3.exceptions import (
     LimitTooLargeError,
     SymbolAlreadySetupError,
@@ -96,6 +98,14 @@ class LeaderboardCog(commands.Cog):
 
         await ctx.send(f"Done! Updates your strictness to be {new_strictness}.")
 
+    async def _check_last_recount(self, counter: SymbolCounter) -> bool:
+        if counter.last_recount is None:
+            return False
+
+        since_last_recount = datetime.now(UTC) - counter.last_recount
+
+        return since_last_recount <= timedelta(hours=24)
+
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def recount(self, ctx: commands.Context[commands.Bot]) -> None:
@@ -110,6 +120,12 @@ class LeaderboardCog(commands.Cog):
             await ctx.send("This server doesn't have a symbol counter set up!")
             return
 
+        last_recount_check = await self._check_last_recount(counter=counter)
+
+        if last_recount_check:
+            await ctx.send("You may only recount every 24 hours!")
+            return
+
         channel_object = self.bot.get_channel(counter.channel_id)
 
         if not isinstance(channel_object, discord.TextChannel):
@@ -118,6 +134,8 @@ class LeaderboardCog(commands.Cog):
                 "how is this even possible?"
             )
             return
+
+        await self.symbol_service.update_last_recount(server_id=ctx.guild.id)
 
         await ctx.send("Gwen is recounting. This might take a while.")
 

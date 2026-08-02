@@ -7,7 +7,12 @@ from .gwensub_exceptions import (
     UserNotBlacklistedError,
     UserNotSubscribedError,
 )
-from .server_exceptions import ServerError, ServerIdNotGivenError, ServerNotFoundError
+from .server_exceptions import (
+    PrefixTooLongError,
+    ServerError,
+    ServerIdNotGivenError,
+    ServerNotFoundError,
+)
 from .symbol_exceptions import (
     LimitTooLargeError,
     StrictnessAlreadySetError,
@@ -27,6 +32,7 @@ from .user_exceptions import (
 __all__ = [
     "GwenseekError",
     "LimitTooLargeError",
+    "PrefixTooLongError",
     "ServerError",
     "ServerIdNotGivenError",
     "ServerNotFoundError",

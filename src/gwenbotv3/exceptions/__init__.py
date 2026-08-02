@@ -5,6 +5,7 @@ All custom exceptions go into this module."""
 from ._services import (
     GwenseekError,
     LimitTooLargeError,
+    PrefixTooLongError,
     ServerError,
     ServerIdNotGivenError,
     ServerNotFoundError,
@@ -34,6 +35,7 @@ __all__ = [
     "ChampionNotFoundError",
     "GwenseekError",
     "LimitTooLargeError",
+    "PrefixTooLongError",
     "ServerError",
     "ServerIdNotGivenError",
     "ServerNotFoundError",
