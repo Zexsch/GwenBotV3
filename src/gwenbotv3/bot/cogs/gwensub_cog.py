@@ -6,6 +6,7 @@ import sys
 from typing import Any
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from gwenbotv3.exceptions import UserNotSubscribedError
@@ -161,6 +162,7 @@ class GwensubCog(commands.Cog):
 
     @commands.hybrid_command(aliases=["bl"])
     @commands.has_permissions(kick_members=True)
+    @app_commands.describe(user_id="ID of the user. Mentions are not supported with slash commands!")
     async def blacklist(
         self, ctx: commands.Context, user_id: str | None = None
     ) -> None:
@@ -200,6 +202,7 @@ class GwensubCog(commands.Cog):
         name="unblacklist", aliases=["blr", "blacklistremove", "blremove", "unbl"]
     )
     @commands.has_permissions(kick_members=True)
+    @app_commands.describe(user_id="ID of the user. Mentions are not supported with slash commands!")
     async def unblacklist(
         self, ctx: commands.Context, user_id: str | None = None
     ) -> None:
