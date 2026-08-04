@@ -130,7 +130,7 @@ class WinrateCog(commands.Cog):
             ctx (commands.Context): Discord Context.
             champion_name (str): Name of the champion.
         """
-        msg = await self._winrate(champion_name, args)
+        msg = await self._winrate(champion_name, *args)
         await ctx.send(msg)
 
     @app_commands.command(
@@ -154,7 +154,7 @@ class WinrateCog(commands.Cog):
     ) -> None:
         """Same as wr but for slash commands."""
         await interaction.response.defer()
-        msg = await self._winrate(champion_name, (elo, role, patch, opponent))
+        msg = await self._winrate(champion_name, *(elo, role, patch, opponent))
         await interaction.response.send_message(msg)
 
     @commands.hybrid_command(aliases=["checkver", "patch"])
