@@ -12,10 +12,23 @@ from gwenbotv3.exceptions import (
     WinrateNotFoundError,
 )
 from gwenbotv3.utils.request import FailedRequestError
+from gwenbotv3.config.winrate_values import ELO_LIST
 
 
 class WinrateCog(commands.Cog):
     """Anything to do with the winrate commands."""
+
+    ELO_CHOICES = [
+        app_commands.Choice(name=elo if elo else "none", value=elo)
+        for elo in ELO_LIST
+    ]
+
+    _ROLES = ["Top", "Jungle", "Mid", "Bot", "Support"]
+
+    ROLE_CHOICES = [
+        app_commands.Choice(name=role, value=role)
+        for role in _ROLES
+    ]
 
     def __init__(self, bot: commands.Bot, winrate_fetcher: WinrateFetcher) -> None:
         self.bot = bot
@@ -28,6 +41,7 @@ class WinrateCog(commands.Cog):
             "diamond_plus": "D+",
             "master_plus": "M+",
         }
+
 
     async def _winrate(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
         """See wr docstring"""
@@ -143,6 +157,8 @@ class WinrateCog(commands.Cog):
         patch="Patch version",
         opponent="Opponent champion for matchup winrate",
     )
+    @app_commands.choices(elo=ELO_CHOICES)
+    @app_commands.choices(role=ROLE_CHOICES)
     async def wr_slash(
         self,
         interaction: Interaction,
