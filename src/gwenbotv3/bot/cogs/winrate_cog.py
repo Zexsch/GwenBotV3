@@ -1,33 +1,32 @@
 """Houses the winrate cog."""
 
 import logging
+from typing import ClassVar
 
 from discord import Interaction, app_commands
 from discord.ext import commands
 
 from gwenbotv3.bot.winrate import Champion, WinrateFetcher
+from gwenbotv3.config.winrate_values import ELO_LIST
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
+    FailedRequestError,
     StatsNotFoundError,
     WinrateNotFoundError,
 )
-from gwenbotv3.exceptions import FailedRequestError
-from gwenbotv3.config.winrate_values import ELO_LIST
 
 
 class WinrateCog(commands.Cog):
     """Anything to do with the winrate commands."""
 
-    ELO_CHOICES = [
-        app_commands.Choice(name=elo if elo else "none", value=elo)
-        for elo in ELO_LIST
+    ELO_CHOICES: ClassVar[list[app_commands.Choice[str]]] = [
+        app_commands.Choice(name=elo if elo else "none", value=elo) for elo in ELO_LIST
     ]
 
-    _ROLES = ["Top", "Jungle", "Mid", "Bot", "Support"]
+    _ROLES: ClassVar[list[str]] = ["Top", "Jungle", "Mid", "Bot", "Support"]
 
-    ROLE_CHOICES = [
-        app_commands.Choice(name=role, value=role)
-        for role in _ROLES
+    ROLE_CHOICES: ClassVar[list[app_commands.Choice[str]]] = [
+        app_commands.Choice(name=role, value=role) for role in _ROLES
     ]
 
     def __init__(self, bot: commands.Bot, winrate_fetcher: WinrateFetcher) -> None:
@@ -41,7 +40,6 @@ class WinrateCog(commands.Cog):
             "diamond_plus": "D+",
             "master_plus": "M+",
         }
-
 
     async def _winrate(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
         """See wr docstring"""

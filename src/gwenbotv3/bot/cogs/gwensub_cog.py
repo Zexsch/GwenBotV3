@@ -42,7 +42,7 @@ class GwensubCog(commands.Cog):
             await ctx.send("The server has blocked this function.")
             return
 
-        if await self.gwensub_service.select_blacklist_by_ids(
+        if await self.gwensub_service.select_any_blacklist_by_ids(
             user_id=ctx.author.id, server_id=ctx.guild.id
         ):
             await ctx.send("You are blacklisted from using this function.")
@@ -69,7 +69,7 @@ class GwensubCog(commands.Cog):
         """Command to remove user from the subscribed database"""
         assert ctx.guild is not None
 
-        if await self.gwensub_service.select_blacklist_by_ids(
+        if await self.gwensub_service.select_any_blacklist_by_ids(
             user_id=ctx.author.id, server_id=ctx.guild.id
         ):
             await ctx.send("You are blacklisted from using this command.")
@@ -162,7 +162,9 @@ class GwensubCog(commands.Cog):
 
     @commands.hybrid_command(aliases=["bl"])
     @commands.has_permissions(kick_members=True)
-    @app_commands.describe(user_id="ID of the user. Mentions are not supported with slash commands!")
+    @app_commands.describe(
+        user_id="ID of the user. Mentions are not supported with slash commands!"
+    )
     async def blacklist(
         self, ctx: commands.Context, user_id: str | None = None
     ) -> None:
@@ -202,7 +204,9 @@ class GwensubCog(commands.Cog):
         name="unblacklist", aliases=["blr", "blacklistremove", "blremove", "unbl"]
     )
     @commands.has_permissions(kick_members=True)
-    @app_commands.describe(user_id="ID of the user. Mentions are not supported with slash commands!")
+    @app_commands.describe(
+        user_id="ID of the user. Mentions are not supported with slash commands!"
+    )
     async def unblacklist(
         self, ctx: commands.Context, user_id: str | None = None
     ) -> None:

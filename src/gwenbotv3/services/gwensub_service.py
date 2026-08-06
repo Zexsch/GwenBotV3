@@ -211,6 +211,16 @@ class GwensubService:
         return (await session.execute(stmt)).scalar_one_or_none()
 
     @connect
+    async def select_any_blacklist_by_ids(
+        self, session: AsyncSession, user_id: int, server_id: int
+    ) -> Blacklist | None:
+        stmt = select(Blacklist).where(
+            Blacklist.user_id == user_id, Blacklist.server_id == server_id
+        )
+
+        return (await session.execute(stmt)).scalar_one_or_none()
+
+    @connect
     async def insert_blacklist(
         self,
         session: AsyncSession,

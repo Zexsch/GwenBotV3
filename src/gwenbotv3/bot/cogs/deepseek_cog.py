@@ -81,7 +81,7 @@ class DeepseekCog(commands.Cog):
     ) -> bool:
         assert ctx.guild is not None
 
-        if await self.gwensub_service.select_blacklist_by_ids(
+        if await self.gwensub_service.select_any_blacklist_by_ids(
             user_id=ctx.author.id, server_id=ctx.guild.id
         ):
             await ctx.send("You have been blacklisted from using this command.")
