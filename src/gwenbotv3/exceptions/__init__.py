@@ -34,6 +34,7 @@ from .utils import FailedRequestError
 
 __all__ = [
     "ChampionNotFoundError",
+    "FailedRequestError",
     "GwenseekError",
     "LimitTooLargeError",
     "PrefixTooLongError",
@@ -57,5 +58,4 @@ __all__ = [
     "UserNotSubscribedError",
     "WinrateError",
     "WinrateNotFoundError",
-    "FailedRequestError"
 ]
