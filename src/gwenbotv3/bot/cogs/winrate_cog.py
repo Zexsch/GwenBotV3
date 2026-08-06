@@ -11,7 +11,7 @@ from gwenbotv3.exceptions import (
     StatsNotFoundError,
     WinrateNotFoundError,
 )
-from gwenbotv3.utils.request import FailedRequestError
+from gwenbotv3.exceptions import FailedRequestError
 from gwenbotv3.config.winrate_values import ELO_LIST
 
 

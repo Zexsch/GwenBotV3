@@ -30,6 +30,7 @@ from .bot import (
     WinrateError,
     WinrateNotFoundError,
 )
+from .utils import FailedRequestError
 
 __all__ = [
     "ChampionNotFoundError",
@@ -56,4 +57,5 @@ __all__ = [
     "UserNotSubscribedError",
     "WinrateError",
     "WinrateNotFoundError",
+    "FailedRequestError"
 ]

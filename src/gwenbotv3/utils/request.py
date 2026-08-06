@@ -6,20 +6,10 @@ instead of using requests.get directly.
 
 import logging
 import time
-from typing import Any
 
 import requests
 
-
-class FailedRequestError(Exception):
-    """
-    Raise if a request has failed for any reason
-    not handled by the request function."""
-
-    def __init__(self, **kwargs: Any) -> None:
-        self.logger = logging.getLogger(__name__)
-        self.logger.error("Request failed with %s", kwargs)
-        super().__init__(f"Request failed with {kwargs=}")
+from gwenbotv3.exceptions import FailedRequestError
 
 
 def request(url: str, headers: dict[str, str] | None = None) -> requests.Response:
