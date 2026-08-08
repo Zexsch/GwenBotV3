@@ -7,12 +7,13 @@ from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
 from gwenbotv3.services import ServerService
+from gwenbotv3.types import AppType
 
 
 class ModerationCog(commands.Cog):
     """Anything to do with server moderation."""
 
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: AppType) -> None:
         self.bot = bot
         self.server_service = ServerService()
         self.logger = logging.getLogger(__name__)
@@ -38,6 +39,8 @@ class ModerationCog(commands.Cog):
         await self.server_service.update_server(
             server_id=ctx.guild.id, prefix=new_prefix
         )
+
+        self.bot.prefix_cache[ctx.guild.id] = new_prefix
 
         await ctx.send(f"Changed prefix to {new_prefix}")
 
