@@ -8,9 +8,11 @@ from sqlalchemy import Row, asc, delete, desc, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from gwenbotv3.database import connect
-from gwenbotv3.database.models import SymbolCounter, SymbolUser, Users
+from gwenbotv3.database.models import SymbolCounter, SymbolPingUsers, SymbolUser, Users
 from gwenbotv3.exceptions import (
     LimitTooLargeError,
+    PingUserAlreadyInsertedError,
+    PingUserNotInsertedError,
     SymbolAlreadySetupError,
     SymbolNotSetupError,
     SymbolTooLongError,
@@ -527,3 +529,65 @@ class SymbolService:
         )
 
         await session.execute(stmt)
+
+    @connect
+    async def select_ping_user(
+        self, session: AsyncSession, symbol_ping_id: int
+    ) -> SymbolPingUsers | None:
+        stmt = select(SymbolPingUsers).where(
+            SymbolPingUsers.symbol_ping_id == symbol_ping_id
+        )
+        return (await session.execute(stmt)).scalar_one_or_none()
+
+    @connect
+    async def select_ping_user_by_ids(
+        self, session: AsyncSession, server_id: int, user_id: int
+    ) -> SymbolPingUsers | None:
+        stmt = select(SymbolPingUsers).where(
+            SymbolPingUsers.user_id == user_id, SymbolPingUsers.server_id == server_id
+        )
+        return (await session.execute(stmt)).scalar_one_or_none()
+
+    @connect
+    async def insert_ping_user(
+        self, session: AsyncSession, server_id: int, user_id: int
+    ) -> SymbolPingUsers:
+        ping_user_check = await self.select_ping_user_by_ids(
+            server_id=server_id, user_id=user_id
+        )
+
+        if ping_user_check:
+            raise PingUserAlreadyInsertedError
+
+        ping_user = SymbolPingUsers(server_id=server_id, user_id=user_id)
+
+        session.add(ping_user)
+
+        return ping_user
+
+    @connect
+    async def delete_ping_user_by_ids(
+        self, session: AsyncSession, server_id: int, user_id: int
+    ) -> None:
+        ping_user_check = await self.select_ping_user_by_ids(
+            server_id=server_id, user_id=user_id
+        )
+
+        if not ping_user_check:
+            raise PingUserNotInsertedError
+
+        stmt = delete(SymbolPingUsers).where(
+            SymbolPingUsers.server_id == server_id, SymbolPingUsers.user_id == user_id
+        )
+
+        await session.execute(stmt)
+
+    @connect
+    async def select_ping_users_server(
+        self, session: AsyncSession, server_id: int
+    ) -> Sequence[Row[tuple[int]]]:
+        stmt = select(SymbolPingUsers.user_id).where(
+            SymbolPingUsers.server_id == server_id
+        )
+
+        return (await session.execute(stmt)).all()

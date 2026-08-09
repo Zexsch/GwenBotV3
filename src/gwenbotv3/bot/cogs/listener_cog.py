@@ -24,8 +24,19 @@ class ListenerCog(commands.Cog):
 
     async def _strict_check(self, msg: discord.Message, counter: SymbolCounter) -> str:
         # ruff: noqa: RUF001 # For weird symbols
+
+        ping_users = await self.symbol_service.select_ping_users_server(
+            counter.server_id
+        )
+
+        pingers = ""
+
+        for ping_user in ping_users:
+            user = ping_user.tuple()
+            pingers += f"<@{user}> "
+
         base_message = (
-            f"<@{counter.creating_user}> Somebody did a little fucky wuckie >.<!! "
+            f"{pingers}Somebody did a little fucky wuckie >.<!! "
             "A small oopsie woopsie uwu! Someone dared ruin the symbol chain nya~!!! "
             f"<@{msg.author.id}> what have you done!! (⁄ ⁄•⁄ω⁄•⁄ ⁄) "
         )

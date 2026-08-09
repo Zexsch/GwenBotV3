@@ -30,3 +30,11 @@ class SymbolTooLongError(SymbolError):
 
 class LimitTooLargeError(SymbolError):
     pass
+
+
+class PingUserAlreadyInsertedError(SymbolError):
+    pass
+
+
+class PingUserNotInsertedError(SymbolError):
+    pass

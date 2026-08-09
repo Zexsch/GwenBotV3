@@ -6,7 +6,7 @@ For more custom modules, set any discord ID to BigIntegers."""
 from .gwenseek import Gwenseek
 from .gwensub import Blacklist, Subs
 from .servers import Servers
-from .symbols import SymbolCounter, SymbolUser
+from .symbols import SymbolCounter, SymbolPingUsers, SymbolUser
 from .users import Users
 
 __all__ = [
@@ -15,6 +15,7 @@ __all__ = [
     "Servers",
     "Subs",
     "SymbolCounter",
+    "SymbolPingUsers",
     "SymbolUser",
     "Users",
 ]

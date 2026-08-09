@@ -81,6 +81,25 @@ class SymbolCounter(Base):
         return self.symbol_id == other.symbol_id
 
 
+class SymbolPingUsers(Base):
+    __tablename__ = "symbol_ping_users"
+    __table_args__ = ({"mysql_engine": "InnoDB"},)
+
+    symbol_ping_id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("users.user_id"), nullable=False
+    )
+    server_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("servers.server_id"), nullable=False
+    )
+
+    def __repr__(self) -> str:
+        return f"{self.server_id} - {self.user_id}"
+
+    def __str__(self) -> str:
+        return str(self.symbol_ping_id)
+
+
 class SymbolUser(Base):
     """Symbol User ORM Model.
 

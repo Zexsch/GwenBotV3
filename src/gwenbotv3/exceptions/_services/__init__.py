@@ -15,6 +15,8 @@ from .server_exceptions import (
 )
 from .symbol_exceptions import (
     LimitTooLargeError,
+    PingUserAlreadyInsertedError,
+    PingUserNotInsertedError,
     StrictnessAlreadySetError,
     SymbolAlreadySetupError,
     SymbolError,
@@ -32,6 +34,8 @@ from .user_exceptions import (
 __all__ = [
     "GwenseekError",
     "LimitTooLargeError",
+    "PingUserAlreadyInsertedError",
+    "PingUserNotInsertedError",
     "PrefixTooLongError",
     "ServerError",
     "ServerIdNotGivenError",

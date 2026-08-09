@@ -256,6 +256,62 @@ class LeaderboardCog(commands.Cog):
         )
 
     @commands.hybrid_command(
+        description="Make yourself be pinged when the counter's rules are broken."
+    )
+    @commands.has_permissions(kick_members=True)
+    async def ping(self, ctx: commands.Context) -> None:
+        assert ctx.guild is not None
+
+        symbol_counter = await self.symbol_service.select_counter_by_ids(
+            server_id=ctx.guild.id
+        )
+
+        if not symbol_counter:
+            await ctx.send("This server doesn't have any counters set up!")
+            return
+
+        ping_user_check = await self.symbol_service.select_ping_user_by_ids(
+            server_id=ctx.guild.id, user_id=ctx.author.id
+        )
+
+        if ping_user_check is not None:
+            await ctx.send("You are already being pinged!")
+            return
+
+        await self.symbol_service.insert_ping_user(
+            server_id=ctx.guild.id, user_id=ctx.author.id
+        )
+
+        await ctx.send("Added you to the list of users to be pinged!")
+
+    @commands.hybrid_command(description="Remove yourself from the list of pings.")
+    @commands.has_permissions(kick_members=True)
+    async def unping(self, ctx: commands.Context) -> None:
+        assert ctx.guild is not None
+
+        symbol_counter = await self.symbol_service.select_counter_by_ids(
+            server_id=ctx.guild.id
+        )
+
+        if not symbol_counter:
+            await ctx.send("This server doesn't have any counters set up!")
+            return
+
+        ping_user_check = await self.symbol_service.select_ping_user_by_ids(
+            server_id=ctx.guild.id, user_id=ctx.author.id
+        )
+
+        if ping_user_check is None:
+            await ctx.send("You are not being pinged!")
+            return
+
+        await self.symbol_service.insert_ping_user(
+            server_id=ctx.guild.id, user_id=ctx.author.id
+        )
+
+        await ctx.send("You will no longer be pinged!")
+
+    @commands.hybrid_command(
         aliases=["lb"], description="Replies with the leaderboard for counter."
     )
     @app_commands.describe(limit="The length of the leaderboard. It can at most be 20.")

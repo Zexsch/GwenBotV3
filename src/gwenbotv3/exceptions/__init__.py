@@ -5,6 +5,8 @@ All custom exceptions go into this module."""
 from ._services import (
     GwenseekError,
     LimitTooLargeError,
+    PingUserAlreadyInsertedError,
+    PingUserNotInsertedError,
     PrefixTooLongError,
     ServerError,
     ServerIdNotGivenError,
@@ -37,6 +39,8 @@ __all__ = [
     "FailedRequestError",
     "GwenseekError",
     "LimitTooLargeError",
+    "PingUserAlreadyInsertedError",
+    "PingUserNotInsertedError",
     "PrefixTooLongError",
     "ServerError",
     "ServerIdNotGivenError",
