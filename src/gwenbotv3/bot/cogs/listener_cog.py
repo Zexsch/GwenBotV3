@@ -32,7 +32,7 @@ class ListenerCog(commands.Cog):
         pingers = ""
 
         for ping_user in ping_users:
-            user = ping_user.tuple()
+            user = ping_user.tuple()[0]
             pingers += f"<@{user}> "
 
         base_message = (
