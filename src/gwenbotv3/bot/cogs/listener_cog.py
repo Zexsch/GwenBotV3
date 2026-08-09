@@ -166,7 +166,8 @@ class ListenerCog(commands.Cog):
 
         server = await self.server_service.select_server(server_id=msg.guild.id)
 
-        assert server is not None
+        if not server:
+            return
 
         if server.quote:
             return
