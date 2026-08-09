@@ -198,6 +198,10 @@ class GwensubCog(commands.Cog):
         with contextlib.suppress(UserNotSubscribedError):
             await self.gwensub_service.delete_sub(user_id=u_id, server_id=ctx.guild.id)
 
+        await self.gwensub_service.insert_blacklist(
+            user_id=ctx.author.id, server_id=ctx.guild.id, by_owner=False
+        )
+
         await ctx.send("User successfully added to the Blacklist.")
 
     @commands.hybrid_command(
