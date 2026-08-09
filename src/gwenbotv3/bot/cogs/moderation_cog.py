@@ -6,14 +6,14 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
+from gwenbotv3.bot.app import App
 from gwenbotv3.services import ServerService
-from gwenbotv3.types import AppType
 
 
 class ModerationCog(commands.Cog):
     """Anything to do with server moderation."""
 
-    def __init__(self, bot: AppType) -> None:
+    def __init__(self, bot: App) -> None:
         self.bot = bot
         self.server_service = ServerService()
         self.logger = logging.getLogger(__name__)
