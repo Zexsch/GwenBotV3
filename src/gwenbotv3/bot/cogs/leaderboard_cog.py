@@ -305,7 +305,7 @@ class LeaderboardCog(commands.Cog):
             await ctx.send("You are not being pinged!")
             return
 
-        await self.symbol_service.insert_ping_user(
+        await self.symbol_service.delete_ping_user_by_ids(
             server_id=ctx.guild.id, user_id=ctx.author.id
         )
 
