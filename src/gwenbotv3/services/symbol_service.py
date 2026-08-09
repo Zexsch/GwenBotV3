@@ -573,7 +573,7 @@ class SymbolService:
             server_id=server_id, user_id=user_id
         )
 
-        if not ping_user_check:
+        if ping_user_check is None:
             raise PingUserNotInsertedError
 
         stmt = delete(SymbolPingUsers).where(
