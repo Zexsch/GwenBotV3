@@ -32,13 +32,14 @@ from .bot import (
     WinrateError,
     WinrateNotFoundError,
 )
-from .utils import FailedRequestError
+from .utils import FailedRequestError, NoViewError
 
 __all__ = [
     "ChampionNotFoundError",
     "FailedRequestError",
     "GwenseekError",
     "LimitTooLargeError",
+    "NoViewError",
     "PingUserAlreadyInsertedError",
     "PingUserNotInsertedError",
     "PrefixTooLongError",

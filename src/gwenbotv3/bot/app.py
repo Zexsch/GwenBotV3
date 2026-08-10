@@ -6,6 +6,7 @@ import sys
 from typing import Any, Self
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 from gwenbotv3.bot.winrate import WinrateFetcher
@@ -13,7 +14,11 @@ from gwenbotv3.config import (
     OWNER_ID,
     PREFIX,
 )
-from gwenbotv3.exceptions import ServerIdNotGivenError, UserIdOrNameNotGivenError
+from gwenbotv3.exceptions import (
+    NoViewError,
+    ServerIdNotGivenError,
+    UserIdOrNameNotGivenError,
+)
 from gwenbotv3.services import DatabaseService, ServerService, UserService
 
 
@@ -42,6 +47,7 @@ class App(commands.Bot):
     async def setup_hook(self) -> None:
         self.before_invoke(self.dispatch_before_hooks)
         self.after_invoke(self.after_hook)
+        self.register_app_command_error()
 
         await self.database_service.purge_stale_users()
 
@@ -161,6 +167,28 @@ class App(commands.Bot):
         )
 
         await ctx.reply("Oh no! Gwen ran into some issues when running this command...")
+
+    def register_app_command_error(self) -> None:
+        @self.tree.error
+        async def on_app_command_error(
+            interaction: discord.Interaction, error: app_commands.AppCommandError
+        ) -> None:
+            original = (
+                error.original
+                if isinstance(error, app_commands.CommandInvokeError)
+                else error
+            )
+
+            if isinstance(original, NoViewError):
+                return
+
+            self.logger.error(
+                "Unhandled exception in app command '%s'",
+                interaction.command.qualified_name
+                if interaction.command
+                else "unknown",
+                exc_info=original,
+            )
 
     async def dispatch_before_hooks(self, ctx: commands.Context[Self]) -> None:
         """Before hooks run before commands get executed.
