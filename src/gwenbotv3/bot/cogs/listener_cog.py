@@ -7,6 +7,7 @@ import discord
 from discord.channel import TextChannel
 from discord.ext import commands
 
+from gwenbotv3.bot.app import App
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
 from gwenbotv3.database.models import SymbolCounter
 from gwenbotv3.services import GwensubService, ServerService, SymbolService
@@ -15,7 +16,7 @@ from gwenbotv3.services import GwensubService, ServerService, SymbolService
 class ListenerCog(commands.Cog):
     """Anything to do with on_message listens."""
 
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: App) -> None:
         self.bot = bot
         self.symbol_service = SymbolService()
         self.gwensub_service = GwensubService()
@@ -214,6 +215,9 @@ class ListenerCog(commands.Cog):
             return
 
         if msg.author == self.bot.user:
+            return
+
+        if msg.author.id in self.bot.private_users:
             return
 
         await self._symbol_check(msg)

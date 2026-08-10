@@ -19,7 +19,12 @@ from gwenbotv3.exceptions import (
     ServerIdNotGivenError,
     UserIdOrNameNotGivenError,
 )
-from gwenbotv3.services import DatabaseService, ServerService, UserService
+from gwenbotv3.services import (
+    DatabaseService,
+    PrivacyService,
+    ServerService,
+    UserService,
+)
 
 
 # pylint: disable=arguments-differ
@@ -42,12 +47,16 @@ class App(commands.Bot):
         self.user_service = UserService()
         self.server_service = ServerService()
         self.database_service = DatabaseService()
+        self.privacy_service = PrivacyService()
+
         self.prefix_cache: dict[int, str] = {}
+        self.private_users: list[int] = []
 
     async def setup_hook(self) -> None:
         self.before_invoke(self.dispatch_before_hooks)
         self.after_invoke(self.after_hook)
         self.register_app_command_error()
+        await self.get_private_users()
 
         await self.database_service.purge_stale_users()
 
@@ -96,6 +105,14 @@ class App(commands.Bot):
         return commands.when_mentioned_or(self.prefix_cache.get(msg.guild.id, PREFIX))(
             self, msg
         )
+
+    async def get_private_users(self) -> None:
+        rows = await self.privacy_service.select_all_private_users()
+
+        for row in rows:
+            user = row.tuple()[0]
+
+            self.private_users.append(user)
 
     async def on_error(self, event_method: str, *args: Any, **kwargs: Any) -> None:
         self.logger.error(
