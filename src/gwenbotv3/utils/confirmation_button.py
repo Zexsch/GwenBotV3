@@ -44,7 +44,7 @@ class _ConfirmationButton(discord.ui.View):
             await self.message.edit(content="How could you take so long...", view=None)
 
 
-def confirmation_button[Self, **P, R](
+def confirm[Self, **P, R](
     *, message: str = "Are you sure you want to do this?"
 ) -> Callable[
     [Callable[Concatenate[Self, Interaction, P], Awaitable[R]]],
