@@ -182,7 +182,23 @@ class HelpCog(commands.Cog):
                 "deleted where possible. **Your user ID is kept so blacklists still work.**\n"
                 "`+unanonymise` - Restores username storage if you previously ran `+anonymise`.\n"
                 "`+clearhistory (ch)` - Clears your gwenseek history in the current server.\n"
-                "`+clearhistoryall (cha, chall)` - Clears all your gwenseek history."
+                "`+clearhistoryall (cha, chall)` - Clears all your gwenseek history.\n"
+                "`notracking` (slash only) - Makes Gwen not track your messages. See the tracking field.\n"
+                "`tracking` (slash only) - Makes Gwen track your messages again. See the tracking field."
+            ),
+        )
+        embed.add_field(
+            name="Tracking",
+            value=(
+                "**Gwen does not store your message data**, unless it is related to deepseek "
+                "API calls, in which case the last 5 conversations per-server are stored.\n"
+                '"Tracking" in this case referrs to on-message listeners that Gwen has.\n'
+                'Currently, this includes the check for "Gwen" in any message (if subscribed) '
+                "and the check for server symbol counters. If you wish to no longer "
+                "be tracked in this way, you can use the `notracking` slash command.\n"
+                "Keep in mind that by doing this, Gwen will no longer reply with "
+                '"Gwen is immune." in chat, even when you are subscribed, and she will '
+                "no longer count any of your sent symbols in a symbol counter."
             ),
         )
 
