@@ -436,6 +436,19 @@ class SymbolService:
 
         await session.execute(stmt)
 
+    @connect
+    async def delete_all_user_counters(
+        self, session: AsyncSession, server_id: int
+    ) -> None:
+        counter_check = await self.select_counter_by_ids(server_id=server_id)
+
+        if not counter_check:
+            raise SymbolNotSetupError
+
+        stmt = delete(SymbolUser).where(SymbolUser.symbols_server == server_id)
+
+        await session.execute(stmt)
+
     # General
 
     async def update_counters(self, server_id: int, user_id: int) -> None:
@@ -591,3 +604,16 @@ class SymbolService:
         )
 
         return (await session.execute(stmt)).all()
+
+    @connect
+    async def delete_all_ping_users(
+        self, session: AsyncSession, server_id: int
+    ) -> None:
+        counter_check = await self.select_counter_by_ids(server_id=server_id)
+
+        if not counter_check:
+            raise SymbolNotSetupError
+
+        stmt = delete(SymbolPingUsers).where(SymbolPingUsers.server_id == server_id)
+
+        await session.execute(stmt)

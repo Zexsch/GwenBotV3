@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import discord
-from discord import app_commands
+from discord import Interaction, app_commands
 from discord.ext import commands
 
 from gwenbotv3.database.models import SymbolCounter
@@ -15,7 +15,7 @@ from gwenbotv3.exceptions import (
     SymbolNotSetupError,
 )
 from gwenbotv3.services import SymbolService, UserService
-from gwenbotv3.utils import get_mention
+from gwenbotv3.utils import confirm, get_mention
 
 
 class LeaderboardCog(commands.Cog):
@@ -82,6 +82,30 @@ class LeaderboardCog(commands.Cog):
         await ctx.send(
             f"Initialisation complete for channel {channel.name}, symbol {symbol}"
         )
+
+    @app_commands.command(name="uninitialise", description="")  # type: ignore
+    @confirm(
+        message=(
+            "Are you sure you want to uninitialise? "
+            "You will need to recount if you initialise again."
+        )
+    )
+    async def uninitialise(self, interaction: Interaction) -> None:
+        assert interaction.guild is not None
+
+        try:
+            await self.symbol_service.delete_all_user_counters(
+                server_id=interaction.guild.id
+            )
+            await self.symbol_service.delete_all_ping_users(
+                server_id=interaction.guild.id
+            )
+            await self.symbol_service.delete_counter(server_id=interaction.guild.id)
+        except SymbolNotSetupError:
+            await interaction.followup.send("This server has no counter set up!")
+            return
+
+        await interaction.followup.send("Successfully deleted the counter.")
 
     @commands.hybrid_command(
         description=(
@@ -282,6 +306,10 @@ class LeaderboardCog(commands.Cog):
             server_id=ctx.guild.id, user_id=ctx.author.id
         )
 
+        self.logger.debug(
+            "Added user=%s to ping users in server=%s", ctx.guild.id, ctx.author.id
+        )
+
         await ctx.send("Added you to the list of users to be pinged!")
 
     @commands.hybrid_command(description="Remove yourself from the list of pings.")
@@ -307,6 +335,10 @@ class LeaderboardCog(commands.Cog):
 
         await self.symbol_service.delete_ping_user_by_ids(
             server_id=ctx.guild.id, user_id=ctx.author.id
+        )
+
+        self.logger.debug(
+            "Removed user=%s from ping users in server=%s", ctx.guild.id, ctx.author.id
         )
 
         await ctx.send("You will no longer be pinged!")
