@@ -42,6 +42,7 @@ class App(commands.Bot):
         self.user_service = UserService()
         self.server_service = ServerService()
         self.database_service = DatabaseService()
+
         self.prefix_cache: dict[int, str] = {}
 
     async def setup_hook(self) -> None:

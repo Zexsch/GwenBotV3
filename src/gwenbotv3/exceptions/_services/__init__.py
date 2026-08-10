@@ -7,6 +7,11 @@ from .gwensub_exceptions import (
     UserNotBlacklistedError,
     UserNotSubscribedError,
 )
+from .privacy_exceptions import (
+    PrivacyError,
+    UserAlreadyPrivateError,
+    UserNotPrivateError,
+)
 from .server_exceptions import (
     PrefixTooLongError,
     ServerError,
@@ -37,6 +42,7 @@ __all__ = [
     "PingUserAlreadyInsertedError",
     "PingUserNotInsertedError",
     "PrefixTooLongError",
+    "PrivacyError",
     "ServerError",
     "ServerIdNotGivenError",
     "ServerNotFoundError",
@@ -45,6 +51,7 @@ __all__ = [
     "SymbolError",
     "SymbolNotSetupError",
     "SymbolTooLongError",
+    "UserAlreadyPrivateError",
     "UserError",
     "UserIdOrNameNotGivenError",
     "UserIsAnonymisedError",
@@ -53,5 +60,6 @@ __all__ = [
     "UserNotAnonymisedError",
     "UserNotBlacklistedError",
     "UserNotFoundError",
+    "UserNotPrivateError",
     "UserNotSubscribedError",
 ]
