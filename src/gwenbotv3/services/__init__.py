@@ -3,6 +3,7 @@
 from .database_service import DatabaseService
 from .gwenseek_service import GwenseekService
 from .gwensub_service import GwensubService
+from .privacy_service import PrivacyService
 from .server_service import ServerService
 from .symbol_service import SymbolService
 from .user_service import UserService
@@ -11,6 +12,7 @@ __all__ = [
     "DatabaseService",
     "GwenseekService",
     "GwensubService",
+    "PrivacyService",
     "ServerService",
     "SymbolService",
     "UserService",
