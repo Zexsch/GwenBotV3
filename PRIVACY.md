@@ -57,6 +57,7 @@ Data is collected based on:
 - clearhistory - Deletes all DeepSeek chat history in the current server
 - clearhistoryall - Deletes all Deepseek chat history
 - pseudonymise - Pseudonymises all user data stored **except for data necessary to maintain bot functionality**, such as command blacklists set by server moderators. The user's unique Discord ID will continue to be stored.
+- untrack - Makes Gwen not track your messages. Gwen does not store your message data before nor after running this command.
 
 Note: Some data, like bot blacklists, which rely on user IDs, cannot be deleted to ensure proper operation of the bot and moderation features.
 
