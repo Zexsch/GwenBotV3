@@ -170,7 +170,10 @@ class HelpCog(commands.Cog):
         """
         embed = discord.Embed(
             title="Privacy",
-            description="Format: `+command (aliases)` - description",
+            description=(
+                "Format: `+command (aliases)` - description\n "
+                "[Privacy Policy](https://github.com/Zexsch/GwenBotV3/blob/main/PRIVACY.md)"
+            ),
             color=discord.Color.blurple(),
         )
         embed.add_field(
@@ -202,9 +205,6 @@ class HelpCog(commands.Cog):
             ),
         )
 
-        embed.set_footer(
-            text="[Privacy Policy](https://github.com/Zexsch/GwenBotV3/blob/main/PRIVACY.md)"
-        )
         return embed
 
     async def _get_counter_embed(self) -> discord.Embed:
