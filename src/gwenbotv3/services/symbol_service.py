@@ -447,6 +447,8 @@ class SymbolService:
 
         stmt = delete(SymbolUser).where(SymbolUser.symbols_server == server_id)
 
+        self.logger.info("Deleting all user couners for server=%s", server_id)
+
         await session.execute(stmt)
 
     # General
@@ -615,5 +617,7 @@ class SymbolService:
             raise SymbolNotSetupError
 
         stmt = delete(SymbolPingUsers).where(SymbolPingUsers.server_id == server_id)
+
+        self.logger.info("Deleting all ping users for server=%s", server_id)
 
         await session.execute(stmt)
