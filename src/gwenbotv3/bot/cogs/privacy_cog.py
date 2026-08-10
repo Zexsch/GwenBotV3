@@ -4,25 +4,36 @@ import contextlib
 import logging
 from textwrap import dedent
 
+from discord import Interaction, app_commands
 from discord.ext import commands
 
+from gwenbotv3.bot.app import App
 from gwenbotv3.exceptions import (
+    UserAlreadyPrivateError,
     UserIsAnonymisedError,
     UserNotAnonymisedError,
+    UserNotPrivateError,
     UserNotSubscribedError,
 )
-from gwenbotv3.services import GwenseekService, GwensubService, UserService
+from gwenbotv3.services import (
+    GwenseekService,
+    GwensubService,
+    PrivacyService,
+    UserService,
+)
+from gwenbotv3.utils import confirm
 
 
 class PrivacyCog(commands.Cog):
     """Anything to do with user privacy, mostly anonymise and unanonymise."""
 
-    def __init__(self, bot: commands.Bot) -> None:
+    def __init__(self, bot: App) -> None:
         self.bot = bot
         self.logger = logging.getLogger(__name__)
         self.user_service = UserService()
         self.gwensub_service = GwensubService()
         self.gwenseek_service = GwenseekService()
+        self.privacy_service = PrivacyService()
 
     @commands.hybrid_command(
         aliases=["anonymize", "pseudonymise", "pseudonymize"],
@@ -95,3 +106,45 @@ class PrivacyCog(commands.Cog):
         self.logger.info("Unanonymised user=%s", ctx.author.id)
 
         await ctx.send("You were successfully unpseudonymised.")
+
+    @app_commands.command(
+        name="notracking",
+        description="Makes Gwen not track your messages",
+    )  # type: ignore
+    @confirm(
+        message=(
+            "Are you sure you want to untrack? "
+            "Gwen does not store any of your messages. This command "
+            "will simply prevent her from checking if your message contains "
+            '"Gwen" (if subscribed). It will also mean that you will no longer '
+            "be tracked in server counters if one is set up. See the privacy "
+            "help message for more information."
+        )
+    )
+    async def notracking(self, interaction: Interaction) -> None:
+        try:
+            await self.privacy_service.insert_private_user(user_id=interaction.user.id)
+        except UserAlreadyPrivateError:
+            await interaction.response.send_message(
+                "You are already not being tracked!"
+            )
+
+        self.bot.private_users.append(interaction.user.id)
+
+        await interaction.response.send_message("Successfully made you untracked.")
+
+    @app_commands.command(
+        name="tracking", description="Makes Gwen track your messages again."
+    )
+    async def tracking(self, interaction: Interaction) -> None:
+        try:
+            await self.privacy_service.delete_private_user(user_id=interaction.user.id)
+        except UserNotPrivateError:
+            await interaction.response.send_message("You are not untracked!")
+            return
+
+        self.bot.private_users.remove(interaction.user.id)
+
+        await interaction.response.send_message(
+            "Successfully started tracking you again. In a good way."
+        )
