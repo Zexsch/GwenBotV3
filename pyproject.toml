@@ -1,6 +1,6 @@
 [project]
 name = "gwenbotv3"
-version = "3.4.0"
+version = "3.4.1"
 description = "GwenBotV3"
 readme = "README.md"
 requires-python = ">=3.13"
