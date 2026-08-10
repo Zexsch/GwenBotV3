@@ -83,7 +83,10 @@ class LeaderboardCog(commands.Cog):
             f"Initialisation complete for channel {channel.name}, symbol {symbol}"
         )
 
-    @app_commands.command(name="uninitialise", description="")  # type: ignore
+    @app_commands.command(
+        name="uninitialise",
+        description="Deletes the server's counter and all information stored for it.",
+    )  # type: ignore
     @confirm(
         message=(
             "Are you sure you want to uninitialise? "
