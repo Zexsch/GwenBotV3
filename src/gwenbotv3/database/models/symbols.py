@@ -93,6 +93,12 @@ class SymbolPingUsers(Base):
         BigInteger, ForeignKey("servers.server_id"), nullable=False
     )
 
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
     def __repr__(self) -> str:
         return f"{self.server_id} - {self.user_id}"
 
