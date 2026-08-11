@@ -125,13 +125,11 @@ class PrivacyCog(commands.Cog):
         try:
             await self.privacy_service.insert_private_user(user_id=interaction.user.id)
         except UserAlreadyPrivateError:
-            await interaction.response.send_message(
-                "You are already not being tracked!"
-            )
+            await interaction.followup.send("You are already not being tracked!")
 
         self.bot.private_users.append(interaction.user.id)
 
-        await interaction.response.send_message("Successfully made you untracked.")
+        await interaction.followup.send("Successfully made you untracked.")
 
     @app_commands.command(
         name="tracking", description="Makes Gwen track your messages again."
@@ -140,11 +138,11 @@ class PrivacyCog(commands.Cog):
         try:
             await self.privacy_service.delete_private_user(user_id=interaction.user.id)
         except UserNotPrivateError:
-            await interaction.response.send_message("You are not untracked!")
+            await interaction.followup.send("You are not untracked!")
             return
 
         self.bot.private_users.remove(interaction.user.id)
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Successfully started tracking you again. In a good way."
         )
