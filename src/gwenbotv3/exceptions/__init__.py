@@ -2,7 +2,13 @@
 
 All custom exceptions go into this module."""
 
-from ._services import (
+from .bot import (
+    ChampionNotFoundError,
+    StatsNotFoundError,
+    WinrateError,
+    WinrateNotFoundError,
+)
+from .services import (
     GwenseekError,
     LimitTooLargeError,
     PingUserAlreadyInsertedError,
@@ -28,12 +34,6 @@ from ._services import (
     UserNotFoundError,
     UserNotPrivateError,
     UserNotSubscribedError,
-)
-from .bot import (
-    ChampionNotFoundError,
-    StatsNotFoundError,
-    WinrateError,
-    WinrateNotFoundError,
 )
 from .utils import FailedRequestError, NoViewError
 
