@@ -25,6 +25,7 @@ _ALTERNATIVE_ELOS: dict[str, list[str]] = {
 }
 
 _ALTERNATIVE_CHAMPIONS: dict[str, list[str]] = {
+    "gwen": ["bestgirl"],
     "monkeyking": ["wukong"],
     "drmundo": ["mundo"],
     "kogmaw": ["kog'maw"],
