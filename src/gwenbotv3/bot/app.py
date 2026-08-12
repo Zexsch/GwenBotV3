@@ -88,7 +88,13 @@ class App(commands.Bot):
         await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
 
-        guild = discord.Object(id=os.getenv("TEST_GUILD", ""))
+        test_guild = os.getenv("TEST_GUILD", "")
+
+        if not test_guild:
+            return
+
+        guild = discord.Object(id=test_guild)
+
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
 
