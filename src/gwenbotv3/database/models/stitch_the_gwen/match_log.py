@@ -3,14 +3,19 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gwenbotv3.database.base import Base
+from gwenbotv3.game import Config, ResourceLoader
 
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
     from gwenbotv3.database.models.stitch_the_gwen.players import Players
+
+config = ResourceLoader().get_resource(
+    resource_type="config", model=Config, name="general"
+)
 
 
 class MatchLog(Base):
@@ -22,6 +27,10 @@ class MatchLog(Base):
 
     match_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.player_id"))
+    version: Mapped[str] = mapped_column(
+        String(32), nullable=False, default=config.version
+    )
+    rng_seed: Mapped[int] = mapped_column(Integer, nullable=False)
 
     result: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
