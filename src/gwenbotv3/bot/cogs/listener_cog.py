@@ -2,15 +2,18 @@
 
 import logging
 from random import randint
+from typing import TYPE_CHECKING
 
 import discord
 from discord.channel import TextChannel
 from discord.ext import commands
 
-from gwenbotv3.bot.app import App
 from gwenbotv3.config import DEFAULT_CHANNEL, OWNER_ID
 from gwenbotv3.database.models import SymbolCounter
 from gwenbotv3.services import GwensubService, ServerService, SymbolService
+
+if TYPE_CHECKING:
+    from gwenbotv3.bot.app import App
 
 
 class ListenerCog(commands.Cog):

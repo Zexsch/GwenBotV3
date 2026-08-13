@@ -1,13 +1,16 @@
 """Houses the moderation cog."""
 
 import logging
+from typing import TYPE_CHECKING
 
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot, Context
 
-from gwenbotv3.bot.app import App
 from gwenbotv3.services import ServerService
+
+if TYPE_CHECKING:
+    from gwenbotv3.bot.app import App
 
 
 class ModerationCog(commands.Cog):

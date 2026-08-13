@@ -3,11 +3,11 @@
 import contextlib
 import logging
 from textwrap import dedent
+from typing import TYPE_CHECKING
 
 from discord import Interaction, app_commands
 from discord.ext import commands
 
-from gwenbotv3.bot.app import App
 from gwenbotv3.exceptions import (
     UserAlreadyPrivateError,
     UserIsAnonymisedError,
@@ -22,6 +22,9 @@ from gwenbotv3.services import (
     UserService,
 )
 from gwenbotv3.utils import confirm
+
+if TYPE_CHECKING:
+    from gwenbotv3.bot.app import App
 
 
 class PrivacyCog(commands.Cog):
