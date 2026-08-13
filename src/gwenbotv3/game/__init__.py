@@ -1,4 +1,4 @@
-from .load_data import load_json
 from .models import Champion
+from .resource_loader import ResourceLoader
 
-__all__ = ["Champion", "load_json"]
+__all__ = ["Champion", "ResourceLoader"]
