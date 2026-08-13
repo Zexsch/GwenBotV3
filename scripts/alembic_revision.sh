@@ -25,7 +25,7 @@ until [ "$count" -ge 2 ]; do
   sleep_count=$(($sleep_count+1))
 done
 
-ENV_FILE=.env.dev uv run alembic revision --autogenerate "$1"
+ENV_FILE=.env.dev uv run alembic revision --autogenerate -m "$1"
 ENV_FILE=.env.dev uv run alembic upgrade head 
 
 docker stop "$CONTAINER_NAME" &>/dev/null
