@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class Stats(BaseModel):
@@ -50,9 +50,22 @@ class Skills(BaseModel):
     r: Skill
 
 
+SkillPriority = list[Literal["q", "w", "e", "r"]]
+
+
 class Champion(BaseModel):
     id: int
     name: str
     stats: Stats
-    skill_priority: list[Literal["q", "w", "e", "r"]]
+    skill_priority: SkillPriority
     skills: Skills
+
+    @field_validator("skill_priority")
+    @classmethod
+    def validate_skill_priority(cls, v: SkillPriority) -> SkillPriority:
+        if len(v) != 4 or set(v) != {"q", "w", "e", "r"}:
+            # ruff: noqa: TRY003
+            raise ValueError(
+                f"skill_priority must contain exactly one of each: q, w, e, r (got {v})"
+            )
+        return v

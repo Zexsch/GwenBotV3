@@ -4,10 +4,10 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+PropertyName = Literal["player", "items", "enemies", "bosses"]
+
 
 class ResourceLoader:
-    PROPERTIES = Literal["player", "items", "enemies", "bosses"]
-
     def __init__(self):
         self.data = Path(str(importlib.resources.files("gwenbotv3"))) / "game" / "data"
         self._dirs = {
@@ -16,7 +16,7 @@ class ResourceLoader:
 
     def get_resource[T: BaseModel](
         self,
-        resource_type: PROPERTIES,
+        resource_type: PropertyName,
         model: type[T],
         name: str,
         *,
