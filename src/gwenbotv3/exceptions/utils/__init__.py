@@ -1,6 +1,6 @@
 """Exceptions for utils."""
 
-from .confirmation_button import NoViewError
-from .request import FailedRequestError
+from .confirmation_button_exceptions import NoViewError
+from .request_exceptions import FailedRequestError
 
 __all__ = ["FailedRequestError", "NoViewError"]
