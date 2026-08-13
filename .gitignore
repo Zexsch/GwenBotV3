@@ -223,3 +223,5 @@ pylint_output
 
 # I always forget the commands
 .alembic_reminder 
+
+.env.dev
