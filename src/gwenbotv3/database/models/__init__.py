@@ -7,7 +7,7 @@ from .gwenseek import Gwenseek
 from .gwensub import Blacklist, Subs
 from .privacy import UserPrivacy
 from .servers import Servers
-from .stitch_the_gwen import GwenState, InventoryItem, Players
+from .stitch_the_gwen import GwenState, InventoryItem, MatchLog, Players
 from .symbols import SymbolCounter, SymbolPingUsers, SymbolUser
 from .users import Users
 
@@ -16,6 +16,7 @@ __all__ = [
     "GwenState",
     "Gwenseek",
     "InventoryItem",
+    "MatchLog",
     "Players",
     "Servers",
     "Subs",

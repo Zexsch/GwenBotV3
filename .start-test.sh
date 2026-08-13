@@ -23,3 +23,6 @@ done
 
 ENV_FILE=.env.dev uv run alembic upgrade head 
 uv run --env-file .env.dev python src/gwenbotv3/main.py
+
+docker stop "$CONTAINER_NAME" &>/dev/null
+exit 0

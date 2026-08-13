@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class MatchLog(Base):
-    __tablename__ = "gwen_state"
+    __tablename__ = "match_log"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}
 

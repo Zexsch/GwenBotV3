@@ -7,10 +7,15 @@ from sqlalchemy import DateTime, Float, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gwenbotv3.database.base import Base
+from gwenbotv3.game import Champion, ResourceLoader
 
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
     from gwenbotv3.database.models.stitch_the_gwen.players import Players
+
+gwen_stats = ResourceLoader().get_resource(
+    resource_type="player", model=Champion, name="gwen"
+)
 
 
 class GwenState(Base):
@@ -53,14 +58,27 @@ class GwenState(Base):
     )
 
     # stats
-    # TODO: default stat json, json file registry, Skill levels
-    hp_current: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    hp_max: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    ad: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    ap: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    aspd: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    armour: Mapped[float] = mapped_column(Float, nullable=False, default=0)
-    mr: Mapped[float] = mapped_column(Float, nullable=False, default=0)
+    hp_current: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.hp
+    )
+    hp_max: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.hp
+    )
+    ad: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.ad
+    )
+    ap: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.ap
+    )
+    aspd: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.aspd
+    )
+    armour: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.armour
+    )
+    mr: Mapped[float] = mapped_column(
+        Float, nullable=False, default=gwen_stats.stats.mr
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
