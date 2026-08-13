@@ -94,6 +94,7 @@ class LeaderboardCog(commands.Cog):
         )
     )
     async def uninitialise(self, interaction: Interaction) -> None:
+        """Deletes an initialised counter and all user counters associated with it."""
         assert interaction.guild is not None
 
         try:
@@ -287,6 +288,10 @@ class LeaderboardCog(commands.Cog):
     )
     @commands.has_permissions(kick_members=True)
     async def ping(self, ctx: commands.Context) -> None:
+        """Adds the calling user to the list of users to be pinged.
+
+        See strictness for more information.
+        """
         assert ctx.guild is not None
 
         symbol_counter = await self.symbol_service.select_counter_by_ids(
@@ -318,6 +323,10 @@ class LeaderboardCog(commands.Cog):
     @commands.hybrid_command(description="Remove yourself from the list of pings.")
     @commands.has_permissions(kick_members=True)
     async def unping(self, ctx: commands.Context) -> None:
+        """Removes a user from the list of users to be pinged.
+
+        See strictness for more information.
+        """
         assert ctx.guild is not None
 
         symbol_counter = await self.symbol_service.select_counter_by_ids(

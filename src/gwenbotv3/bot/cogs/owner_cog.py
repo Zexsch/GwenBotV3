@@ -171,6 +171,8 @@ class OwnerCog(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def sync(self, ctx: commands.Context[commands.Bot]) -> None:
+        """Syncs the bot's tree globally"""
+
         synced = await self.bot.tree.sync()
         await ctx.send(f"Synced {len(synced)} commands.")
 

@@ -40,7 +40,10 @@ class PrivacyCog(commands.Cog):
 
     @commands.hybrid_command(
         aliases=["anonymize", "pseudonymise", "pseudonymize"],
-        description="Remove your name from Gwen's database. See the privacy help command for more information.",
+        description=(
+            "Remove your name from Gwen's database. "
+            "See the privacy help command for more information."
+        ),
     )
     async def anonymise(self, ctx: commands.Context) -> None:
         """Anonymises a user.
@@ -125,6 +128,7 @@ class PrivacyCog(commands.Cog):
         )
     )
     async def notracking(self, interaction: Interaction) -> None:
+        """Adds a user to the list of private users."""
         try:
             await self.privacy_service.insert_private_user(user_id=interaction.user.id)
         except UserAlreadyPrivateError:
@@ -138,6 +142,7 @@ class PrivacyCog(commands.Cog):
         name="tracking", description="Makes Gwen track your messages again."
     )
     async def tracking(self, interaction: Interaction) -> None:
+        """Removes a user from the list of private users."""
         try:
             await self.privacy_service.delete_private_user(user_id=interaction.user.id)
         except UserNotPrivateError:
