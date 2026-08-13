@@ -3,9 +3,20 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    String,
+)
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from gwenbotv3.config.enums import EnemyType
 from gwenbotv3.database.base import Base
 from gwenbotv3.game import Config, ResourceLoader
 
@@ -30,17 +41,24 @@ class MatchLog(Base):
     version: Mapped[str] = mapped_column(
         String(32), nullable=False, default=config.version
     )
-    rng_seed: Mapped[int] = mapped_column(Integer, nullable=False)
+    rng_seed: Mapped[int] = mapped_column(BigInteger, nullable=False)
 
+    # win/loss
     result: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     enemy_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    # 0 for caster, 1 for melee, 2 for cannon, 3 for champ boss, 4 for uber boss
-    enemy_type: Mapped[int] = mapped_column(Integer, nullable=False)
+    enemy_type: Mapped[EnemyType] = mapped_column(Enum(EnemyType), nullable=False)
 
-    gold_gained: Mapped[int] = mapped_column(Integer, nullable=True)
-    xp_gained: Mapped[int] = mapped_column(Integer, nullable=True)
+    player_cooldowns: Mapped[dict] = mapped_column(
+        MutableDict.as_mutable(JSON), default=dict, nullable=False
+    )
+    enemy_cooldowns: Mapped[dict] = mapped_column(
+        MutableDict.as_mutable(JSON), default=dict, nullable=False
+    )
+
+    gold_gained: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    xp_gained: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
@@ -57,4 +75,4 @@ class MatchLog(Base):
         return self.match_id == other.match_id
 
     def __repr__(self) -> str:
-        return f"{self.match_id=}, {self.result=}, {self.enemy_id=}, {self.enemy_type}"
+        return f"{self.match_id=}, {self.result=}, {self.enemy_id=}, {self.enemy_type=}"
