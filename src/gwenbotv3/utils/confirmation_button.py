@@ -1,3 +1,5 @@
+"""Anything related to confirmation buttons for slash commands."""
+
 from collections.abc import Awaitable, Callable
 from functools import wraps
 from typing import Concatenate, cast
@@ -8,7 +10,10 @@ from discord import Interaction
 from gwenbotv3.exceptions import NoViewError
 
 
+# pylint: disable=unused-argument
 class _ConfirmationButton(discord.ui.View):
+    """Adds a confirmation button discord View."""
+
     def __init__(
         self, author: discord.User | discord.Member, timeout: float = 30.0
     ) -> None:
@@ -28,12 +33,14 @@ class _ConfirmationButton(discord.ui.View):
     async def confirm(
         self, interaction: Interaction, button: discord.ui.Button
     ) -> None:
+        """Adds confirm button"""
         self.value = True
         await interaction.response.edit_message(content="Confirmed.", view=None)
         self.stop()
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary)
     async def cancel(self, interaction: Interaction, button: discord.ui.Button) -> None:
+        """Adds cancel button"""
         self.value = False
         await interaction.response.edit_message(content="Cancelled.", view=None)
         self.stop()

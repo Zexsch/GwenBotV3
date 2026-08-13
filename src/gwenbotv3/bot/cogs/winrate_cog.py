@@ -43,6 +43,7 @@ class WinrateCog(commands.Cog):
 
     async def _winrate(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
         """See wr docstring"""
+        # pylint: disable=too-many-return-statements # Makes sense here
         self.logger.debug(
             "Calling winrate for champ=%s with args=%s", champion_name, args
         )
@@ -145,6 +146,8 @@ class WinrateCog(commands.Cog):
         msg = await self._winrate(champion_name, *args)
         await ctx.send(msg)
 
+    # Necessary here
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     @app_commands.command(
         name="winrate", description="Fetches the winrate of a champion."
     )
@@ -180,6 +183,10 @@ class WinrateCog(commands.Cog):
     async def on_wr_slash_error(
         self, interaction: Interaction, error: app_commands.AppCommandError
     ) -> None:
+        """Error handling for wr slash command.
+
+        Not done via global handler.
+        """
         self.logger.error(
             "Unhandled exception in command '%s' (invoked by %s in #%s)",
             interaction.command,

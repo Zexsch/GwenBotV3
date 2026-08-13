@@ -27,7 +27,7 @@ from gwenbotv3.services import (
 )
 
 
-# pylint: disable=arguments-differ
+# pylint: disable=arguments-differ, too-many-instance-attributes
 class App(commands.Bot):
     """The app itself. This will run all cogs and handle generic discord errors."""
 
@@ -107,6 +107,10 @@ class App(commands.Bot):
         )
 
     async def get_private_users(self) -> None:
+        """Gets all private users from the DB.
+
+        Private users will not trigger any on_message listeners.
+        """
         rows = await self.privacy_service.select_all_private_users()
 
         for row in rows:
@@ -186,6 +190,12 @@ class App(commands.Bot):
         await ctx.reply("Oh no! Gwen ran into some issues when running this command...")
 
     def register_app_command_error(self) -> None:
+        """Registers the on_app_command_error overload.
+
+        This overloard requires access to the bot's tree, which is bound to self.
+        See the actual error handling inside the nested function.
+        """
+
         @self.tree.error
         async def on_app_command_error(
             interaction: discord.Interaction, error: app_commands.AppCommandError

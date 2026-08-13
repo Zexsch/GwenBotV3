@@ -19,6 +19,8 @@ from gwenbotv3.exceptions import (
 )
 
 
+# Maybe in the future I'll split this up, not prio atm
+# pylint: disable=too-many-public-methods
 class SymbolService:
     """Interacts with the SymbolCounter and SymbolUser database tables."""
 
@@ -440,6 +442,14 @@ class SymbolService:
     async def delete_all_user_counters(
         self, session: AsyncSession, server_id: int
     ) -> None:
+        """Deletes all user counters for a specific guild counter.
+
+        Args:
+            server_id (int): ID of the guild.
+
+        Raises:
+            SymbolNotSetupError: If the guild has no counter set up.
+        """
         counter_check = await self.select_counter_by_ids(server_id=server_id)
 
         if not counter_check:
@@ -549,6 +559,14 @@ class SymbolService:
     async def select_ping_user(
         self, session: AsyncSession, symbol_ping_id: int
     ) -> SymbolPingUsers | None:
+        """Select a ping user via their symbol_ping_id primary key.
+
+        Args:
+            symbol_ping_id (int): PK
+
+        Returns:
+            SymbolPingUsers | None: SymbolPingUsers if found, else None
+        """
         stmt = select(SymbolPingUsers).where(
             SymbolPingUsers.symbol_ping_id == symbol_ping_id
         )
@@ -558,6 +576,15 @@ class SymbolService:
     async def select_ping_user_by_ids(
         self, session: AsyncSession, server_id: int, user_id: int
     ) -> SymbolPingUsers | None:
+        """Select a ping user by their discord ID.
+
+        Args:
+            server_id (int): ID of the guild.
+            user_id (int): ID of the user.
+
+        Returns:
+            SymbolPingUsers | None: SymbolPingUser if found, else None.
+        """
         stmt = select(SymbolPingUsers).where(
             SymbolPingUsers.user_id == user_id, SymbolPingUsers.server_id == server_id
         )
@@ -567,6 +594,18 @@ class SymbolService:
     async def insert_ping_user(
         self, session: AsyncSession, server_id: int, user_id: int
     ) -> SymbolPingUsers:
+        """Inserts a symbol ping user.
+
+        Args:
+            server_id (int): ID of the guild.
+            user_id (int): ID of the user.
+
+        Raises:
+            PingUserAlreadyInsertedError: If the user is already a ping user.
+
+        Returns:
+            SymbolPingUsers: Created SymbolPingUsers object.
+        """
         ping_user_check = await self.select_ping_user_by_ids(
             server_id=server_id, user_id=user_id
         )
@@ -584,6 +623,15 @@ class SymbolService:
     async def delete_ping_user_by_ids(
         self, session: AsyncSession, server_id: int, user_id: int
     ) -> None:
+        """Deletes a ping user via their ID.
+
+        Args:
+            server_id (int): ID of the guild.
+            user_id (int): ID of the user.
+
+        Raises:
+            PingUserNotInsertedError: If the user is not a ping user.
+        """
         ping_user_check = await self.select_ping_user_by_ids(
             server_id=server_id, user_id=user_id
         )
@@ -601,6 +649,14 @@ class SymbolService:
     async def select_ping_users_server(
         self, session: AsyncSession, server_id: int
     ) -> Sequence[Row[tuple[int]]]:
+        """Selects all ping users in a guild.
+
+        Args:
+            server_id (int): ID of the guild.
+
+        Returns:
+            Sequence[Row[tuple[int]]]: Found ping users.
+        """
         stmt = select(SymbolPingUsers.user_id).where(
             SymbolPingUsers.server_id == server_id
         )
@@ -611,6 +667,14 @@ class SymbolService:
     async def delete_all_ping_users(
         self, session: AsyncSession, server_id: int
     ) -> None:
+        """Deletes all ping users in a guild.
+
+        Args:
+            server_id (int): ID of the guild.
+
+        Raises:
+            SymbolNotSetupError: If the guild has no counter set up.
+        """
         counter_check = await self.select_counter_by_ids(server_id=server_id)
 
         if not counter_check:

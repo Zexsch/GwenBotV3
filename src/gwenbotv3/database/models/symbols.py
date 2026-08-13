@@ -82,6 +82,8 @@ class SymbolCounter(Base):
 
 
 class SymbolPingUsers(Base):
+    """Users to be pinged if strictness is set."""
+
     __tablename__ = "symbol_ping_users"
     __table_args__ = ({"mysql_engine": "InnoDB"},)
 

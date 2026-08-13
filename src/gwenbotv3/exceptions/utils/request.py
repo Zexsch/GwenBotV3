@@ -1,3 +1,5 @@
+"""Exceptions for request module."""
+
 import logging
 from typing import Any
 

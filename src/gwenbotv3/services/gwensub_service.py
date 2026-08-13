@@ -214,6 +214,19 @@ class GwensubService:
     async def select_any_blacklist_by_ids(
         self, session: AsyncSession, user_id: int, server_id: int
     ) -> Blacklist | None:
+        """Selects any blacklist by its ID.
+
+        Only returns one blacklist. Use for checking if by_owner
+        is of no concern.
+
+        Args:
+            user_id (int): ID of the user.
+            server_id (int): ID of the guild.
+
+        Returns:
+            Blacklist | None: Blacklist object if found, else None.
+                Will only return one, even more rows are found.
+        """
         stmt = select(Blacklist).where(
             Blacklist.user_id == user_id, Blacklist.server_id == server_id
         )
