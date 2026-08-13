@@ -3,6 +3,7 @@ from typing import Literal
 from pydantic import BaseModel, field_validator
 
 
+# pylint: disable=missing-class-docstring
 class Stats(BaseModel):
     hp: float
     ad: float
@@ -63,6 +64,10 @@ class Champion(BaseModel):
     @field_validator("skill_priority")
     @classmethod
     def validate_skill_priority(cls, v: SkillPriority) -> SkillPriority:
+        """Skill priority needs to have exactly 4 unique arguments.
+
+        This should be handled in the JSON, and this is more for checking for
+        malformed data."""
         if len(v) != 4 or set(v) != {"q", "w", "e", "r"}:
             # ruff: noqa: TRY003
             raise ValueError(

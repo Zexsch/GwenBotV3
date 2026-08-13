@@ -17,6 +17,10 @@ if TYPE_CHECKING:
 
 
 class Players(Base):
+    """Everything related to the player itself.
+
+    For Gwen specific rows, see gwen_state"""
+
     __tablename__ = "players"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}

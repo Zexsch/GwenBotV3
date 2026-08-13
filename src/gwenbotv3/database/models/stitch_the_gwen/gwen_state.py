@@ -19,6 +19,11 @@ gwen_stats = ResourceLoader().get_resource(
 
 
 class GwenState(Base):
+    """Current state of Gwen.
+
+    Includes her stats, levels, etc.
+    """
+
     __tablename__ = "gwen_state"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}
@@ -95,3 +100,33 @@ class GwenState(Base):
 
     # ruff: noqa: UP037
     player_ref: Mapped["Players"] = relationship(back_populates="gwen_state_ref")
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, GwenState):
+            return NotImplemented
+        return self.player_id == other.player_id
+
+    @property
+    def stats(self) -> dict[str, float]:
+        """Stats as a dict."""
+        return {
+            "hp_current": self.hp_current,
+            "hp_max": self.hp_max,
+            "ad": self.ad,
+            "ap": self.ap,
+            "aspd": self.aspd,
+            "armour": self.armour,
+            "mr": self.mr,
+        }
+
+    @property
+    def stacks(self) -> dict[str, int]:
+        """Stacks as a dict."""
+        return {
+            "fill_stacks": self.fill_stacks,
+            "stitch_stacks": self.stitch_stacks,
+            "train_stacks": self.train_stacks,
+        }
+
+    def __repr__(self) -> str:
+        return f"{self.player_id=}, {self.level=}, {self.xp=}"

@@ -15,12 +15,15 @@ if TYPE_CHECKING:
 
 
 class InventoryItem(Base):
+    """Each row corresponds to one item."""
+
     __tablename__ = "inventory"
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}
 
     inventory_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.player_id"))
+    item_id: Mapped[int] = mapped_column(Integer, nullable=False)
     bonus_stats: Mapped[dict] = mapped_column(
         MutableDict.as_mutable(JSON), default=dict
     )
@@ -45,3 +48,11 @@ class InventoryItem(Base):
 
     # ruff: noqa: UP037
     player_ref: Mapped["Players"] = relationship(back_populates="inventory_ref")
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, InventoryItem):
+            return NotImplemented
+        return self.inventory_id == other.inventory_id
+
+    def __repr__(self) -> str:
+        return f"{self.inventory_id=}, {self.player_id=}, {self.item_id=}"
