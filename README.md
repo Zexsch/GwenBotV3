@@ -22,3 +22,6 @@ Add your database port as an environment variable called `DB_PORT` <br>
 Add your database name as an environment variable called `DB_NAME` <br>
 ### Usage
 Clone this repo, then either run `main.py` directly or install via pip. If installed via pip, you can use the `gwenbot-init` command to start the bot.
+
+## Legal
+GwenBot was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games.  Riot Games does not endorse or sponsor this project.
