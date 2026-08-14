@@ -1,5 +1,7 @@
 """Houses the moderation cog."""
 
+from __future__ import annotations
+
 import logging
 from typing import TYPE_CHECKING
 
@@ -16,7 +18,8 @@ if TYPE_CHECKING:
 class ModerationCog(commands.Cog):
     """Anything to do with server moderation."""
 
-    def __init__(self, bot: App) -> None:
+    # ruff: noqa: UP037
+    def __init__(self, bot: "App") -> None:
         self.bot = bot
         self.server_service = ServerService()
         self.logger = logging.getLogger(__name__)

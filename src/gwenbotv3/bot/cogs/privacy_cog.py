@@ -1,5 +1,7 @@
 """Houses the Privacy cog."""
 
+from __future__ import annotations
+
 import contextlib
 import logging
 from textwrap import dedent
@@ -30,7 +32,8 @@ if TYPE_CHECKING:
 class PrivacyCog(commands.Cog):
     """Anything to do with user privacy, mostly anonymise and unanonymise."""
 
-    def __init__(self, bot: App) -> None:
+    # ruff: noqa: UP037
+    def __init__(self, bot: "App") -> None:
         self.bot = bot
         self.logger = logging.getLogger(__name__)
         self.user_service = UserService()
