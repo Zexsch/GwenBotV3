@@ -17,7 +17,7 @@
                 "true": 0.0
             },
             "on_hit": false,
-            "cooldown": 1,
+            "cooldown": 1000,
             "base_damage": 1,
             "scalings": {
                 "ad": 1.0,

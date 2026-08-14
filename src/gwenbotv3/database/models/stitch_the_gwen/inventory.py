@@ -21,7 +21,7 @@ class InventoryItem(Base):
     # ruff: noqa: RUF012
     __table_args__ = {"mysql_engine": "InnoDB"}
 
-    inventory_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    inventory_item_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.player_id"))
     item_id: Mapped[int] = mapped_column(Integer, nullable=False)
     bonus_stats: Mapped[dict] = mapped_column(
@@ -52,7 +52,7 @@ class InventoryItem(Base):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, InventoryItem):
             return NotImplemented
-        return self.inventory_id == other.inventory_id
+        return self.inventory_item_id == other.inventory_item_id
 
     def __repr__(self) -> str:
-        return f"{self.inventory_id=}, {self.player_id=}, {self.item_id=}"
+        return f"{self.inventory_item_id=}, {self.player_id=}, {self.item_id=}"
