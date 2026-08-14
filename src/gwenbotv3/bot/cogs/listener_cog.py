@@ -1,5 +1,7 @@
 """Any on_message listeners."""
 
+from __future__ import annotations
+
 import logging
 from random import randint
 from typing import TYPE_CHECKING
@@ -19,7 +21,8 @@ if TYPE_CHECKING:
 class ListenerCog(commands.Cog):
     """Anything to do with on_message listens."""
 
-    def __init__(self, bot: App) -> None:
+    # ruff: noqa: UP037
+    def __init__(self, bot: "App") -> None:
         self.bot = bot
         self.symbol_service = SymbolService()
         self.gwensub_service = GwensubService()
