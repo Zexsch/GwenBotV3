@@ -172,7 +172,7 @@ class WinrateCog(commands.Cog):
         """Same as wr but for slash commands."""
         await interaction.response.defer()
         msg = await self._winrate(champion_name, *(elo, role, patch, opponent))
-        await interaction.response.send_message(msg)
+        await interaction.followup.send(msg)
 
     @commands.hybrid_command(aliases=["checkver", "patch"])
     async def version(self, ctx: commands.Context) -> None:
@@ -195,6 +195,6 @@ class WinrateCog(commands.Cog):
             exc_info=error,
         )
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "Oh no! Gwen ran into some issues when running this command..."
         )
