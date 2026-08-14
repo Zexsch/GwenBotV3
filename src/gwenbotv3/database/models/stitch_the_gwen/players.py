@@ -11,7 +11,7 @@ from gwenbotv3.database.base import Base
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
     from gwenbotv3.database.models.stitch_the_gwen.gwen_state import GwenState
-    from gwenbotv3.database.models.stitch_the_gwen.inventory import InventoryItem
+    from gwenbotv3.database.models.stitch_the_gwen.inventory import Inventory
     from gwenbotv3.database.models.stitch_the_gwen.match_log import MatchLog
     from gwenbotv3.database.models.users import Users
 
@@ -52,7 +52,7 @@ class Players(Base):
     gwen_state_ref: Mapped["GwenState"] = relationship(
         back_populates="player_ref", cascade="all, delete-orphan"
     )
-    inventory_ref: Mapped[list["InventoryItem"]] = relationship(
+    inventory_ref: Mapped[list["Inventory"]] = relationship(
         back_populates="player_ref", cascade="all, delete-orphan"
     )
     match_ref: Mapped[list["MatchLog"]] = relationship(
@@ -63,6 +63,9 @@ class Players(Base):
         if not isinstance(other, Players):
             return NotImplemented
         return self.player_id == other.player_id
+
+    def __hash__(self) -> int:
+        return hash(self.player_id)
 
     def __repr__(self) -> str:
         return f"{self.player_id}: {self.gold=}, {self.elo=}"

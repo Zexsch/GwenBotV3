@@ -90,3 +90,6 @@ class Servers(Base):
         if not isinstance(other, Servers):
             return NotImplemented
         return self.server_id == other.server_id
+
+    def __hash__(self) -> int:
+        return hash(self.server_id)

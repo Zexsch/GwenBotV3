@@ -77,3 +77,6 @@ class Users(Base):
         if not isinstance(other, Users):
             return NotImplemented
         return self.user_id == other.user_id
+
+    def __hash__(self) -> int:
+        return hash(self.user_id)

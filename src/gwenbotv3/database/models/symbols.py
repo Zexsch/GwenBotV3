@@ -80,6 +80,9 @@ class SymbolCounter(Base):
             return NotImplemented
         return self.symbol_id == other.symbol_id
 
+    def __hash__(self) -> int:
+        return hash(self.symbol_id)
+
 
 class SymbolPingUsers(Base):
     """Users to be pinged if strictness is set."""
@@ -139,3 +142,6 @@ class SymbolUser(Base):
         if not isinstance(other, SymbolUser):
             return NotImplemented
         return self.s_user_id == other.s_user_id
+
+    def __hash__(self) -> int:
+        return hash(self.s_user_id)

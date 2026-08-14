@@ -56,6 +56,9 @@ class Subs(Base):
             return NotImplemented
         return self.sub_id == other.sub_id
 
+    def __hash__(self) -> int:
+        return hash(self.sub_id)
+
 
 class Blacklist(Base):
     """ORM Model for GwenBot blacklists.
@@ -100,3 +103,6 @@ class Blacklist(Base):
         if not isinstance(other, Blacklist):
             return NotImplemented
         return self.blacklist_id == other.blacklist_id
+
+    def __hash__(self) -> int:
+        return hash(self.blacklist_id)

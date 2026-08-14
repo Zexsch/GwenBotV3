@@ -31,7 +31,9 @@ class GwenState(Base):
     gwen_state_id: Mapped[int] = mapped_column(
         Integer, primary_key=True, nullable=False
     )
-    player_id: Mapped[int] = mapped_column(Integer, ForeignKey("players.player_id"))
+    player_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("players.player_id"), unique=True
+    )
 
     # Starts at lv1, max lv18 before reset
     # on reset increase elo, which increases base stats
@@ -102,6 +104,9 @@ class GwenState(Base):
         if not isinstance(other, GwenState):
             return NotImplemented
         return self.player_id == other.player_id
+
+    def __hash__(self) -> int:
+        return hash(self.gwen_state_id)
 
     @property
     def stats(self) -> dict[str, float]:

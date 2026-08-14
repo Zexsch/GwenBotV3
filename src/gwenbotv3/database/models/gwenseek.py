@@ -56,3 +56,6 @@ class Gwenseek(Base):
         if not isinstance(other, Gwenseek):
             return NotImplemented
         return self.seek_id == other.seek_id
+
+    def __hash__(self) -> int:
+        return hash(self.seek_id)

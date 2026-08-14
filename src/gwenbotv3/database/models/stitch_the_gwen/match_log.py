@@ -74,5 +74,8 @@ class MatchLog(Base):
             return NotImplemented
         return self.match_id == other.match_id
 
+    def __hash__(self) -> int:
+        return hash(self.match_id)
+
     def __repr__(self) -> str:
         return f"{self.match_id=}, {self.result=}, {self.enemy_id=}, {self.enemy_type=}"
