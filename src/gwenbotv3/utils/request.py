@@ -30,7 +30,7 @@ def request(url: str, headers: dict[str, str] | None = None) -> requests.Respons
             "Referer": "https://u.gg/",
             "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-Site": "same-origin",
             "Upgrade-Insecure-Requests": "1",
         }
     logger = logging.getLogger(__name__)
@@ -56,6 +56,7 @@ def request(url: str, headers: dict[str, str] | None = None) -> requests.Respons
             headers=headers,
             reason="Response not OK",
             status_code=response.status_code,
+            status_headers=response.headers,
         )
 
     return response
