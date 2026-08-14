@@ -14,7 +14,8 @@
 To not make builds monotonous, I was thinking of having clear advantages for them. Early game, AD might be very good, as it increases damage to minions, same with armour, as it decreases damage from minions or damage from AD champs, but at the same time, I might just throw a malphite at you. 
 
 ## Other, more difficult, ideas
-To not make it just a statcheck, I could add actual buttons during combat, where you can decide what abilit to get and upgrade if you're lower level, and then also decide when in combat to use them, with cooldowns of course. Maybe add slight RNG mechanics like Q sometimes hitting centre for true damage, sometimes hitting the edges for magic damage. W could give you extra armour and mr, like it does in the game, and a dodge chance against ranged enemies to emulate Gwen is immune, You could time ult wisely to heal a lot via passive. Shit like that. But at the same time, this would be pretty difficult to actually implement and would be slash-commands only.
+~~To not make it just a statcheck, I could add actual buttons during combat, where you can decide what abilit to get and upgrade if you're lower level, and then also decide when in combat to use them, with cooldowns of course. Maybe add slight RNG mechanics like Q sometimes hitting centre for true damage, sometimes hitting the edges for magic damage.~~ **I have decided not to do this.**
+W could give you extra armour and mr, like it does in the game, and a dodge chance against ranged enemies to emulate Gwen is immune, You could time ult wisely to heal a lot via passive. Shit like that. But at the same time, this would be pretty difficult to actually implement and would be slash-commands only.
 
 
 # For a V1 build:
