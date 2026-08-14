@@ -75,9 +75,6 @@ class GwenState(Base):
     ap: Mapped[float] = mapped_column(
         Float, nullable=False, default=gwen_stats.stats.ap
     )
-    aspd: Mapped[float] = mapped_column(
-        Float, nullable=False, default=gwen_stats.stats.aspd
-    )
     armour: Mapped[float] = mapped_column(
         Float, nullable=False, default=gwen_stats.stats.armour
     )
@@ -114,7 +111,6 @@ class GwenState(Base):
             "hp_max": self.hp_max,
             "ad": self.ad,
             "ap": self.ap,
-            "aspd": self.aspd,
             "armour": self.armour,
             "mr": self.mr,
         }

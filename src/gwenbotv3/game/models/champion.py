@@ -8,7 +8,6 @@ class Stats(BaseModel):
     hp: float
     ad: float
     ap: float
-    aspd: float
     armour: float
     mr: float
 
@@ -25,9 +24,11 @@ class Scalings(BaseModel):
 
 
 class Extras(BaseModel):
-    duration: float | None = None
+    duration: int | None = None
     bonus_mr: float | None = None
     bonus_armour: float | None = None
+    bonus_mr_percent: float | None = None
+    bonus_armour_percent: float | None = None
     health_regen: float | None = None
     passive_proc_count: int | None = None
     minion_damage: float | None = None
@@ -36,7 +37,7 @@ class Extras(BaseModel):
 class Skill(BaseModel):
     damage_type: DamageType
     on_hit: bool
-    cooldown: float
+    cooldown: int
     base_damage: float
     scalings: Scalings
     extras: Extras
