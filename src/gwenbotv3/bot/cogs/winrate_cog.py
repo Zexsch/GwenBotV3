@@ -143,6 +143,11 @@ class WinrateCog(commands.Cog):
             ctx (commands.Context): Discord Context.
             champion_name (str): Name of the champion.
         """
+        await ctx.send(
+            "Command is currently under maintenance! "
+            "Please be patient whilst I work on a fix~"
+        )
+        return
         msg = await self._winrate(champion_name, *args)
         await ctx.send(msg)
 
@@ -170,6 +175,11 @@ class WinrateCog(commands.Cog):
         opponent: str | None = None,
     ) -> None:
         """Same as wr but for slash commands."""
+        await interaction.response.send_message(
+            "Command is currently under maintenance! "
+            "Please be patient whilst I work on a fix~"
+        )
+        return
         await interaction.response.defer()
         msg = await self._winrate(champion_name, *(elo, role, patch, opponent))
         await interaction.followup.send(msg)
