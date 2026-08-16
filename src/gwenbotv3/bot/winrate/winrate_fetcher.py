@@ -104,7 +104,7 @@ class WinrateFetcher:
 
     def _check_404(self, soup: BeautifulSoup) -> bool:
         not_found = soup.find(  # type: ignore
-            string=lambda label: label and label.strip() == "Resource Not Found" # type: ignore
+            string=lambda label: label and label.strip() == "Resource Not Found"  # type: ignore
         )
         return not_found is None
 
