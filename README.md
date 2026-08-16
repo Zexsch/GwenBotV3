@@ -17,7 +17,7 @@ Add a test guild ID for slash commands as an environment variable called `TEST_G
 Currently, only mysql is supported.<br><br>
 Add your database service username as an environment variable called `DB_USER` <br>
 Add your database password as an environment variable called `DB_PASS` <br>
-Add your dtabase host FQDN or IP as an environment variable called `DB_HOST` <br>
+Add your database host FQDN or IP as an environment variable called `DB_HOST` <br>
 Add your database port as an environment variable called `DB_PORT` <br>
 Add your database name as an environment variable called `DB_NAME` <br>
 ### Usage
