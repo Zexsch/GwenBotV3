@@ -1,6 +1,7 @@
 from enum import IntEnum
 
 
+# pylint: disable=missing-class-docstring
 class EnemyType(IntEnum):
     CASTER = 0
     MELEE = 1
