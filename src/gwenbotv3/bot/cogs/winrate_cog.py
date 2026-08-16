@@ -46,7 +46,7 @@ class WinrateCog(commands.Cog):
 
     async def _winrate(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
         """See wr docstring"""
-        # pylint: disable=too-many-return-statements # Makes sense here
+        # pylint: disable=too-many-return-statements, too-many-branches # Makes sense here
         self.logger.debug(
             "Calling winrate for champ=%s with args=%s", champion_name, args
         )
