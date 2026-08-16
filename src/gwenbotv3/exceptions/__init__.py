@@ -4,6 +4,8 @@ All custom exceptions go into this module."""
 
 from .bot import (
     ChampionNotFoundError,
+    Page404Error,
+    RoleNotGivenError,
     StatsNotFoundError,
     WinrateError,
     WinrateNotFoundError,
@@ -43,10 +45,12 @@ __all__ = [
     "GwenseekError",
     "LimitTooLargeError",
     "NoViewError",
+    "Page404Error",
     "PingUserAlreadyInsertedError",
     "PingUserNotInsertedError",
     "PrefixTooLongError",
     "PrivacyError",
+    "RoleNotGivenError",
     "ServerError",
     "ServerIdNotGivenError",
     "ServerNotFoundError",

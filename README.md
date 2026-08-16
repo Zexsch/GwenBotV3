@@ -3,7 +3,7 @@ GwenBotV3 is the third iteration of GwenBot, a Gwen from League of Legends theme
 ## Commands
 For a mostly full list of commands, see `src/gwenbotv3/bot/cogs/help_cog.py`<br>
 The main commands are:<br>
-1. `winrate` - Fetches the winrate of a given champion from u.gg. With optional arguments being elo, opponent, patch and role.
+1. `winrate` - Fetches the winrate of a given champion from lolalytics. With optional arguments being elo, opponent, patch and role.
 2. `gwenadd` - Subscribes a user to GwenBot, making Gwen reply with "Gwen is immune." whenever gwen is mentioned in chat by this user.
 3. `gwenseek` - Uses the Deepseek API to give Gwen themed AI responses.
 

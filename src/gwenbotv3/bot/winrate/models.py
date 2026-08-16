@@ -32,11 +32,10 @@ class Champion:
 @dataclass
 class Result:
     """
-    Represents the result of a u.gg winrate query.
+    Represents the result of a lolalytics winrate query.
     """
 
     champ: Champion
-    with_opponent: bool
     win_rate: str | None
     match_count: str | None
     final_string: str = field(default="")
