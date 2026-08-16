@@ -38,7 +38,7 @@ class WinrateCog(commands.Cog):
 
         self.beautified_elo_list: dict[str, str] = {
             "platinum_plus": "Plat+",
-            "d2+plus": "D2+",
+            "d2_plus": "D2+",
             "diamond_plus": "D+",
             "master_plus": "M+",
             "grandmaster_plus": "GM+",
@@ -131,9 +131,7 @@ class WinrateCog(commands.Cog):
         message.append(result.final_string)
 
         if result.champ.patch:
-            message.append(result.champ.patch)
-
-        message.append(".")
+            message.append(f"in patch {result.champ.patch}")
 
         return " ".join(p for p in message if p)
 
