@@ -2,6 +2,8 @@
 
 from .winrate_fetcher import (
     ChampionNotFoundError,
+    Page404Error,
+    RoleNotGivenError,
     StatsNotFoundError,
     WinrateError,
     WinrateNotFoundError,
@@ -9,6 +11,8 @@ from .winrate_fetcher import (
 
 __all__ = [
     "ChampionNotFoundError",
+    "Page404Error",
+    "RoleNotGivenError",
     "StatsNotFoundError",
     "WinrateError",
     "WinrateNotFoundError",

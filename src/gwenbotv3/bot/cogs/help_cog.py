@@ -155,7 +155,7 @@ class HelpCog(commands.Cog):
             name="Notes",
             value=(
                 "> Only the latest 5 patches are available. Check the current patch with `+patch`.\n"
-                "> If u.gg is up but the command isn't working, message @zexsch."
+                "> If lolalytics is up but the command isn't working, message @zexsch."
             ),
             inline=False,
         )

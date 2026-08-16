@@ -2,7 +2,7 @@
 
 _ALTERNATIVE_ELOS: dict[str, list[str]] = {
     "platinum_plus": ["platplus", "plat+", "platinumplus"],
-    "diamond_2_plus": [
+    "d2_plus": [
         "d2+",
         "d2",
         "d2plus",
@@ -22,6 +22,7 @@ _ALTERNATIVE_ELOS: dict[str, list[str]] = {
         "mastersplus",
     ],
     "emerald_plus": ["eme+", "emerald+", "emeplus", "emeraldplus"],
+    "grandmaster_plus": ["gm+", "grandmaster+", "grandmasterplus"],
 }
 
 _ALTERNATIVE_CHAMPIONS: dict[str, list[str]] = {
@@ -42,14 +43,15 @@ _ALTERNATIVE_CHAMPIONS: dict[str, list[str]] = {
 
 _ALTERNATIVE_ROLES: dict[str, list[str]] = {
     "support": ["sup", "supp", "s"],
-    "adc": ["bot", "bottom", "b"],
-    "mid": ["midlane", "m"],
+    "bottom": ["bot", "adc", "b"],
+    "middle": ["midlane", "m", "mid"],
     "jungle": ["jgl", "j"],
     "top": ["toplane", "t"],
 }
 
 ELO_LIST: list[str] = [
-    "overall",
+    "all",
+    "1trick",
     "challenger",
     "master",
     "grandmaster",
@@ -60,10 +62,12 @@ ELO_LIST: list[str] = [
     "silver",
     "bronze",
     "iron",
-    "diamond_2_plus",
+    "grandmaster_plus",
+    "d2_plus",
     "master_plus",
     "diamond_plus",
     "platinum_plus",
+    "unranked",
     "",
 ]
 

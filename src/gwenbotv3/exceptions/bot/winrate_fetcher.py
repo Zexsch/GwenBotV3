@@ -16,3 +16,11 @@ class StatsNotFoundError(WinrateError):
 
 class ChampionNotFoundError(WinrateError):
     pass
+
+
+class RoleNotGivenError(WinrateError):
+    pass
+
+
+class Page404Error(WinrateError):
+    pass

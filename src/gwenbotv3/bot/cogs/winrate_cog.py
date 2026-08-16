@@ -11,6 +11,8 @@ from gwenbotv3.config.winrate_values import ELO_LIST
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
     FailedRequestError,
+    Page404Error,
+    RoleNotGivenError,
     StatsNotFoundError,
     WinrateNotFoundError,
 )
@@ -36,9 +38,10 @@ class WinrateCog(commands.Cog):
 
         self.beautified_elo_list: dict[str, str] = {
             "platinum_plus": "Plat+",
-            "diamond_2_plus": "D2+",
+            "d2+plus": "D2+",
             "diamond_plus": "D+",
             "master_plus": "M+",
+            "grandmaster_plus": "GM+",
         }
 
     async def _winrate(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
@@ -54,13 +57,14 @@ class WinrateCog(commands.Cog):
             result = self.winrate_fetcher.get_stats(champ, args)
         except FailedRequestError as e:
             self.logger.critical(
-                "Unable to request u.gg with champ=%s, args=%s, exc=%s",
+                "Unable to request lolalytics with champ=%s, args=%s, exc=%s",
                 champion_name,
                 args,
                 e,
             )
             return (
-                "Oh no! Seems like Gwen was unable to fetch u.gg! Is it currently down?"
+                "Oh no! Seems like Gwen was unable to fetch lolalytics! "
+                "Is it currently down?"
             )
         except WinrateNotFoundError:
             self.logger.critical(
@@ -87,6 +91,13 @@ class WinrateCog(commands.Cog):
                 "Gwen was unable to find your specified champion... Please check +list "
                 "for a list of all accepted champion names!"
             )
+        except RoleNotGivenError:
+            return "Gwen needs a lane if you give an opponent!"
+        except Page404Error:
+            return (
+                "Gwen ran into some issues! Are you sure that there are "
+                "enough matches played?"
+            )
 
         if champ.patch:
             minor_patch = self.winrate_fetcher.patch_minor_version
@@ -95,13 +106,13 @@ class WinrateCog(commands.Cog):
                 if champ.patch and (int(champ.patch[-2:]) < int(minor_patch) - 5):
                     return (
                         "Gwen can only gets stats for the past 5 patches! The current "
-                        "patch is {self.current_patch}."
+                        f"patch is {self.winrate_fetcher.patch}."
                     )
             except ValueError:
                 if champ.patch and (int(champ.patch[-1:]) < int(minor_patch) - 5):
                     return (
                         "Gwen can only gets stats for the past 5 patches! The current "
-                        "patch is {self.current_patch}."
+                        f"patch is {self.winrate_fetcher.patch}."
                     )
 
         if result.champ.elo:
@@ -143,11 +154,6 @@ class WinrateCog(commands.Cog):
             ctx (commands.Context): Discord Context.
             champion_name (str): Name of the champion.
         """
-        await ctx.send(
-            "Command is currently under maintenance! "
-            "Please be patient whilst I work on a fix~"
-        )
-        return
         msg = await self._winrate(champion_name, *args)
         await ctx.send(msg)
 
@@ -175,11 +181,6 @@ class WinrateCog(commands.Cog):
         opponent: str | None = None,
     ) -> None:
         """Same as wr but for slash commands."""
-        await interaction.response.send_message(
-            "Command is currently under maintenance! "
-            "Please be patient whilst I work on a fix~"
-        )
-        return
         await interaction.response.defer()
         msg = await self._winrate(champion_name, *(elo, role, patch, opponent))
         await interaction.followup.send(msg)
