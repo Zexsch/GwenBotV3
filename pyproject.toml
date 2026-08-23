@@ -13,11 +13,8 @@ dependencies = [
     "beautifulsoup4>=4.15.0",
     "discord-py>=2.7.1",
     "openai>=2.48.0",
-<<<<<<< HEAD
     "pydantic>=2.13.4",
     "requests>=2.34.2",
-=======
->>>>>>> origin/main
     "sqlalchemy[asyncio]>=2.0.51",
 ]
 
