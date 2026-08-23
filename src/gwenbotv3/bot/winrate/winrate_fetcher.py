@@ -43,6 +43,11 @@ class WinrateFetcher:
     # ruff: noqa: UP037
     @classmethod
     async def create(cls) -> "WinrateFetcher":
+        """Creates a WinrateFetcher.
+
+        Use this instead of initialising directly.
+        Otherwise champ list and patch will be empty.
+        """
         self = cls()
         self.all_champions = await self._get_champion_list()
         self.patch_version = await self._get_current_patch()
@@ -112,6 +117,7 @@ class WinrateFetcher:
 
         return ""
 
+    # pylint: disable=line-too-long
     def _check_404(self, soup: BeautifulSoup) -> bool:
         not_found = soup.find(  # type: ignore[unused-ignore] # ty: ignore[no-matching-overload]
             string=lambda label: label and label.strip() == "Resource Not Found"  # type: ignore[unused-ignore]
