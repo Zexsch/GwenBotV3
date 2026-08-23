@@ -29,9 +29,9 @@ class WinrateFetcher:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
-        self.patch_version: str = ""
-        self.patch_major_version = self.patch_version.split(".")[0]
-        self.patch_minor_version: str = self.patch_version.split(".")[1]
+        self.patch_version = ""
+        self.patch_major_version = ""
+        self.patch_minor_version = ""
         self.aiohttp_session = ClientSession()
 
         self.all_champions: list[str] = []
@@ -51,6 +51,8 @@ class WinrateFetcher:
         self = cls()
         self.all_champions = await self._get_champion_list()
         self.patch_version = await self._get_current_patch()
+        self.patch_major_version = self.patch_version.split(".")[0]
+        self.patch_minor_version = self.patch_version.split(".")[1]
         return self
 
     async def _get_champion_list(self) -> list[str]:
