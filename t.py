@@ -110,13 +110,11 @@ tags = (
     "Item 4",
     "Item 5",
     "Item 6",
-    "Skill Priority",
-    "Summoner Spells",
 )
 
 for tag in tags:
     items = extract(soup=soup, tag_text=tag)
 
-    print(tag)
+    print(f"\n{tag}:")
     for item in items:
         print(item)
