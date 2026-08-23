@@ -54,7 +54,7 @@ class WinrateCog(commands.Cog):
         champ = Champion(name=champion_name)
 
         try:
-            result = self.winrate_fetcher.get_stats(champ, args)
+            result = await self.winrate_fetcher.get_stats(champ, args)
         except FailedRequestError as e:
             self.logger.critical(
                 "Unable to request lolalytics with champ=%s, args=%s, exc=%s",

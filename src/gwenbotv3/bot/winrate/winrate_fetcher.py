@@ -3,6 +3,7 @@
 import json
 import logging
 
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 
 from gwenbotv3.bot.winrate.models import Champion, Result
@@ -28,17 +29,26 @@ class WinrateFetcher:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
-        self.patch_version: str = self._get_current_patch()
+        self.patch_version: str = ""
         self.patch_major_version = self.patch_version.split(".")[0]
         self.patch_minor_version: str = self.patch_version.split(".")[1]
+        self.aiohttp_session = ClientSession()
 
-        self.all_champions: list[str] = self._get_champion_list()
+        self.all_champions: list[str] = []
 
         # bs4 seems to have been more consistent with sets over tuples...
         # don't ask me why
         self.labels = {"Win Rate", "Pick Rate", "Ban Rate", "Games"}
 
-    def _get_champion_list(self) -> list[str]:
+    # ruff: noqa: UP037
+    @classmethod
+    async def create(cls) -> "WinrateFetcher":
+        self = cls()
+        self.all_champions = await self._get_champion_list()
+        self.patch_version = await self._get_current_patch()
+        return self
+
+    async def _get_champion_list(self) -> list[str]:
         """Gets the full list of champions currently in league.
 
         Always up to date, as it queries ddragon.
@@ -52,11 +62,11 @@ class WinrateFetcher:
             f"{self.patch_version}/data/en_US/champion.json"
         )
 
-        champion_response = request(url)
-        champion_json: dict[str, str] = json.loads(champion_response.text)
+        champion_response = await request(session=self.aiohttp_session, url=url)
+        champion_json: dict[str, str] = json.loads(champion_response)
         return [i.lower() for i in champion_json["data"]]
 
-    def _get_current_patch(self) -> str:
+    async def _get_current_patch(self) -> str:
         """Gets the current league of legends patch.
 
         Always up to date, as it queries ddragon.
@@ -65,9 +75,9 @@ class WinrateFetcher:
             str: The patch formatted as a standard patch format: ab.cd, example 15.21
         """
         url = "https://ddragon.leagueoflegends.com/realms/na.json"
-        patch_response = request(url)
+        patch_response = await request(session=self.aiohttp_session, url=url)
 
-        patch: str = json.loads(patch_response.content)["v"]
+        patch: str = json.loads(patch_response)["v"]
         self.logger.info("Fetched current patch: %s", patch)
         return patch
 
@@ -104,7 +114,7 @@ class WinrateFetcher:
 
     def _check_404(self, soup: BeautifulSoup) -> bool:
         not_found = soup.find(  # type: ignore
-            string=lambda label: label and label.strip() == "Resource Not Found" # type: ignore
+            string=lambda label: label and label.strip() == "Resource Not Found"  # type: ignore
         )
         return not_found is None
 
@@ -196,14 +206,14 @@ class WinrateFetcher:
             final_string=final_string,
         )
 
-    def _get_soup(self, champ: Champion) -> BeautifulSoup:
+    async def _get_soup(self, champ: Champion) -> BeautifulSoup:
         url = self._get_url(champ=champ)
 
-        res = request(url=url)
+        res = await request(session=self.aiohttp_session, url=url)
 
-        return BeautifulSoup(res.content, "html.parser")
+        return BeautifulSoup(res, "html.parser")
 
-    def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
+    async def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
         """Gets the stats of of a Champion
 
         Uses the optional parametres of opponent, elo, role, rank and patch.
@@ -249,7 +259,7 @@ class WinrateFetcher:
         if champ.opponent and not champ.role:
             raise RoleNotGivenError
 
-        soup = self._get_soup(champ=champ)
+        soup = await self._get_soup(champ=champ)
 
         if not self._check_404(soup=soup):
             raise Page404Error
