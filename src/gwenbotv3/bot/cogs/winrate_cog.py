@@ -46,7 +46,7 @@ class WinrateCog(commands.Cog):
 
     async def _winrate(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
         """See wr docstring"""
-        # pylint: disable=too-many-return-statements # Makes sense here
+        # pylint: disable=too-many-return-statements, too-many-branches # Makes sense here
         self.logger.debug(
             "Calling winrate for champ=%s with args=%s", champion_name, args
         )
@@ -54,7 +54,7 @@ class WinrateCog(commands.Cog):
         champ = Champion(name=champion_name)
 
         try:
-            result = self.winrate_fetcher.get_stats(champ, args)
+            result = await self.winrate_fetcher.get_stats(champ, args)
         except FailedRequestError as e:
             self.logger.critical(
                 "Unable to request lolalytics with champ=%s, args=%s, exc=%s",

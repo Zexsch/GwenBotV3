@@ -119,7 +119,7 @@ class PrivacyCog(commands.Cog):
     @app_commands.command(
         name="notracking",
         description="Makes Gwen not track your messages",
-    )  # type: ignore
+    )  # type: ignore[unused-ignore] # ty: ignore[invalid-argument-type]
     @confirm(
         message=(
             "Are you sure you want to untrack? "

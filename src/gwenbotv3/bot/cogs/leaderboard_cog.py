@@ -86,7 +86,7 @@ class LeaderboardCog(commands.Cog):
     @app_commands.command(
         name="uninitialise",
         description="Deletes the server's counter and all information stored for it.",
-    )  # type: ignore
+    )  # type: ignore[unused-ignore] # ty: ignore[invalid-argument-type]
     @confirm(
         message=(
             "Are you sure you want to uninitialise? "

@@ -43,7 +43,6 @@ class App(commands.Bot):
         )
 
         self.logger = logging.getLogger(__name__)
-        self.winrate_fetcher = WinrateFetcher()
         self.user_service = UserService()
         self.server_service = ServerService()
         self.database_service = DatabaseService()
@@ -74,18 +73,20 @@ class App(commands.Bot):
             WinrateCog,
         )
 
+        winrate_fetcher = await WinrateFetcher.create()
+
         self.logger.info("Initialising cogs.")
         await self.add_cog(ListenerCog(bot=self))
         await self.add_cog(GwensubCog(bot=self))
         await self.add_cog(OwnerCog(bot=self))
-        await self.add_cog(DMCog(bot=self, winrate_fetcher=self.winrate_fetcher))
+        await self.add_cog(DMCog(bot=self, winrate_fetcher=winrate_fetcher))
         await self.add_cog(CommandsCog(bot=self))
         await self.add_cog(LeaderboardCog(bot=self))
         await self.add_cog(DeepseekCog(bot=self))
         await self.add_cog(ModerationCog(bot=self))
         await self.add_cog(PrivacyCog(bot=self))
         await self.add_cog(HelpCog(bot=self))
-        await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
+        await self.add_cog(WinrateCog(bot=self, winrate_fetcher=winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
 
         test_guild = os.getenv("TEST_GUILD", "")
