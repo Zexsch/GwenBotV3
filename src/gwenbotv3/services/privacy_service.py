@@ -14,7 +14,7 @@ from gwenbotv3.exceptions import UserAlreadyPrivateError, UserNotPrivateError
 class PrivacyService:
     """Anything to do with user privacy."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
 
     @connect
