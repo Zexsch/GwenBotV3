@@ -69,22 +69,25 @@ name_to_image = {
 }
 
 
-def extract_starting_items(soup: BeautifulSoup, tag_text: str) -> list[str]:
-    label_div = soup.find(
-        lambda tag: tag.name == "div" and tag.get_text(strip=True) == tag_text
-    )
-    if label_div is None:
+def find_label_div(soup: BeautifulSoup, tag_text: str):
+    text_node = soup.find(string=lambda s: s and s.strip() == tag_text)  # type: ignore
+    if text_node is None:
         raise ValueError
+    return text_node.parent
+
+
+def extract(soup: BeautifulSoup, tag_text: str) -> list[str]:
+    label_div = find_label_div(soup=soup, tag_text=tag_text)
 
     # Lolalytics item structure:
     # <div>Tag Text</div>
     # <div><span><img></img></span><span>...</div>
-    items_row = label_div.find_next_sibling("div")
-    if items_row is None:
+    label_row = label_div.find_next_sibling("div")
+    if label_row is None:
         raise ValueError
 
     names = []
-    for span in items_row.find_all("span"):
+    for span in label_row.find_all("span"):
         for img in span.find_all("img"):
             alt = img.get("alt")
             # From what I saw, lolalytics has perfect alt text coveage
@@ -101,11 +104,19 @@ html = req.content
 
 soup = BeautifulSoup(html, "html.parser")
 
-tags = ("Starting Items", "Core Build", "Item 4", "Item 5", "Item 6")
+tags = (
+    "Starting Items",
+    "Core Build",
+    "Item 4",
+    "Item 5",
+    "Item 6",
+    "Skill Priority",
+    "Summoner Spells",
+)
 
 for tag in tags:
-    items = extract_starting_items(soup=soup, tag_text=tag)
+    items = extract(soup=soup, tag_text=tag)
 
     print(tag)
     for item in items:
-        print(name_to_image[item])
+        print(item)
