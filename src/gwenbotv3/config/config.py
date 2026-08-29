@@ -3,10 +3,12 @@
 import importlib.util
 import os
 
+env_file = os.getenv("ENV_FILE", ".env")
+
 if importlib.util.find_spec("dotenv") is not None:
     from dotenv import load_dotenv
 
-    load_dotenv()
+    load_dotenv(env_file)
 
 
 OWNER_ID: int = int(os.getenv("OWNER_ID", "0"))  # Change to your own discord user ID
