@@ -6,6 +6,7 @@ import sys
 from typing import Any, Self
 
 import discord
+from aiohttp import ClientSession
 from discord import app_commands
 from discord.ext import commands
 
@@ -47,6 +48,7 @@ class App(commands.Bot):
         self.server_service = ServerService()
         self.database_service = DatabaseService()
         self.privacy_service = PrivacyService()
+        self.aiohttp_session = ClientSession()
 
         self.prefix_cache: dict[int, str] = {}
         self.private_users: list[int] = []
@@ -73,7 +75,7 @@ class App(commands.Bot):
             WinrateCog,
         )
 
-        winrate_fetcher = await WinrateFetcher.create()
+        winrate_fetcher = await WinrateFetcher.create(session=self.aiohttp_session)
 
         self.logger.info("Initialising cogs.")
         await self.add_cog(ListenerCog(bot=self))

@@ -2,10 +2,12 @@
 
 import json
 import logging
+from typing import cast
 
 from aiohttp import ClientSession
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
+from gwenbotv3.bot.winrate.build_models import AllItems, Item, ItemList
 from gwenbotv3.bot.winrate.models import Champion, Result
 from gwenbotv3.config.winrate_values import (
     CHAMPION_LOOKUP,
@@ -26,29 +28,43 @@ from gwenbotv3.utils.request import request
 class WinrateFetcher:
     """Used to get winrates"""
 
-    def __init__(self) -> None:
+    def __init__(self, session: ClientSession) -> None:
         self.logger = logging.getLogger(__name__)
 
         self.patch_version = ""
         self.patch_major_version = ""
         self.patch_minor_version = ""
-        self.aiohttp_session = ClientSession()
+        self.aiohttp_session = session
 
         self.all_champions: list[str] = []
 
         # bs4 seems to have been more consistent with sets over tuples...
         # don't ask me why
         self.labels = {"Win Rate", "Pick Rate", "Ban Rate", "Games"}
+        self.tags = (
+            "Starting Items",
+            "Core Build",
+            "Item 4",
+            "Item 5",
+            "Item 6",
+        )
+        self.tag_map = {
+            "Starting Items": "starting",
+            "Core Build": "core",
+            "Item 4": "item_4",
+            "Item 5": "item_5",
+            "Item 6": "item_6",
+        }
 
     # ruff: noqa: UP037
     @classmethod
-    async def create(cls) -> "WinrateFetcher":
+    async def create(cls, session: ClientSession) -> "WinrateFetcher":
         """Creates a WinrateFetcher.
 
         Use this instead of initialising directly.
         Otherwise champ list and patch will be empty.
         """
-        self = cls()
+        self = cls(session=session)
         self.patch_version = await self._get_current_patch()
         self.patch_major_version = self.patch_version.split(".")[0]
         self.patch_minor_version = self.patch_version.split(".")[1]
@@ -214,6 +230,30 @@ class WinrateFetcher:
             final_string=final_string,
         )
 
+    def __find_label_div(self, soup: BeautifulSoup, tag_text: str) -> Tag:
+        text_node = cast(Tag, soup.find(string=lambda s: s and s.strip() == tag_text))  # type: ignore
+        if text_node is None or text_node.parent is None:
+            raise
+
+        return text_node.parent
+
+    def _extract_build(self, soup: BeautifulSoup, tag_text: str) -> ItemList:
+        label_div = self.__find_label_div(soup=soup, tag_text=tag_text)
+
+        label_row = label_div.find_next_sibling("div")
+        if label_row is None:
+            raise
+
+        items: list[Item] = []
+        for span in label_row.find_all("span"):
+            for img in span.find_all("img"):
+                alt = img.get("alt")
+
+                if isinstance(alt, str):
+                    items.append(Item(name=alt))
+
+        return ItemList(items=items)
+
     async def _get_soup(self, champ: Champion) -> BeautifulSoup:
         url = self._get_url(champ=champ)
 
@@ -221,23 +261,8 @@ class WinrateFetcher:
 
         return BeautifulSoup(res, "html.parser")
 
-    async def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
-        """Gets the stats of of a Champion
-
-        Uses the optional parametres of opponent, elo, role, rank and patch.
-        These parametres are given in the args argument.
-        Builds the necessary lolalytics url to fetch the winrate.
-
-        Args:
-            champ (Champion): Champion object.
-            args (tuple[str, ...]): Optional arguments for the lolalytics url.
-
-        Raises:
-            ChampionNotFoundException: If the champion give is not a valid champion.
-
-        Returns:
-            Result: The resulting stats, formatted in a dataclass.
-        """
+    def _parse_args(self, champ: Champion, args: tuple[str, ...]) -> Champion:
+        """See get_stats docstring"""
         champ.name = self._alternate_champion_check(champ.name)
 
         if champ.name not in self.all_champions:
@@ -267,12 +292,48 @@ class WinrateFetcher:
         if champ.opponent and not champ.role:
             raise RoleNotGivenError
 
+        return champ
+
+    async def get_stats(self, champ: Champion, args: tuple[str, ...]) -> Result:
+        """Gets the stats of of a Champion
+
+        Uses the optional parametres of opponent, elo, role, rank and patch.
+        These parametres are given in the args argument.
+        Builds the necessary lolalytics url to fetch the winrate.
+
+        Args:
+            champ (Champion): Champion object.
+            args (tuple[str, ...]): Optional arguments for the lolalytics url.
+
+        Raises:
+            ChampionNotFoundException: If the champion give is not a valid champion.
+
+        Returns:
+            Result: The resulting stats, formatted in a dataclass.
+        """
+
+        champ = self._parse_args(champ=champ, args=args)
+
         soup = await self._get_soup(champ=champ)
 
         if not self._check_404(soup=soup):
             raise Page404Error
 
         return self._get_result(soup=soup, champ=champ)
+
+    async def get_build(self, champ: Champion, args: tuple[str, ...]) -> AllItems:
+        champ = self._parse_args(champ=champ, args=args)
+        soup = await self._get_soup(champ=champ)
+
+        if not self._check_404(soup=soup):
+            raise Page404Error
+
+        full_items = {}
+        for tag in self.tags:
+            items = self._extract_build(soup=soup, tag_text=tag)
+            full_items[self.tag_map[tag]] = items
+
+        return AllItems.model_validate(full_items)
 
     @property
     def patch(self) -> str:

@@ -117,4 +117,4 @@ for tag in tags:
 
     print(f"\n{tag}:")
     for item in lolalytics_items:
-        print(name_to_image[item].link)
+        print(item)
