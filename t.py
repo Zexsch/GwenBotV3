@@ -113,8 +113,8 @@ tags = (
 )
 
 for tag in tags:
-    items = extract(soup=soup, tag_text=tag)
+    lolalytics_items = extract(soup=soup, tag_text=tag)
 
     print(f"\n{tag}:")
-    for item in items:
-        print(item)
+    for item in lolalytics_items:
+        print(name_to_image[item].link)
