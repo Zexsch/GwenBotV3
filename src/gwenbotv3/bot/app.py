@@ -99,7 +99,7 @@ class App(commands.Bot):
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
 
-    async def close(self):
+    async def close(self) -> None:
         fetcher = getattr(self, "winrate_fetcher", None)
         if fetcher is not None:
             await self.winrate_fetcher.aiohttp_session.close()
