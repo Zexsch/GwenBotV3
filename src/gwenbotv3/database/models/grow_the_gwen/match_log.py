@@ -22,7 +22,7 @@ from gwenbotv3.game import Config, ResourceLoader
 
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
-    from gwenbotv3.database.models.stitch_the_gwen.players import Players
+    from gwenbotv3.database.models.grow_the_gwen.players import Players
 
 config = ResourceLoader().get_resource(
     resource_type="config", model=Config, name="general"

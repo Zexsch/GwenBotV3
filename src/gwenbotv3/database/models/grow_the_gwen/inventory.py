@@ -11,7 +11,7 @@ from gwenbotv3.database.base import Base
 
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
-    from gwenbotv3.database.models.stitch_the_gwen.players import Players
+    from gwenbotv3.database.models.grow_the_gwen.players import Players
 
 
 class Inventory(Base):

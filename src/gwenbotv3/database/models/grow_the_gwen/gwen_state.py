@@ -11,7 +11,7 @@ from gwenbotv3.game import Champion, ResourceLoader
 
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
-    from gwenbotv3.database.models.stitch_the_gwen.players import Players
+    from gwenbotv3.database.models.grow_the_gwen.players import Players
 
 gwen_stats = ResourceLoader().get_resource(
     resource_type="player", model=Champion, name="gwen"

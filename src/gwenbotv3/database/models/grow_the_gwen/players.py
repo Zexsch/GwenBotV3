@@ -10,9 +10,9 @@ from gwenbotv3.database.base import Base
 
 if TYPE_CHECKING:
     # For mappings, otherwise we have partial imports
-    from gwenbotv3.database.models.stitch_the_gwen.gwen_state import GwenState
-    from gwenbotv3.database.models.stitch_the_gwen.inventory import Inventory
-    from gwenbotv3.database.models.stitch_the_gwen.match_log import MatchLog
+    from gwenbotv3.database.models.grow_the_gwen.gwen_state import GwenState
+    from gwenbotv3.database.models.grow_the_gwen.inventory import Inventory
+    from gwenbotv3.database.models.grow_the_gwen.match_log import MatchLog
     from gwenbotv3.database.models.users import Users
 
 

@@ -3,11 +3,7 @@
 Import this module directly for Alembic, do not import directly from submodules.
 For more custom modules, set any discord ID to BigIntegers."""
 
-from .gwenseek import Gwenseek
-from .gwensub import Blacklist, Subs
-from .privacy import UserPrivacy
-from .servers import Servers
-from .stitch_the_gwen import (
+from .grow_the_gwen import (
     EquippedItems,
     GwenState,
     Inventory,
@@ -15,6 +11,10 @@ from .stitch_the_gwen import (
     MatchLog,
     Players,
 )
+from .gwenseek import Gwenseek
+from .gwensub import Blacklist, Subs
+from .privacy import UserPrivacy
+from .servers import Servers
 from .symbols import SymbolCounter, SymbolPingUsers, SymbolUser
 from .users import Users
 

@@ -11,9 +11,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gwenbotv3.database.base import Base
 
 if TYPE_CHECKING:
+    from gwenbotv3.database.models.grow_the_gwen.players import Players
     from gwenbotv3.database.models.gwenseek import Gwenseek
     from gwenbotv3.database.models.gwensub import Subs
-    from gwenbotv3.database.models.stitch_the_gwen.players import Players
     from gwenbotv3.database.models.symbols import SymbolUser
 
 
