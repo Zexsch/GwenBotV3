@@ -11,7 +11,7 @@ PropertyName = Literal["player", "items", "enemies", "bosses", "config"]
 class ResourceLoader:
     """Loads resources. In this case, only for JSON."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.data = Path(str(importlib.resources.files("gwenbotv3"))) / "game" / "data"
         self._dirs = {
             p: self.data / p for p in ("player", "items", "enemies", "bosses", "config")
