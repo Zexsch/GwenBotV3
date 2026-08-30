@@ -1,5 +1,10 @@
 """Exceptions for various services."""
 
+from .grow_the_gwen_exceptions import (
+    GrowTheGwenError,
+    PlayerInsertionError,
+    PlayerNotFoundError,
+)
 from .gwenseek_exceptions import GwenseekError
 from .gwensub_exceptions import (
     UserIsBlacklistedError,
@@ -37,10 +42,13 @@ from .user_exceptions import (
 )
 
 __all__ = [
+    "GrowTheGwenError",
     "GwenseekError",
     "LimitTooLargeError",
     "PingUserAlreadyInsertedError",
     "PingUserNotInsertedError",
+    "PlayerInsertionError",
+    "PlayerNotFoundError",
     "PrefixTooLongError",
     "PrivacyError",
     "ServerError",

@@ -68,4 +68,4 @@ class Players(Base):
         return hash(self.player_id)
 
     def __repr__(self) -> str:
-        return f"{self.player_id}: {self.gold=}, {self.elo=}"
+        return f"{self.player_id} - {self.user_id}: {self.gold=}, {self.elo=}"
