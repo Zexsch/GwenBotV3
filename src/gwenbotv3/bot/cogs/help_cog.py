@@ -73,7 +73,15 @@ class HelpCog(commands.Cog):
             ),
             inline=False,
         )
-        embed.set_footer(text="GwenBot is open source: github.com/Zexsch/GwenBotV3")
+        embed.set_footer(
+            text=(
+                "GwenBot is open source: github.com/Zexsch/GwenBotV3\n"
+                "GwenBot isn't endorsed by Riot Games and doesn't reflect the views "
+                "or opinions of Riot Games or anyone officially involved in producing or "
+                "managing Riot Games properties. Riot Games, and all associated properties "
+                "are trademarks or registered trademarks of Riot Games, Inc."
+            )
+        )
         return embed
 
     async def _get_gwensub_embed(self) -> discord.Embed:
