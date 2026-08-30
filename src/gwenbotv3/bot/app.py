@@ -73,20 +73,20 @@ class App(commands.Bot):
             WinrateCog,
         )
 
-        winrate_fetcher = await WinrateFetcher.create()
+        self.winrate_fetcher = await WinrateFetcher.create()
 
         self.logger.info("Initialising cogs.")
         await self.add_cog(ListenerCog(bot=self))
         await self.add_cog(GwensubCog(bot=self))
         await self.add_cog(OwnerCog(bot=self))
-        await self.add_cog(DMCog(bot=self, winrate_fetcher=winrate_fetcher))
+        await self.add_cog(DMCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         await self.add_cog(CommandsCog(bot=self))
         await self.add_cog(LeaderboardCog(bot=self))
         await self.add_cog(DeepseekCog(bot=self))
         await self.add_cog(ModerationCog(bot=self))
         await self.add_cog(PrivacyCog(bot=self))
         await self.add_cog(HelpCog(bot=self))
-        await self.add_cog(WinrateCog(bot=self, winrate_fetcher=winrate_fetcher))
+        await self.add_cog(WinrateCog(bot=self, winrate_fetcher=self.winrate_fetcher))
         self.logger.info("Finished initialising cogs.")
 
         test_guild = os.getenv("TEST_GUILD", "")
@@ -98,6 +98,13 @@ class App(commands.Bot):
 
         self.tree.copy_global_to(guild=guild)
         await self.tree.sync(guild=guild)
+
+    async def close(self) -> None:
+        fetcher = getattr(self, "winrate_fetcher", None)
+        if fetcher is not None:
+            await self.winrate_fetcher.aiohttp_session.close()
+
+        await super().close()
 
     async def get_prefix(self, msg: discord.Message) -> list[str]:
         # This overwrites Bot.get_prefix
