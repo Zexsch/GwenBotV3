@@ -48,7 +48,7 @@ class App(commands.Bot):
         self.server_service = ServerService()
         self.database_service = DatabaseService()
         self.privacy_service = PrivacyService()
-        self.aiohttp_session = ClientSession()
+        self.aiohttp_session: ClientSession
 
         self.prefix_cache: dict[int, str] = {}
         self.private_users: list[int] = []
@@ -74,6 +74,8 @@ class App(commands.Bot):
             PrivacyCog,
             WinrateCog,
         )
+
+        self.aiohttp_session = ClientSession()
 
         self.winrate_fetcher = await WinrateFetcher.create(session=self.aiohttp_session)
 

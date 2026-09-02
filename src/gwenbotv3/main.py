@@ -3,6 +3,7 @@
 Either run this file directly or use the gwenbot-init command.
 """
 
+import asyncio
 import logging
 import os
 import sys
