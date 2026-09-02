@@ -8,6 +8,7 @@ from discord.ext import commands
 from pydantic import ValidationError
 
 from gwenbotv3.bot.winrate import Champion, WinrateFetcher
+from gwenbotv3.bot.winrate.build_models import AllItems
 from gwenbotv3.config.winrate_values import ELO_LIST
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
@@ -139,6 +140,23 @@ class WinrateCog(commands.Cog):
 
         return " ".join(p for p in message if p)
 
+    def _format_build(self, result: AllItems) -> str:
+        sections = [
+            ("Starting", result.starting),
+            ("Core", result.core),
+            ("Item 4", result.item_4),
+            ("Item 5", result.item_5),
+            ("Item 6", result.item_6),
+        ]
+
+        lines = []
+        for label, item_list in sections:
+            lines.append(f"{label}:")
+            lines.extend(item.name for item in item_list.items)
+            lines.append("\n")
+
+        return "\n".join(lines)
+
     async def _build(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
         self.logger.debug(
             "Calling winrate for champ=%s with args=%s", champion_name, args
@@ -183,7 +201,7 @@ class WinrateCog(commands.Cog):
                 "Is it currently down?"
             )
 
-        return repr(result)
+        return self._format_build(result=result)
 
     @commands.command(aliases=["winrate"])
     async def wr(
