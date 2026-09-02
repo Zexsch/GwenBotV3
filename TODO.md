@@ -5,3 +5,7 @@
 
 Then comes actually implementing it...
 Then comes making actual discord embeds for it.......
+
+
+Item Build has been implemented.
+I'll make an embed for it first before continuing.
