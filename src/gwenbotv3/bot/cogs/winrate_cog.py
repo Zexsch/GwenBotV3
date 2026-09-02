@@ -5,8 +5,10 @@ from typing import ClassVar
 
 from discord import Interaction, app_commands
 from discord.ext import commands
+from pydantic import ValidationError
 
 from gwenbotv3.bot.winrate import Champion, WinrateFetcher
+from gwenbotv3.bot.winrate.build_models import AllItems
 from gwenbotv3.config.winrate_values import ELO_LIST
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
@@ -94,6 +96,9 @@ class WinrateCog(commands.Cog):
         except RoleNotGivenError:
             return "Gwen needs a lane if you give an opponent!"
         except Page404Error:
+            self.logger.critical(
+                "Got a page 404 error for wr on champ=%s, args=%s", champ, args
+            )
             return (
                 "Gwen ran into some issues! Are you sure that there are "
                 "enough matches played?"
@@ -135,11 +140,77 @@ class WinrateCog(commands.Cog):
 
         return " ".join(p for p in message if p)
 
+    async def _build(self, champion_name: str, *args) -> str:  # type: ignore[no-untyped-def]
+        self.logger.debug(
+            "Calling winrate for champ=%s with args=%s", champion_name, args
+        )
+
+        champ = Champion(name=champion_name)
+
+        try:
+            result = await self.winrate_fetcher.get_build(champ=champ, args=args)
+        except Page404Error:
+            self.logger.critical(
+                "Got a page 404 error for wr on champ=%s, args=%s", champ, args
+            )
+            return (
+                "Gwen ran into some issues! Are you sure that there are "
+                "enough matches played?"
+            )
+        except ValidationError:
+            self.logger.critical(
+                "Got a page ValidationError for wr on champ=%s, args=%s", champ, args
+            )
+            return (
+                "Gwen ran into some issues! Are you sure that there are "
+                "enough matches played?"
+            )
+        except ChampionNotFoundError:
+            return (
+                "Gwen was unable to find your specified champion... Please check +list "
+                "for a list of all accepted champion names!"
+            )
+        except RoleNotGivenError:
+            return "Gwen needs a lane if you give an opponent!"
+        except FailedRequestError as e:
+            self.logger.critical(
+                "Unable to request lolalytics with champ=%s, args=%s, exc=%s",
+                champion_name,
+                args,
+                e,
+            )
+            return (
+                "Oh no! Seems like Gwen was unable to fetch lolalytics! "
+                "Is it currently down?"
+            )
+
+        return repr(result)
+
     @commands.command(aliases=["winrate"])
     async def wr(
         self, ctx: commands.Context[commands.Bot], champion_name: str, *args: str
     ) -> None:
-        """Fetches the winrate of a champion. Uses u.gg for the winrate.
+        """Fetches the winrate of a champion. Uses lolalytics for the winrate.
+
+        *args
+        ----------
+        :elo: Given elo.
+        :role: Given role.
+        :patch: Given patch.
+        :opponent: Given opponent.
+
+        Args:
+            ctx (commands.Context): Discord Context.
+            champion_name (str): Name of the champion.
+        """
+        msg = await self._winrate(champion_name, *args)
+        await ctx.send(msg)
+
+    @commands.command(aliases=["build"])
+    async def bld(
+        self, ctx: commands.Context[commands.Bot], champion_name: str, *args: str
+    ) -> None:
+        """Fetches the build of a champion. Uses lolalytics for the build.
 
         *args
         ----------
