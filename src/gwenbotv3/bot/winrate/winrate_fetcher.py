@@ -333,6 +333,10 @@ class WinrateFetcher:
             items = self._extract_build(soup=soup, tag_text=tag)
             full_items[self.tag_map[tag]] = items
 
+        self.logger.debug(
+            "Got full items for champ=%s, args=%s: %s", champ, args, full_items
+        )
+
         return AllItems.model_validate(full_items)
 
     @property

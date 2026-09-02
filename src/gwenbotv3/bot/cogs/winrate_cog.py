@@ -8,7 +8,6 @@ from discord.ext import commands
 from pydantic import ValidationError
 
 from gwenbotv3.bot.winrate import Champion, WinrateFetcher
-from gwenbotv3.bot.winrate.build_models import AllItems
 from gwenbotv3.config.winrate_values import ELO_LIST
 from gwenbotv3.exceptions import (
     ChampionNotFoundError,
@@ -159,7 +158,7 @@ class WinrateCog(commands.Cog):
             )
         except ValidationError:
             self.logger.critical(
-                "Got a page ValidationError for wr on champ=%s, args=%s", champ, args
+                "Got a ValidationError for wr on champ=%s, args=%s", champ, args
             )
             return (
                 "Gwen ran into some issues! Are you sure that there are "
