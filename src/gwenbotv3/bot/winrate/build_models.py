@@ -10,8 +10,8 @@ class ItemList(BaseModel):
 
 
 class AllItems(BaseModel):
-    starting: list[ItemList]
-    core: list[ItemList]
-    item_4: list[ItemList]
-    item_5: list[ItemList]
-    item_6: list[ItemList]
+    starting: ItemList
+    core: ItemList
+    item_4: ItemList
+    item_5: ItemList
+    item_6: ItemList
