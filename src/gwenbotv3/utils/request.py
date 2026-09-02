@@ -30,7 +30,9 @@ async def _retry_after(response: ClientResponse, url: str) -> None:
 
     if retry_after > 30:
         logger.warning("Retry-After > 30, got %i on url %s", retry_after, url)
-        return
+        raise FailedRequestError(
+            url=url, reason="Retry After > 30", retry_after=retry_after
+        )
 
     logger.debug(
         "Hit retry-after for %i seconds in request for url %s", retry_after, url
