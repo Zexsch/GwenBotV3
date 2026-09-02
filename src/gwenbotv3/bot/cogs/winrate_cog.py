@@ -223,7 +223,7 @@ class WinrateCog(commands.Cog):
             ctx (commands.Context): Discord Context.
             champion_name (str): Name of the champion.
         """
-        msg = await self._winrate(champion_name, *args)
+        msg = await self._build(champion_name, *args)
         await ctx.send(msg)
 
     # Necessary here
